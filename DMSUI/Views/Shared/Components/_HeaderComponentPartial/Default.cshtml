@@ -1,0 +1,131 @@
+﻿
+
+@{
+    var token = Context.Request.Cookies["access_token"];
+
+    string email = "";
+    string role = "";
+    string userId = "";
+    string positionName = "";
+    string userName = "";
+
+    if (!string.IsNullOrEmpty(token))
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        try
+        {
+            var jwt = handler.ReadJwtToken(token);
+
+            email = jwt.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Email)?.Value ?? "";
+            role = jwt.Claims.FirstOrDefault(x => x.Type == "role")?.Value ?? "";
+            userId = jwt.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value ?? "";
+            positionName = jwt.Claims.FirstOrDefault(x => x.Type == "positionName")?.Value ?? "";
+            userName = jwt.Claims.FirstOrDefault(x => x.Type == "userName")?.Value ?? "";
+        }
+        catch
+        {
+            Context.Response.Cookies.Delete("access_token");
+            Context.Response.Cookies.Delete("refresh_token");
+        }
+    }
+}
+@if (!string.IsNullOrEmpty(email))
+{
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+        <div class="container-fluid">
+
+            <a class="navbar-brand fw-bold text-primary" asp-controller="Home" asp-action="Index">
+                DMS
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-dark" asp-controller="Dashboard" asp-action="Index">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-semibold text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                            Dokümanlar
+                        </a>
+                        <ul class="dropdown-menu shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Document" asp-action="Index">Tüm Dokümanlar</a></li>
+                            <li><a class="dropdown-item" asp-controller="Document" asp-action="Create">Yeni Doküman</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" asp-controller="Category" asp-action="Index">Kategoriler</a></li>
+                        </ul>
+                    </li>
+
+                    @if (role == "SUPER ADMIN")
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle fw-semibold text-warning" href="#" role="button" data-bs-toggle="dropdown">
+                                Sistem
+                            </a>
+                            <ul class="dropdown-menu shadow-sm">
+                                <li><a class="dropdown-item" asp-controller="User" asp-action="Index">Kullanıcılar</a></li>
+                                <li><a class="dropdown-item" asp-controller="Company" asp-action="Index">Şirketler</a></li>
+                                <li><a class="dropdown-item" asp-controller="Role" asp-action="Index">Roller</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+
+                <form class="d-flex mx-lg-4 my-2 my-lg-0">
+                    <div class="input-group input-group-sm">
+
+                        <span class="input-group-text bg-light border text-muted">
+                            <i class="bi bi-search"></i>
+                        </span>
+
+                        <input class="form-control bg-light border"
+                               type="search"
+                               placeholder="Doküman, kod, kategori ara..." />
+
+                        <button class="btn btn-outline-primary">
+                            Ara
+                        </button>
+                    </div>
+                </form>
+
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item me-3 d-flex align-items-center text-dark">
+                        <small class="text-end">
+                            <div class="fw-semibold">@userName</div>
+                            <div class="text-muted">@positionName</div>
+                        </small>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle fs-5"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profil</a></li>
+                            <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index">Ayarlar</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                   asp-controller="Auth"
+                                   asp-action="Logout">
+                                    Çıkış Yap
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+}

@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DMSUI</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/DMSUI.styles.css" asp-append-version="true" />
+</head>
+<body class="bg-light">
+
+    <header>
+        @await Component.InvokeAsync("_HeaderComponentPartial")
+    </header>
+
+    <div class="d-flex w-100" style="min-height: calc(100vh - 56px);">
+
+        @await Component.InvokeAsync("_SideBarComponentPartial")
+
+        <main role="main" class="flex-fill p-3 bg-light w-100">
+            @RenderBody()
+        </main>
+
+    </div>
+
+    <footer class="border-top footer text-muted">
+        @await Component.InvokeAsync("_FooterComponentPartial")
+    </footer>
+
+    @await Component.InvokeAsync("_ScriptComponentPartial")
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

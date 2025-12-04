@@ -1,0 +1,40 @@
+﻿<div class="bg-white border-end shadow-sm" style="width:260px;">
+
+    <div class="p-3 border-bottom fw-bold text-primary fs-5">
+        DMS
+    </div>
+
+    <ul class="nav nav-pills flex-column p-2 gap-1">
+
+        <li class="text-uppercase text-muted small px-2 mt-2 fw-semibold">
+            Sık Kullanılanlar
+        </li>
+
+        <li class="nav-item">
+            <a asp-controller="Dashboard" asp-action="Index"
+               class="nav-link active bg-primary text-white fw-semibold rounded">
+                Dashboard
+            </a>
+        </li>
+
+        <li class="text-uppercase text-muted small px-2 mt-3 fw-semibold">
+            Dokümanlar
+        </li>
+
+        <li class="nav-item ps-2">
+            <a asp-controller="Document" asp-action="Index"
+               class="nav-link text-dark fw-medium">
+                ▸ Tüm Dokümanlar
+            </a>
+        </li>
+
+        <li class="nav-item ps-2">
+            <a asp-controller="Document" asp-action="MyDocuments"
+               class="nav-link text-dark fw-medium">
+                ▸Doküman Ekle
+            </a>
+        </li>
+
+    </ul>
+
+</div>
