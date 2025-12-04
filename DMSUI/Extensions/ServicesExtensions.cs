@@ -18,9 +18,11 @@ namespace DMSUI.Extensions
             
             services.AddScoped<IAuthManager, AuthManager>();    
             services.AddScoped<IUserManager, UserManager>();    
+            services.AddScoped<IPositionManager, PositionManager>();
+            services.AddScoped<IDepartmentManager, DepartmentManager>();
+            services.AddScoped<IRoleManager, RoleManager>();
 
-
-            services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
+			services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
                 var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
@@ -31,10 +33,24 @@ namespace DMSUI.Extensions
                 var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
             });
-            
+			services.AddHttpClient<IPositionApiClient, PositionApiClient>(client =>
+			{
+				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+				client.BaseAddress = new Uri(apiSettings.BaseUrl);
+			});
+            services.AddHttpClient<IDepartmentApiClient, DepartmentApiClient>(client =>
+			{
+				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+				client.BaseAddress = new Uri(apiSettings.BaseUrl);
+			});
+            services.AddHttpClient<IRoleApiClient, RoleApiClient>(client =>
+            {
+				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+				client.BaseAddress = new Uri(apiSettings.BaseUrl);
+			});
 
-           
-            services.AddTransient<ApiAuthMessageHandler>();
+
+			services.AddTransient<ApiAuthMessageHandler>();
             return services;
         }
     }

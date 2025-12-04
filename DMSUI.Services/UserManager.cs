@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.User;
 using DMSUI.Services.Interfaces;
 using System;
@@ -18,7 +19,7 @@ namespace DMSUI.Services
             _userApiClient = userApiClient;
         }
 
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
+		public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
             return await _userApiClient.GetAllUsersAsync();
         }
@@ -27,5 +28,15 @@ namespace DMSUI.Services
         {
             return await _userApiClient.GetUserByIdAsync(userId);
         }
-    }
+
+		public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
+		{
+			return await _userApiClient.SetActiveStatusAsync(id, activeStatus);
+		}
+
+		public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
+		{
+			return await _userApiClient.UpdateUserAsync(userUpdateDTO);
+		}
+	}
 }

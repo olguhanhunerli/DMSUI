@@ -65,29 +65,46 @@
                 <div class="card-header bg-white fw-semibold">Organizasyon</div>
 
                 <div class="card-body row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Rol</label>
-                        <input asp-for="RoleName" class="form-control" />
+                        <select asp-for="RoleId"
+                                asp-items="Model.RoleList"
+                                class="form-select">
+                            <option value="">-- Rol Seçiniz --</option>
+                        </select>
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label>Departman</label>
-                        <input asp-for="DepartmentName" class="form-control" />
+                        <select asp-for="DepartmentId"
+                                asp-items="Model.DepartmentList"
+                                class="form-select">
+                            <option value="">-- Departman Seçiniz --</option>
+                        </select>
                     </div>
 
                     <div class="col-md-4">
                         <label>Şirket</label>
                         <input asp-for="CompanyName" class="form-control" readonly/>
+                        <input type="hidden" asp-for="CompanyId" />
                     </div>
 
                     <div class="col-md-6">
                         <label>Pozisyon</label>
-                        <input asp-for="PositionName" class="form-control" />
+                        <select asp-for="PositionId"
+                                asp-items="Model.PositionList"
+                                class="form-select">
+                            <option value="">-- Pozisyon Seçiniz --</option>
+                        </select>
                     </div>
 
                     <div class="col-md-6">
                         <label>Yönetici</label>
-                        <input asp-for="ManagerName" class="form-control" />
+                        <select asp-for="ManagerId"
+                                asp-items="Model.ManagerList"
+                                class="form-select">
+                            <option value="">-- Yönetici Seçiniz --</option>
+                        </select>
                     </div>
                 </div>
             </div>

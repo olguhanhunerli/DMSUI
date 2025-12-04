@@ -1,8 +1,10 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +19,8 @@ namespace DMSUI.Business
             _httpClient = httpClient;
         }
 
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
+		
+		public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
             var response =await  _httpClient.GetAsync("api/User/GetAllUserInfo");
             if(!response.IsSuccessStatusCode)
@@ -45,5 +48,22 @@ namespace DMSUI.Business
                 new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
         }
-    }
+
+		public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
+		{
+            var body = new
+            {
+                id = id,
+                activeStatus = activeStatus
+            };
+            var response = await _httpClient.PutAsJsonAsync("api/User/SetActiveStatus",body);
+            return response.IsSuccessStatusCode;
+		}
+
+		public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
+		{
+			var response = await _httpClient.PutAsJsonAsync("api/User/UpdateUser",userUpdateDTO);
+			return response.IsSuccessStatusCode;
+		}
+	}
 }

@@ -1,4 +1,5 @@
-﻿using DMSUI.Entities.DTOs.User;
+﻿using DMSUI.Entities.DTOs.Position;
+using DMSUI.Entities.DTOs.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace DMSUI.Services.Interfaces
     {
         Task<List<UserListDTO>> GetAllUsersAsync();
         Task<UserListDTO?> GetUserByIdAsync(int userId);
-    }
+		Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO);
+		Task<bool> SetActiveStatusAsync(int id, bool activeStatus);
+	}
 }
