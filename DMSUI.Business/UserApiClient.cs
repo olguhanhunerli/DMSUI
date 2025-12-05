@@ -61,9 +61,9 @@ namespace DMSUI.Business
                 return new List<UserListDTO>();
             }
             var body = await response.Content.ReadAsStringAsync();
-            return System.Text.Json.JsonSerializer.Deserialize<List<UserListDTO>>(
+            return JsonSerializer.Deserialize<List<UserListDTO>>(
                 body,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             ) ?? new List<UserListDTO>();
 
         }
@@ -77,9 +77,8 @@ namespace DMSUI.Business
                 return null;
             }
             var body = await response.Content.ReadAsStringAsync();
-            return System.Text.Json.JsonSerializer.Deserialize<UserListDTO>(
-                body,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            return JsonSerializer.Deserialize<UserListDTO>(
+                body,new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
         }
 

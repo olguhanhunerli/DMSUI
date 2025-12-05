@@ -4,6 +4,7 @@ using DMSUI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,5 +23,15 @@ namespace DMSUI.Services
         {
             return await _companyApiClient.GetCompanyListsAsync();
         }
-    }
+
+		public async Task<CompanyListDTO> GetCompanyListById(int id)
+		{
+			return await _companyApiClient.GetCompanyListById(id);
+		}
+
+		public async Task<bool> UpdateCompanyAsync(int id, CompanyUpdateDTO company)
+		{
+			return await _companyApiClient.UpdateCompanyAsync(id, company);
+		}
+	}
 }

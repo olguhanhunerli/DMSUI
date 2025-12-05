@@ -10,5 +10,7 @@ namespace DMSUI.Business.Interfaces
     public interface ICompanyApiClient
     {
         Task<List<CompanyListDTO>> GetCompanyListsAsync();
+        Task<CompanyListDTO> GetCompanyListById(int id);
+        Task<bool> UpdateCompanyAsync(int id, CompanyUpdateDTO company);
     }
 }
