@@ -3,17 +3,19 @@
     ViewData["Title"] = "Kullanıcı Düzenle";
 }
 
-<form asp-action="Edit" method="post" class="container-fluid px-4">
+<form asp-action="Edit" method="post" class="container-fluid px-3 pb-4">
 
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="CompanyId" />
 
+    <!-- ÜST BAR -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">
             <i class="bi bi-pencil-square me-2 text-primary"></i>
             Kullanıcı Düzenle
         </h4>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             <button type="submit" class="btn btn-primary btn-sm">
                 <i class="bi bi-check-circle me-1"></i> Kaydet
             </button>
@@ -24,43 +26,46 @@
         </div>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mb-4">
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
+        <!-- SOL TEMEL BİLGİLER -->
+        <div class="col-xl-4 col-lg-5 col-md-12">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
                     <h6 class="fw-semibold mb-3">Temel Bilgiler</h6>
 
                     <div class="mb-3">
                         <label class="form-label">Ad</label>
-                        <input asp-for="FirstName" class="form-control" />
+                        <input asp-for="FirstName" class="form-control form-control-sm" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Soyad</label>
-                        <input asp-for="LastName" class="form-control" />
+                        <input asp-for="LastName" class="form-control form-control-sm" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Kullanıcı Adı</label>
-                        <input asp-for="UserName" class="form-control" />
+                        <input asp-for="UserName" class="form-control form-control-sm" />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">E-Posta</label>
-                        <input asp-for="Email" class="form-control" />
+                        <input asp-for="Email" class="form-control form-control-sm" readonly />
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Telefon</label>
-                        <input asp-for="PhoneNumber" class="form-control" />
+                        <input asp-for="PhoneNumber" class="form-control form-control-sm" />
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <!-- SAĞ TARAF -->
+        <div class="col-xl-8 col-lg-7 col-md-12">
 
+            <!-- ORGANİZASYON -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold">Organizasyon</div>
 
@@ -69,7 +74,7 @@
                         <label>Rol</label>
                         <select asp-for="RoleId"
                                 asp-items="Model.RoleList"
-                                class="form-select">
+                                class="form-select form-select-sm">
                             <option value="">-- Rol Seçiniz --</option>
                         </select>
                     </div>
@@ -78,44 +83,46 @@
                         <label>Departman</label>
                         <select asp-for="DepartmentId"
                                 asp-items="Model.DepartmentList"
-                                class="form-select">
+                                class="form-select form-select-sm">
                             <option value="">-- Departman Seçiniz --</option>
                         </select>
                     </div>
 
                     <div class="col-md-4">
                         <label>Şirket</label>
-                        <input asp-for="CompanyName" class="form-control" readonly/>
-                        <input type="hidden" asp-for="CompanyId" />
+                        <input asp-for="CompanyName"
+                               class="form-control form-control-sm bg-light"
+                               readonly />
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label>Pozisyon</label>
                         <select asp-for="PositionId"
                                 asp-items="Model.PositionList"
-                                class="form-select">
+                                class="form-select form-select-sm">
                             <option value="">-- Pozisyon Seçiniz --</option>
                         </select>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label>Yönetici</label>
                         <select asp-for="ManagerId"
                                 asp-items="Model.ManagerList"
-                                class="form-select">
+                                class="form-select form-select-sm">
                             <option value="">-- Yönetici Seçiniz --</option>
                         </select>
                     </div>
                 </div>
             </div>
 
+            <!-- YETKİLER -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold">Yetkiler</div>
 
                 <div class="card-body row g-3">
                     <div class="col-md-4">
                         <label>Onay Yetkisi</label>
-                        <select asp-for="CanApprove" class="form-select">
+                        <select asp-for="CanApprove" class="form-select form-select-sm">
                             <option value="true">Var</option>
                             <option value="false">Yok</option>
                         </select>
@@ -123,12 +130,14 @@
 
                     <div class="col-md-4">
                         <label>Onay Seviyesi</label>
-                        <input asp-for="ApprovalLevel" class="form-control" />
+                        <input asp-for="ApprovalLevel"
+                               type="number"
+                               class="form-control form-control-sm" />
                     </div>
 
                     <div class="col-md-4">
                         <label>Durum</label>
-                        <select asp-for="IsActive" class="form-select">
+                        <select asp-for="IsActive" class="form-select form-select-sm">
                             <option value="true">Aktif</option>
                             <option value="false">Pasif</option>
                         </select>
@@ -136,28 +145,30 @@
                 </div>
             </div>
 
+            <!-- SİSTEM -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold">Sistem</div>
 
                 <div class="card-body row g-3">
                     <div class="col-md-3">
                         <label>Dil</label>
-                        <input asp-for="Language" class="form-control" />
+                        <input asp-for="Language" class="form-control form-control-sm" />
                     </div>
 
                     <div class="col-md-3">
                         <label>Zaman Dilimi</label>
-                        <input asp-for="TimeZone" class="form-control" />
+                        <input asp-for="TimeZone" class="form-control form-control-sm" />
                     </div>
 
                     <div class="col-md-3">
                         <label>Tema</label>
-                        <input asp-for="Theme" class="form-control" />
+                        <input asp-for="Theme" class="form-control form-control-sm" />
                     </div>
 
                     <div class="col-md-3">
                         <label>Bildirimler</label>
-                        <input asp-for="NotificationPreferences" class="form-control" />
+                        <input asp-for="NotificationPreferences"
+                               class="form-control form-control-sm" />
                     </div>
                 </div>
             </div>

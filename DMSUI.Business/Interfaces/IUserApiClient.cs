@@ -1,4 +1,5 @@
-﻿using DMSUI.Entities.DTOs.Position;
+﻿using DMSUI.Entities.DTOs.Common;
+using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.User;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,15 @@ namespace DMSUI.Business.Interfaces
     {
         Task<List<UserListDTO>> GetAllUsersAsync();
         Task<UserListDTO?> GetUserByIdAsync(int userId);
-        Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO);    
+        Task<bool> CreateUserAsync(UserRegisterDTO userRegisterDTO);
+        Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO);
+
         Task<bool> SetActiveStatusAsync(int id ,bool activeStatus);
-	}
+        Task<bool> SoftDeleteUserIdAsync(int id);
+        Task<PagedResultDTO<UserListDTO>> SearchUserAsync(UserSearchDTO userSearchDTO);
+        Task<bool> UpdatePasswordByUserAsync(PasswordUpdateByUserDTO dto);
+        Task<bool> UpdatePasswordByAdminAsync(PasswordResetForAdminDTO dto);
+
+
+    }
 }

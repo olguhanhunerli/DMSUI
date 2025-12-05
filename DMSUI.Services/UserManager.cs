@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.User;
 using DMSUI.Services.Interfaces;
@@ -19,7 +20,12 @@ namespace DMSUI.Services
             _userApiClient = userApiClient;
         }
 
-		public async Task<List<UserListDTO>> GetAllUsersAsync()
+        public async Task<bool> CreateUserAsync(UserRegisterDTO userRegisterDTO)
+        {
+            return await _userApiClient.CreateUserAsync(userRegisterDTO);
+        }
+
+        public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
             return await _userApiClient.GetAllUsersAsync();
         }
@@ -29,12 +35,32 @@ namespace DMSUI.Services
             return await _userApiClient.GetUserByIdAsync(userId);
         }
 
-		public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
+        public async Task<PagedResultDTO<UserListDTO>> SearchUserAsync(UserSearchDTO userSearchDTO)
+        {
+            return await _userApiClient.SearchUserAsync(userSearchDTO);
+        }
+
+        public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
 		{
 			return await _userApiClient.SetActiveStatusAsync(id, activeStatus);
 		}
 
-		public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
+        public async Task<bool> SoftDeleteUserIdAsync(int id)
+        {
+            return await _userApiClient.SoftDeleteUserIdAsync(id);
+        }
+
+        public async Task<bool> UpdatePasswordByAdminAsync(PasswordResetForAdminDTO dto)
+        {
+            return await _userApiClient.UpdatePasswordByAdminAsync(dto);
+        }
+
+        public async Task<bool> UpdatePasswordByUserAsync(PasswordUpdateByUserDTO dto)
+        {
+            return await _userApiClient.UpdatePasswordByUserAsync(dto);
+        }
+
+        public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
 		{
 			return await _userApiClient.UpdateUserAsync(userUpdateDTO);
 		}

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,23 +11,29 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DMSUI.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-light">
 
-    <header>
+<body class="bg-light m-0 p-0 overflow-hidden">
+
+    <!-- HEADER -->
+    <header class="w-100">
         @await Component.InvokeAsync("_HeaderComponentPartial")
     </header>
 
-    <div class="d-flex w-100" style="min-height: calc(100vh - 56px);">
+    <!-- ANA ALAN -->
+    <div class="layout-wrapper">
 
+        <!-- SIDEBAR -->
         @await Component.InvokeAsync("_SideBarComponentPartial")
 
-        <main role="main" class="flex-fill p-3 bg-light w-100">
+        <!-- CONTENT -->
+        <main role="main" class="content-wrapper">
             @RenderBody()
         </main>
 
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- FOOTER -->
+    <footer class="footer border-top text-muted">
         @await Component.InvokeAsync("_FooterComponentPartial")
     </footer>
 

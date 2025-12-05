@@ -74,6 +74,8 @@
                                 <li><a class="dropdown-item" asp-controller="User" asp-action="Index">Kullanıcılar</a></li>
                                 <li><a class="dropdown-item" asp-controller="Company" asp-action="Index">Şirketler</a></li>
                                 <li><a class="dropdown-item" asp-controller="Role" asp-action="Index">Roller</a></li>
+                                <li><a class="dropdown-item" asp-controller="Department" asp-action="Index">Departmanlar</a></li>
+                                <li><a class="dropdown-item" asp-controller="Position" asp-action="Index">Pozisyonlar</a></li>
                             </ul>
                         </li>
                     }
@@ -110,8 +112,15 @@
                             <i class="bi bi-person-circle fs-5"></i>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                            <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index">Profil</a></li>
-                            <li><a class="dropdown-item" asp-controller="Settings" asp-action="Index">Ayarlar</a></li>
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="User"
+                                   asp-action="Detail"
+                                   asp-route-id="@userId">
+                                    Profil
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" asp-controller="User" asp-action="ChangePassword" >Şifre Değiştir</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger"

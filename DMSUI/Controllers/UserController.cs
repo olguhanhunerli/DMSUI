@@ -4,6 +4,7 @@ using DMSUI.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Immutable;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -16,52 +17,153 @@ namespace DMSUI.Controllers
         private readonly IPositionManager _positionManager;
         private readonly IDepartmentManager _departmentManager;
         private readonly IRoleManager _roleManager;
-		public UserController(IUserManager userManager, IPositionManager positionManager, IDepartmentManager departmentManager, IRoleManager roleManager)
-		{
-			_userManager = userManager;
-			_positionManager = positionManager;
-			_departmentManager = departmentManager;
-			_roleManager = roleManager;
-		}
-
-		public async Task<IActionResult> Index()
+        private readonly ICompanyManager _companyManager;
+        public UserController(IUserManager userManager, IPositionManager positionManager, IDepartmentManager departmentManager, IRoleManager roleManager, ICompanyManager companyManager)
         {
-            var users = await _userManager.GetAllUsersAsync();
-            var usersVm = users.Select(x => new UserViewModel
-            {
-                Id = x.Id,
-                Email = x.Email,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                UserName = x.UserName,
-                PhoneNumber = x.PhoneNumber,
+            _userManager = userManager;
+            _positionManager = positionManager;
+            _departmentManager = departmentManager;
+            _roleManager = roleManager;
+            _companyManager = companyManager;
+        }
 
-                RoleId = x.RoleId,
-                RoleName = x.RoleName,
-                RoleDescription = x.RoleDescription,
+        public async Task<IActionResult> Index(UserSearchDTO search)
+        {
+            ViewBag.SearchRequest = search;
+            ViewBag.Roles = await _roleManager.GetAllRolesAsync();
+            ViewBag.Departments = await _departmentManager.GetAllDepartmentsAsync();
+            ViewBag.Companies = await _companyManager.GetAllCompaniesAsync();
 
-                DepartmentName = x.DepartmentName,
+            var result = await _userManager.SearchUserAsync(search);
 
-                CompanyId = x.CompanyId,
-                CompanyName = x.CompanyName,
+            ViewBag.TotalPages = result.TotalPages;
+            ViewBag.CurrentPage = result.Page;
 
-                ManagerName = x.ManagerName,
-                PositionId = x.PositionId,
-                PositionName = x.PositionName,
-
-                CanApprove = x.CanApprove,
-                ApprovalLevel = x.ApprovalLevel,
-
-                IsActive = x.IsActive,
-                IsDeleted = x.IsDeleted,
-
-                Language = x.Language,
-                TimeZone = x.TimeZone,
-                Theme = x.Theme,
-                NotificationPreferences = x.NotificationPreferences
-            }).ToList();
-
+            var usersVm = result.Items
+                .OrderBy(x => x.Id)
+                .Select(x => new UserViewModel
+                {
+                    Id = x.Id,
+                    Email = x.Email,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    UserName = x.UserName,
+                    PhoneNumber = x.PhoneNumber,
+                    RoleName = x.RoleName,
+                    DepartmentName = x.DepartmentName,
+                    CompanyName = x.CompanyName,
+                    ManagerName = x.ManagerName,
+                    PositionName = x.PositionName,
+                    IsActive = x.IsActive,
+                    IsDeleted = x.IsDeleted == false || x.IsDeleted == null,
+                    CanApprove = x.CanApprove,
+                    ApprovalLevel = x.ApprovalLevel
+                })
+                .ToList();
             return View(usersVm);
+        }
+        [HttpPost]
+        public async Task<IActionResult> SetActiveStatus([FromBody] UserSetActiveStatusDTO request)
+        {
+            var result = await _userManager.SetActiveStatusAsync(
+                request.Id,
+                request.IsActive
+            );
+
+            if (!result)
+                return BadRequest();
+
+            return Ok();
+        }
+        public async Task<IActionResult> CreateUser(int id)
+        {
+            var vm = new UserCreateViewModel
+            {
+                RoleList = (await _roleManager.GetAllRolesAsync())
+                .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Name }).ToList(),
+                DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())
+                .Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList(),
+                ManagerList = (await _userManager.GetAllUsersAsync())
+                .Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.FullName }).ToList(),
+                PositionList = (await _positionManager.GetAllPositionsAsync())
+                .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList(),
+                CompanyList = (await _companyManager.GetAllCompaniesAsync())
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList()
+            };
+            return View(vm);
+          
+        }
+        [HttpPost]
+        public async Task<IActionResult> CreateUser(UserCreateViewModel vm)
+        {
+            var token = Request.Cookies["access_token"];
+            Console.WriteLine("COOKIE TOKEN UI: " + token);
+            ModelState.Remove(nameof(UserCreateViewModel.RoleList));
+            ModelState.Remove(nameof(UserCreateViewModel.DepartmentList));
+            ModelState.Remove(nameof(UserCreateViewModel.PositionList));
+            ModelState.Remove(nameof(UserCreateViewModel.ManagerList));
+            ModelState.Remove(nameof(UserCreateViewModel.CompanyList));
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"{state.Key}: {error.ErrorMessage}");
+                    }
+                }
+                vm.RoleList = (await _roleManager.GetAllRolesAsync())
+                    .Select (p => new SelectListItem {Value = p.Id.ToString(), Text=p.Name}).ToList();
+                vm.DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())
+                    .Select (p => new SelectListItem {Value=p.Id.ToString(), Text=p.Name}).ToList();
+                vm.PositionList = (await _positionManager.GetAllPositionsAsync())
+                    .Select(p => new SelectListItem { Value=p.Id.ToString(),Text=p.Name}).ToList();
+                vm.CompanyList =(await _companyManager.GetAllCompaniesAsync())
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name}).ToList();
+                vm.ManagerList = (await _userManager.GetAllUsersAsync())
+                    .Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.FullName}).ToList();
+                return View(vm);
+            }
+            var dto = new UserRegisterDTO
+            {
+                FirstName = vm.FirstName,
+                LastName = vm.LastName,
+                Email = vm.Email,
+                PhoneNumber = vm.PhoneNumber,
+                UserName = vm.UserName,
+                Password = vm.Password,
+
+                RoleId = vm.RoleId,
+                DepartmentId = vm.DepartmentId,
+                CompanyId = vm.CompanyId,
+                ManagerId = vm.ManagerId,
+                PositionId = vm.PositionId,
+
+                CanApprove = vm.CanApprove,
+                ApprovalLevel = vm.ApprovalLevel,
+
+                Language = vm.Language,
+                TimeZone = vm.TimeZone,
+                Theme = vm.Theme,
+                NotificationPreferences = vm.NotificationPreferences
+            };
+            Console.WriteLine(JsonSerializer.Serialize(dto));
+            var success = await _userManager.CreateUserAsync(dto);
+            if (!success)
+            {
+                vm.RoleList = (await _roleManager.GetAllRolesAsync())
+                   .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList();
+                vm.DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())
+                    .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList();
+                vm.PositionList = (await _positionManager.GetAllPositionsAsync())
+                    .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList();
+                vm.CompanyList = (await _companyManager.GetAllCompaniesAsync())
+                    .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
+                vm.ManagerList = (await _userManager.GetAllUsersAsync())
+                    .Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.FullName }).ToList();
+                return View(vm);
+            }
+            return RedirectToAction(nameof(Index));
         }
         public async Task<IActionResult> Detail(int id)
         {
@@ -90,11 +192,20 @@ namespace DMSUI.Controllers
                 CanApprove = user.CanApprove,
                 ApprovalLevel = user.ApprovalLevel,
                 IsActive = user.IsActive,
-                IsDeleted = user.IsDeleted,
+                IsDeleted = user.IsDeleted ?? false,
                 Language = user.Language,
                 TimeZone = user.TimeZone,
                 Theme = user.Theme,
-                NotificationPreferences = user.NotificationPreferences
+                NotificationPreferences = user.NotificationPreferences,
+                PositionList = (await _positionManager.GetAllPositionsAsync())
+                .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Name }).ToList(),
+                DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())
+                .Select(d => new SelectListItem { Value = d.Id.ToString(), Text = d.Name }).ToList(),
+                ManagerList = (await _userManager.GetAllUsersAsync())
+                .Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.FullName }).ToList(),
+                RoleList = (await _roleManager.GetAllRolesAsync())
+                .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Name}).ToList()
+
             };
             return View(userVm);
         }
@@ -130,7 +241,7 @@ namespace DMSUI.Controllers
                 CanApprove = user.CanApprove,
                 ApprovalLevel = user.ApprovalLevel,
                 IsActive = user.IsActive,
-                IsDeleted = user.IsDeleted,
+                IsDeleted = user.IsDeleted ?? false,
                 Language = user.Language,
                 TimeZone = user.TimeZone,
                 Theme = user.Theme,
@@ -249,5 +360,76 @@ namespace DMSUI.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [HttpDelete]
+        public async Task<IActionResult>DeleteUser(int id)
+        {
+            var result = await _userManager.SoftDeleteUserIdAsync(id);
+            if (!result)
+                return BadRequest("Silme İşlemi Başarısız.");
+            return Ok();
+        }
+        public async Task<IActionResult> ChangePassword()
+        {
+            var token = Request.Cookies["access_token"];
+
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Auth");
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            var email = jwt.Claims
+                .FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Email)?.Value;
+
+            var model = new PasswordUpdateByUserDTO
+            {
+                Email = email
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(PasswordUpdateByUserDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var success = await _userManager.UpdatePasswordByUserAsync(dto);
+
+            if (!success)
+            {
+                ViewBag.Error = "Mevcut şifre hatalı!";
+                return View(dto);
+            }
+
+            ViewBag.Success = "Şifre başarıyla güncellendi.";
+            return View();
+        }
+        public IActionResult AdminResetPassword(string email)
+        {
+            var model = new PasswordResetForAdminDTO
+            {
+                Email = email
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminResetPassword(PasswordResetForAdminDTO dto)
+        {
+            var success = await _userManager.UpdatePasswordByAdminAsync(dto);
+
+            if (!success)
+            {
+                ViewBag.Error = "Şifre sıfırlanamadı!";
+                return View(dto);
+            }
+
+            ViewBag.Success = "Şifre başarıyla sıfırlandı.";
+            return View(dto);
+        }
+
     }
 }

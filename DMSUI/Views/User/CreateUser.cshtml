@@ -1,0 +1,156 @@
+﻿@model DMSUI.ViewModels.UserCreateViewModel
+@{
+    ViewData["Title"] = "Kullanıcı Oluştur";
+}
+
+<form asp-action="CreateUser" method="post" class="container-fluid px-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-person-plus-fill me-2 text-primary"></i>
+            Kullanıcı Oluştur
+        </h4>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+                <i class="bi bi-check-circle me-1"></i> Kaydet
+            </button>
+
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> İptal
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">Temel Bilgiler</div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label>Ad</label>
+                        <input asp-for="FirstName" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Soyad</label>
+                        <input asp-for="LastName" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Kullanıcı Adı</label>
+                        <input asp-for="UserName" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>E-Posta</label>
+                        <input asp-for="Email" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Telefon</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Şifre</label>
+                        <input asp-for="Password" class="form-control" type="password" />
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold">Organizasyon</div>
+
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label>Rol</label>
+                        <select asp-for="RoleId" asp-items="Model.RoleList" class="form-select">
+                            <option value="">-- Rol Seçiniz --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Departman</label>
+                        <select asp-for="DepartmentId" asp-items="Model.DepartmentList" class="form-select">
+                            <option value="">-- Departman Seçiniz --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Pozisyon</label>
+                        <select asp-for="PositionId" asp-items="Model.PositionList" class="form-select">
+                            <option value="">-- Pozisyon Seçiniz --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Yönetici</label>
+                        <select asp-for="ManagerId" asp-items="Model.ManagerList" class="form-select">
+                            <option value="">-- Yönetici Seçiniz --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Şirket</label>
+                        <select asp-for="CompanyId" asp-items="Model.CompanyList" class="form-select">
+                            <option value="">-- Şirket Seçiniz --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold">Yetkiler</div>
+
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label>Onay Yetkisi</label>
+                        <select asp-for="CanApprove" class="form-select">
+                            <option value="true">Var</option>
+                            <option value="false">Yok</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Onay Seviyesi</label>
+                        <input asp-for="ApprovalLevel" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold">Sistem</div>
+
+                <div class="card-body row g-3">
+                    <div class="col-md-3">
+                        <label>Dil</label>
+                        <input asp-for="Language" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Zaman Dilimi</label>
+                        <input asp-for="TimeZone" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Tema</label>
+                        <input asp-for="Theme" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label>Bildirimler</label>
+                        <input asp-for="NotificationPreferences" class="form-control" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>

@@ -34,7 +34,7 @@ namespace DMSUI.Entities.DTOs.User
         public int ApprovalLevel { get; set; }
 
         public bool IsActive { get; set; }
-        public bool IsDeleted { get; set; }
+        public bool? IsDeleted { get; set; }
 
         public string Language { get; set; } = string.Empty;
         public string TimeZone { get; set; } = string.Empty;
