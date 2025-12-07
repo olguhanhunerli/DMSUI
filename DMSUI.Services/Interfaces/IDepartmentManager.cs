@@ -10,6 +10,10 @@ namespace DMSUI.Services.Interfaces
     public interface IDepartmentManager
     {
         Task<List<DepartmentListDTO>> GetAllDepartmentsAsync();
-		
+		Task<DepartmentDetailDTO> GetDepartmentsByIdAsync(int id);
+		Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department);
+		Task<bool> CreateDepartmentAsync(DepartmentCreateDTO department);
+		Task<bool> DeleteDepartmentAsync(int id);
+
 	}
 }

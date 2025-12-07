@@ -1,6 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.Company;
 using DMSUI.Services.Interfaces;
-using DMSUI.ViewModels;
+using DMSUI.ViewModels.Company;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 

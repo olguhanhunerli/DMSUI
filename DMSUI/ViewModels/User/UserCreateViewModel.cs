@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace DMSUI.ViewModels
+namespace DMSUI.ViewModels.User
 {
     public class UserCreateViewModel
     {

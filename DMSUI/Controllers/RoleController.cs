@@ -1,6 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.Role;
 using DMSUI.Services.Interfaces;
-using DMSUI.ViewModels;
+using DMSUI.ViewModels.Role;
 using Microsoft.AspNetCore.Mvc;
 using StackExchange.Redis;
 using System.Threading.Tasks;
@@ -78,13 +78,15 @@ namespace DMSUI.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
-        {
+		[HttpDelete]
+		public async Task<IActionResult> Delete(int id)
+		{
 			var result = await _roleManager.DeleteRoleAsync(id);
+
 			if (!result)
-				return BadRequest("Silme İşlemi Başarısız.");
+				return BadRequest("Silme başarısız.");
+
 			return Ok();
 		}
-    }
+	}
 }

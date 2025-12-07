@@ -118,3 +118,8 @@ html, body {
 .content-wrapper {
     overflow-x: hidden !important;
 }
+.user-scroll-area {
+    max-height: calc(100vh - 260px); /* Ekrana göre otomatik ayarlanýr */
+    overflow-y: auto;
+    overflow-x: hidden;
+}

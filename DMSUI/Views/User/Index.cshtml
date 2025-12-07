@@ -1,4 +1,5 @@
 ﻿@using DMSUI.ViewModels
+@using DMSUI.ViewModels.User
 @model List<UserViewModel>
 
 @{
@@ -107,7 +108,7 @@
                 <tbody class="text-nowrap">
 
                     @{
-                        int rowNo = 1;   // ✅ DÜMDÜZ SAYAÇ
+                        int rowNo = 1;   
                     }
 
                     @foreach (var user in Model)
@@ -180,7 +181,7 @@
                             </td>
                         </tr>
 
-                        rowNo++;   // ✅ SAYACI ARTIR
+                        rowNo++;  
                     }
 
                 </tbody>
@@ -269,16 +270,12 @@
             }
         }
 
-        async function deleteUser(userId) {
+               async function deleteUser(userId) {
 
             if (!confirm("Bu kullanıcı silinsin mi?")) return;
 
-            const response = await fetch('/User/DeleteUser', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `id=${userId}`
+            const response = await fetch(`/User/DeleteUser?id=${userId}`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {

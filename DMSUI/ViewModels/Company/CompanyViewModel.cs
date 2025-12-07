@@ -1,4 +1,4 @@
-﻿namespace DMSUI.ViewModels
+﻿namespace DMSUI.ViewModels.Company
 {
 	public class CompanyViewModel
 	{

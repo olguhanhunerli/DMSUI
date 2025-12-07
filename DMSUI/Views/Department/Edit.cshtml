@@ -1,0 +1,77 @@
+﻿@using DMSUI.ViewModels
+@using DMSUI.ViewModels.Department
+@model DepartmentEditViewModel
+@{
+    ViewData["Title"] = "Department Edit";
+}
+
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h4 class="fw-bold">Departman Düzenle</h4>
+            <hr />
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9 col-md-10">
+
+            <form asp-action="Edit" method="post">
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CompanyId" />
+                <input type="hidden" asp-for="CompanyName" />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Departman Adı</label>
+                        <input asp-for="Name" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Departman Kodu</label>
+                        <input asp-for="DepartmentCode" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Firma</label>
+                        <input asp-for="CompanyName" class="form-control" disabled />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Yönetici</label>
+                        <select asp-for="ManagerId"
+                                asp-items="Model.ManagerSelectList"
+                                class="form-select">
+                            <option value="">Seçiniz</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Açıklama</label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Notlar</label>
+                    <textarea asp-for="Notes" class="form-control"></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Sıra No</label>
+                    <input asp-for="SortOrder" type="number" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Güncelle
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>

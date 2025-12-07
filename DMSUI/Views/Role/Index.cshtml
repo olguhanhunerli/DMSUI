@@ -7,7 +7,6 @@
 
 <div class="container-fluid px-3 pb-4">
 
-    <!-- ÜST BAR -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h4 class="fw-bold mb-0">
             <i class="bi bi-shield-lock me-2 text-primary"></i>
@@ -20,7 +19,6 @@
         </a>
     </div>
 
-    <!-- TABLO -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-2">
 
@@ -31,6 +29,8 @@
                             <th class="px-3">#</th>
                             <th class="px-3">Rol Adı</th>
                             <th class="px-3">Açıklama</th>
+                            <th class="px-3">Oluşturan</th>
+                            <th class="px-3">Güncelleyen</th>
                             <th class="px-3 text-end">İşlemler</th>
                         </tr>
                     </thead>
@@ -54,6 +54,12 @@
 
                                 <td class="px-3">
                                     @role.Description
+                                </td>
+                                 <td class="px-3">
+                                    @role.CreatedByUser
+                                </td>
+                                <td class="px-3">
+                                    @role.UploadedByUser
                                 </td>
 
                                 <td class="px-3 text-end">
@@ -94,18 +100,15 @@
 
             if (!confirm("Bu rol silinsin mi?")) return;
 
-            const response = await fetch('/Role/Delete', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `id=${id}`
+            const response = await fetch(`/Role/Delete?id=${id}`, {
+                method: 'DELETE'
             });
 
             if (response.ok) {
                 location.reload();
             } else {
-                alert("Rol silinemedi!");
+                const text = await response.text();
+                alert("Rol silinemedi! -> " + text);
             }
         }
     </script>

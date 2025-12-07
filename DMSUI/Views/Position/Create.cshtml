@@ -1,0 +1,79 @@
+﻿@using DMSUI.ViewModels.Position
+@model PositionCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Pozisyon Oluştur";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-briefcase"></i> Yeni Pozisyon Oluştur
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Pozisyon Adı</label>
+                                <input asp-for="Name" class="form-control" placeholder="Yazılım Uzmanı" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CompanyId" class="form-label">Şirket</label>
+                                <select asp-for="CompanyId"
+                                        asp-items="Model.CompanyList"
+                                        class="form-select"
+                                        required>
+                                    <option value="">Şirket Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CompanyId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label">Açıklama</label>
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Pozisyon hakkında açıklama..."></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-check form-switch mt-4">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox">
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        Aktif
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Geri
+                            </a>
+
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Kaydet
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+

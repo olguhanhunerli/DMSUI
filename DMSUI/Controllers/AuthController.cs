@@ -1,6 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.Auth;
 using DMSUI.Services.Interfaces;
-using DMSUI.ViewModels;
+using DMSUI.ViewModels.Login;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 

@@ -1,0 +1,96 @@
+﻿@model DMSUI.ViewModels.Position.PositionEditViewModel
+
+@{
+    ViewData["Title"] = "Pozisyon Düzenle";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Pozisyon Düzenle
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+
+                        <input asp-for="Id" type="hidden" />
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Pozisyon Adı</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CompanyId" class="form-label">Şirket</label>
+                                <select asp-for="CompanyId"
+                                        asp-items="Model.CompanyList"
+                                        class="form-select">
+                                    <option value="">Şirket Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CompanyId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="SortOrder" class="form-label">Sıralama</label>
+                                <input asp-for="SortOrder" type="number" class="form-control" />
+                                <span asp-validation-for="SortOrder" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        Aktif mi?
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label">Açıklama</label>
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Notes" class="form-label">Notlar</label>
+                                <textarea asp-for="Notes"
+                                          class="form-control"
+                                          rows="2"></textarea>
+                                <span asp-validation-for="Notes" class="text-danger"></span>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Geri
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Güncelle
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

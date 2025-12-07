@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DMSUI.ViewModels
+namespace DMSUI.ViewModels.Login
 {
     public class LoginViewModel
     {

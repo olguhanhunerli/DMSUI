@@ -10,5 +10,7 @@ namespace DMSUI.Services.Interfaces
     public interface IPositionManager
     {
         Task<List<PositionListDTO>> GetAllPositionsAsync();
+        Task<bool> AddPositionAsync(PositionCreateDTO position);
+        Task<PositionDetailDTO> GetPositionByIdAsync(int id);
 	}
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace DMSUI.ViewModels
+namespace DMSUI.ViewModels.User
 {
     public class UserViewModel
     {

@@ -42,7 +42,7 @@ namespace DMSUI.Business
 		public async Task<RoleListDTO> GetRoleByIdAsync(int id)
 		{
 			AttachToken();
-			var response = await _httpClient.GetAsync($"/api/Role/GetRoleById/{id}");
+			var response = await _httpClient.GetAsync($"/api/Role/get-by-id/{id}");
 			if (!response.IsSuccessStatusCode)
 			{
 				return null;
@@ -56,7 +56,7 @@ namespace DMSUI.Business
 		public async Task<List<RoleListDTO>> GetRoleListsAsync()
 		{
 			AttachToken();
-			var response = await _httpClient.GetAsync("api/Role/GetAllRoles");
+			var response = await _httpClient.GetAsync("api/Role/get-all");
 			if (!response.IsSuccessStatusCode)
 			{
 				return new List<RoleListDTO>();
@@ -71,21 +71,21 @@ namespace DMSUI.Business
 		public async Task<bool> UpdateRoleAsync(int id, RoleUpdateDTO roleUpdateDTO)
 		{
 			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync($"api/Role/UpdateRole/{id}", roleUpdateDTO);
+			var response = await _httpClient.PutAsJsonAsync($"api/Role/update/{id}", roleUpdateDTO);
 			return response.IsSuccessStatusCode;
 		}
 
 		public async Task<bool> CreateRoleAsync(RoleCreateDTO roleCreateDTO)
 		{
 			AttachToken();
-			var response = await _httpClient.PostAsJsonAsync("api/Role/CreateRole", roleCreateDTO);
+			var response = await _httpClient.PostAsJsonAsync("api/Role/create", roleCreateDTO);
 			return response.IsSuccessStatusCode;
 		}
 
 		public async Task<bool> DeleteRoleAsync(int id)
 		{
 			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/Role/DeleteRole/{id}");
+			var response = await _httpClient.DeleteAsync($"api/Role/delete/{id}");
 			return response.IsSuccessStatusCode;
 		}
 	}

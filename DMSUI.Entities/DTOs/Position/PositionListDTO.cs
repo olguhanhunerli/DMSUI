@@ -16,5 +16,9 @@ namespace DMSUI.Entities.DTOs.Position
 		public bool? IsActive { get; set; }
 		public DateTime? CreatedAt { get; set; }
 		public int? CreatedBy { get; set; }
+		public string? CreatedByName { get; set; }
+		public int? UploadedBy { get; set; }
+		public string? UploadedByName { get; set; }
+		public DateTime? UploadedAt { get; set; }
 	}
 }

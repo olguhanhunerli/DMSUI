@@ -41,7 +41,7 @@ namespace DMSUI.Business
 		public async Task<CompanyListDTO> GetCompanyListById(int id)
 		{
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/Company/GetCompanyById/{id}");
+            var response = await _httpClient.GetAsync($"api/Company/get-by-id/{id}");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -54,8 +54,9 @@ namespace DMSUI.Business
 
 		public async Task<List<CompanyListDTO>> GetCompanyListsAsync()
         {
-            var response = await _httpClient.GetAsync("api/Company/GetAllCompanies");
-            if (response == null)
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/Company/get-all");
+			if (response == null)
             {
                 return new List<CompanyListDTO>();
             }
@@ -69,7 +70,7 @@ namespace DMSUI.Business
 		public async Task<bool> UpdateCompanyAsync(int id, CompanyUpdateDTO company)
 		{
 			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync($"api/Company/UpdateCompany/{id}", company);
+			var response = await _httpClient.PutAsJsonAsync($"api/Company/update/{id}", company);
 			return response.IsSuccessStatusCode;
 
 		}

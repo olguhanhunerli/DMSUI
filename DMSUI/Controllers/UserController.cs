@@ -1,6 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.User;
 using DMSUI.Services.Interfaces;
-using DMSUI.ViewModels;
+using DMSUI.ViewModels.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Immutable;
@@ -96,8 +96,7 @@ namespace DMSUI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserCreateViewModel vm)
         {
-            var token = Request.Cookies["access_token"];
-            Console.WriteLine("COOKIE TOKEN UI: " + token);
+         
             ModelState.Remove(nameof(UserCreateViewModel.RoleList));
             ModelState.Remove(nameof(UserCreateViewModel.DepartmentList));
             ModelState.Remove(nameof(UserCreateViewModel.PositionList));
@@ -105,13 +104,6 @@ namespace DMSUI.Controllers
             ModelState.Remove(nameof(UserCreateViewModel.CompanyList));
             if (!ModelState.IsValid)
             {
-                foreach (var state in ModelState)
-                {
-                    foreach (var error in state.Value.Errors)
-                    {
-                        Console.WriteLine($"{state.Key}: {error.ErrorMessage}");
-                    }
-                }
                 vm.RoleList = (await _roleManager.GetAllRolesAsync())
                     .Select (p => new SelectListItem {Value = p.Id.ToString(), Text=p.Name}).ToList();
                 vm.DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())

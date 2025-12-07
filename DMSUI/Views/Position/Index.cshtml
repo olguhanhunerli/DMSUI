@@ -28,9 +28,12 @@
                             <th class="px-3">#</th>
                             <th class="px-3">Pozisyon Adı</th>
                             <th class="px-3">Açıklama</th>
+                            <th class="px-3">Oluşturan</th>
+                            <th class="px-3">Güncelleyen</th>
                             <th class="px-3">Şirket</th>
                             <th class="px-3">Durum</th>
-                            <th class="px-3">Oluşturma</th>
+                            <th class="px-3">Oluşturma Tarihi</th>
+                            <th class="px-3">Güncelleme Tarihi</th>
                             <th class="px-3 text-end">İşlemler</th>
                         </tr>
                     </thead>
@@ -48,6 +51,8 @@
                                 <td class="fw-semibold px-3">@pos.Name</td>
 
                                 <td class="px-3">@pos.Description</td>
+                                <td class="px-3">@pos.CreatedByName</td>
+                                <td class="px-3">@pos.UploadedByName</td>
 
                                 <td class="px-3">
                                     @(pos.CompanyName ?? "-")
@@ -62,6 +67,11 @@
                                 <td class="px-3">
                                     @(pos.CreatedAt?.ToString("dd.MM.yyyy") ?? "-")
                                 </td>
+
+                                <td class="px-3">
+                                    @(pos.UploadedAt?.ToString("dd.MM.yyyy") ?? "-")
+                                </td>
+
 
                                 <td class="px-3 text-end">
                                     <div class="btn-group btn-group-sm shadow-sm">

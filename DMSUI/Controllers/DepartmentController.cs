@@ -1,6 +1,12 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Departments;
+using DMSUI.Services;
 using DMSUI.Services.Interfaces;
+using DMSUI.ViewModels.Department;
+using DMSUI.ViewModels.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
@@ -8,16 +14,161 @@ namespace DMSUI.Controllers
     public class DepartmentController : Controller
     {
         private readonly IDepartmentManager _departmentManager;
+		private readonly IUserManager _userManager;
+		private readonly ICompanyManager _companyManager;
+		public DepartmentController(IDepartmentManager departmentManager, IUserManager userManager, ICompanyManager companyManager)
+		{
+			_departmentManager = departmentManager;
+			_userManager = userManager;
+			_companyManager = companyManager;
+		}
 
-        public DepartmentController(IDepartmentManager departmentManager)
-        {
-            _departmentManager = departmentManager;
-        }
-
-        public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index()
         {
             var departments = await _departmentManager.GetAllDepartmentsAsync();
             return View(departments);
         }
+		public async Task<IActionResult> Create()
+		{
+			var vm = new DepartmentCreateViewModel
+			{
+				CompanySelectList = (await _companyManager.GetAllCompaniesAsync())
+				.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList(),
+				ManagerSelectList = (await _userManager.GetAllUsersAsync())
+				.Select(m => new SelectListItem { Value = m.Id.ToString(), Text = m.FullName }).ToList(),
+			};
+			return View(vm);
+		}
+		[HttpPost]
+		public async Task<IActionResult> Create(DepartmentCreateViewModel model)
+		{
+			
+			if (!ModelState.IsValid)
+			{
+				return View(model);
+			}
+			var dto = new DepartmentCreateDTO
+			{
+				CompanyId = model.CompanyId,
+				DepartmentCode = model.DepartmentCode,
+				Description = model.Description,
+				ManagerId = model.ManagerId,
+				Name = model.Name,
+				Notes = model.Notes,
+				SortOrder = model.SortOrder,
+			};
+			await _departmentManager.CreateDepartmentAsync(dto);
+
+			return RedirectToAction(nameof(Index));
+		}
+        public async Task<IActionResult> Edit(int id)
+        {
+			var department = await _departmentManager.GetDepartmentsByIdAsync(id);
+			if (department == null)
+				return NotFound();
+
+			var vm = new DepartmentEditViewModel
+			{
+				Id = department.Id,
+				Name = department.Name,
+				DepartmentCode = department.DepartmentCode,
+				ManagerId = department.ManagerId,
+				CompanyId = (int)department.CompanyId,
+				CompanyName = department.CompanyName,
+				Description = department.Description,
+				Notes = department.Notes,
+				SortOrder = department.SortOrder,
+
+				Users = department.Users?.Select(u => new UserMiniViewModel
+				{
+					Id = u.Id,
+					FullName = u.FullName,
+					Email = u.Email
+				}).ToList() ?? new List<UserMiniViewModel>()
+			};
+
+			var managers = await _userManager.GetAllUsersAsync();
+
+			vm.ManagerSelectList = managers.Select(u => new SelectListItem
+			{
+				Text = u.FullName,
+				Value = u.Id.ToString(),
+				Selected = (u.Id == vm.ManagerId)
+			}).ToList();
+			return View(vm);
+        }
+		[HttpPost]
+		public async Task<IActionResult> Edit(DepartmentEditViewModel vm)
+		{
+			Console.WriteLine(">>> POST EDIT TETİKLENDİ <<<");
+			if (!ModelState.IsValid)
+			{
+				Console.WriteLine(">>> MODELSTATE INVALID <<<");
+
+				foreach (var entry in ModelState)
+				{
+					if (entry.Value.Errors.Count > 0)
+					{
+						Console.WriteLine($"FIELD: {entry.Key}");
+						foreach (var error in entry.Value.Errors)
+						{
+							Console.WriteLine($"ERROR: {error.ErrorMessage}");
+						}
+					}
+				}
+				var managers = await _userManager.GetAllUsersAsync();
+				vm.ManagerSelectList = managers.Select(u => new SelectListItem
+				{
+					Text = u.FullName,
+					Value = u.Id.ToString(),
+
+				}).ToList();
+				return View("Edit", vm);
+			}
+
+			var updateVm = new DepartmentUpdateDTO
+			{
+				Id = vm.Id,
+				Name = vm.Name,
+				DepartmentCode = vm.DepartmentCode,
+				CompanyId = vm.CompanyId,
+				ManagerId = vm.ManagerId,
+				Description = vm.Description,
+				Notes = vm.Notes,
+				SortOrder = vm.SortOrder,
+				IsActive = true
+			};
+			var updateDto = new DepartmentUpdateDTO
+			{
+				Id = updateVm.Id,
+				Name = updateVm.Name,
+				DepartmentCode = updateVm.DepartmentCode,
+				CompanyId = updateVm.CompanyId,
+				ManagerId = updateVm.ManagerId,
+				Description = updateVm.Description,
+				Notes = updateVm.Notes,
+				SortOrder = updateVm.SortOrder,
+				IsActive = updateVm.IsActive
+			};
+			var result = await _departmentManager.UpdateDepartmentAsync(updateDto);
+
+			if (!result)
+			{
+				TempData["Error"] = "Departman güncelleme başarısız.";
+				return RedirectToAction(nameof(Edit), new { id = vm.Id });
+			}
+
+			TempData["Success"] = "Departman başarıyla güncellendi.";
+			return RedirectToAction(nameof(Index));
+		}
+		[HttpDelete]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var result = await _departmentManager.DeleteDepartmentAsync(id);
+			if (!result)
+				return BadRequest("Silme başarısız.");
+
+			return Ok();
+		}
     }
 }

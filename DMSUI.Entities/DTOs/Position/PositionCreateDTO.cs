@@ -4,16 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSUI.Entities.DTOs.Role
+namespace DMSUI.Entities.DTOs.Position
 {
-    public class RoleListDTO
+    public class PositionCreateDTO
     {
-		public int Id { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
+		public int CompanyId { get; set; }
+		public bool IsActive { get; set; }
 		public int CreatedBy { get; set; }
-		public string CreatedByUser { get; set; }
-		public int UploadedBy { get; set; }
-		public string UploadedByUser { get; set; }
 	}
 }

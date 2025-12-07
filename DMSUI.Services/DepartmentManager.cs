@@ -18,9 +18,29 @@ namespace DMSUI.Services
 			_departmentApiClient = departmentApiClient;
 		}
 
-		public Task<List<DepartmentListDTO>> GetAllDepartmentsAsync()
+		public async Task<bool> CreateDepartmentAsync(DepartmentCreateDTO department)
 		{
-			return _departmentApiClient.GetAllDepartmentsAsync();
+			return await _departmentApiClient.CreateDepartmentAsync(department);
+		}
+
+		public async Task<bool> DeleteDepartmentAsync(int id)
+		{
+			return await _departmentApiClient.DeleteDepartmentAsync(id);
+		}
+
+		public async Task<List<DepartmentListDTO>> GetAllDepartmentsAsync()
+		{
+			return await _departmentApiClient.GetAllDepartmentsAsync();
+		}
+
+		public async Task<DepartmentDetailDTO> GetDepartmentsByIdAsync(int id)
+		{
+			return await _departmentApiClient.GetDepartmentsByIdAsync(id);
+		}
+
+		public async Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department)
+		{
+			return await _departmentApiClient.UpdateDepartmentAsync(department);
 		}
 	}
 }

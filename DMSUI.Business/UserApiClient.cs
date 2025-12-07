@@ -11,6 +11,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DMSUI.Business
 {
@@ -54,24 +55,29 @@ namespace DMSUI.Business
 
         public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
-            AttachToken();
-            var response =await  _httpClient.GetAsync("api/User/GetAllUserInfo");
-            if(!response.IsSuccessStatusCode)
-            {
-                return new List<UserListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<UserListDTO>>(
-                body,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            ) ?? new List<UserListDTO>();
+			AttachToken();
 
-        }
+			var response = await _httpClient.GetAsync("api/User/get-all");
+
+			if (!response.IsSuccessStatusCode)
+				return new List<UserListDTO>();
+
+			var body = await response.Content.ReadAsStringAsync();
+
+			if (string.IsNullOrWhiteSpace(body))
+				return new List<UserListDTO>();
+
+			return JsonSerializer.Deserialize<List<UserListDTO>>(
+				body,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+			) ?? new List<UserListDTO>();
+
+		}
 
         public async Task<UserListDTO?> GetUserByIdAsync(int userId)
         {
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/User/GetUserById/{userId}");
+            var response = await _httpClient.GetAsync($"api/User/get-by-id/{userId}");
             if (!response.IsSuccessStatusCode)
             {
                 return null;
@@ -90,21 +96,21 @@ namespace DMSUI.Business
                 id = id,
                 activeStatus = activeStatus
             };
-            var response = await _httpClient.PostAsJsonAsync("api/User/SetActiveStatus",body);
+            var response = await _httpClient.PostAsJsonAsync("api/User/active-status",body);
             return response.IsSuccessStatusCode;
 		}
 
 		public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
 		{
             AttachToken();
-            var response = await _httpClient.PutAsJsonAsync("api/User/UpdateUser",userUpdateDTO);
+            var response = await _httpClient.PutAsJsonAsync("api/User/update",userUpdateDTO);
 			return response.IsSuccessStatusCode;
 		}
 
         public async Task<PagedResultDTO<UserListDTO>> SearchUserAsync(UserSearchDTO userSearchDTO)
         {
             AttachToken();
-            var response = await _httpClient.PostAsJsonAsync("api/User/SearchUsers", userSearchDTO);
+            var response = await _httpClient.PostAsJsonAsync("api/User/search", userSearchDTO);
             if (!response.IsSuccessStatusCode)
             {
                 return new PagedResultDTO<UserListDTO>();
@@ -118,7 +124,8 @@ namespace DMSUI.Business
 
         public async Task<bool> SoftDeleteUserIdAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/User/SoftDeleteUser/{id}");
+			AttachToken();
+			var response = await _httpClient.DeleteAsync($"api/User/delete/{id}");
             return response.IsSuccessStatusCode;
         }
 
@@ -126,7 +133,7 @@ namespace DMSUI.Business
         {
             AttachToken();
             var response = await _httpClient
-                    .PostAsJsonAsync("api/User/PasswordUpdateByUser", dto);
+                    .PostAsJsonAsync("api/User/password-reset", dto);
             return response.IsSuccessStatusCode;
 
         }
@@ -135,7 +142,7 @@ namespace DMSUI.Business
         {
             AttachToken();
             var response = await _httpClient
-                .PostAsJsonAsync("api/User/PasswordResetForAdmin", dto);
+                .PostAsJsonAsync("api/User/password-update", dto);
 
             return response.IsSuccessStatusCode;
         }

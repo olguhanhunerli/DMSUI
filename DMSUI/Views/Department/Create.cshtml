@@ -1,0 +1,90 @@
+﻿@using DMSUI.ViewModels.Department
+@model DepartmentCreateViewModel
+
+@{
+    ViewData["Title"] = "Yeni Departman Oluştur";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building"></i> Yeni Departman Oluştur
+                    </h5>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Departman Adı</label>
+                                <input asp-for="Name" class="form-control" placeholder="İnsan Kaynakları" required />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="DepartmentCode" class="form-label">Departman Kodu</label>
+                                <input asp-for="DepartmentCode" class="form-control" placeholder="IK" required />
+                                <span asp-validation-for="DepartmentCode" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="CompanyId" class="form-label">Şirket</label>
+                                <select asp-for="CompanyId" asp-items="Model.CompanySelectList" class="form-select" required>
+                                    <option value="">Şirket Seçiniz</option>
+                                </select>
+                                <span asp-validation-for="CompanyId" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="ManagerId" class="form-label">Departman Yöneticisi</label>
+                                <select asp-for="ManagerId" asp-items="Model.ManagerSelectList" class="form-select">
+                                    <option value="">Yönetici Seçiniz</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label">Açıklama</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="Notes" class="form-label">Notlar</label>
+                                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="SortOrder" class="form-label">Sıralama</label>
+                                <input asp-for="SortOrder" type="number" class="form-control" />
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Geri
+                            </a>
+
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Kaydet
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
