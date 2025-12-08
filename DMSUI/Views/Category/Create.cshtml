@@ -1,0 +1,94 @@
+﻿@using DMSUI.ViewModels.Category
+@model CreateCategoryViewModel
+
+@{
+    ViewData["Title"] = "Yeni Kategori Ekle";
+}
+
+<div class="container-fluid mt-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">
+            <i class="bi bi-plus-circle me-1"></i> Yeni Kategori
+        </h5>
+
+        <a asp-action="Index" class="btn btn-sm btn-secondary">
+            <i class="bi bi-arrow-left"></i> Geri Dön
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <form asp-action="Create" method="post" class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Kategori Adı</label>
+                    <input asp-for="Name"
+                           class="form-control form-control-sm"
+                           placeholder="Örn: Yetkilendirme" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Kategori Kodu</label>
+                    <input asp-for="Code"
+                           class="form-control form-control-sm"
+                           placeholder="Örn: YETK" />
+                    <span asp-validation-for="Code" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Açıklama</label>
+                    <textarea asp-for="Description"
+                              class="form-control form-control-sm"
+                              rows="2"></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Üst Kategori</label>
+                    <select asp-for="ParentId"
+                            asp-items="ViewBag.ParentList"
+                            class="form-select form-select-sm">
+                        <option value="">Ana Kategori</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Sıra</label>
+                    <input asp-for="SortOrder"
+                           type="number"
+                           min="1"
+                           class="form-control form-control-sm" />
+                </div>
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check mt-2">
+                        <input asp-for="IsActive"
+                               class="form-check-input"
+                               type="checkbox" checked />
+                        <label class="form-check-label">
+                            Aktif
+                        </label>
+                    </div>
+                </div>
+
+                <input asp-for="CompanyId" type="hidden" />
+
+                <div class="col-12 text-end mt-3">
+                    <button type="submit" class="btn btn-sm btn-success">
+                        <i class="bi bi-check-circle"></i> Kaydet
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-sm btn-secondary ms-1">
+                        İptal
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+

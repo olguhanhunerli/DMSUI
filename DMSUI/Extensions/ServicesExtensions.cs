@@ -22,6 +22,7 @@ namespace DMSUI.Extensions
             services.AddScoped<IDepartmentManager, DepartmentManager>();
             services.AddScoped<IRoleManager, RoleManager>();
             services.AddScoped<ICompanyManager, CompanyManager>();
+            services.AddScoped<ICategoryManager, CategoryManager>();
 
 			services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -50,6 +51,11 @@ namespace DMSUI.Extensions
 				client.BaseAddress = new Uri(apiSettings.BaseUrl);
 			});
             services.AddHttpClient<ICompanyApiClient, CompanyApiClient>(client =>
+            {
+                var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+                client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            });
+            services.AddHttpClient<ICategoryApiClient, CategoryApiClient>(client =>
             {
                 var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);

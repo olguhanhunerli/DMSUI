@@ -117,3 +117,44 @@ html, body {
     font-size: 10px;
     padding: 4px 6px;
 }
+.category-table th,
+.category-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.parent-row {
+    background-color: #ffffff;
+    font-weight: 500;
+}
+
+.child-row {
+    background-color: #f8f9fa;
+    transition: all 0.2s ease-in-out;
+}
+
+    .child-row td {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+
+.toggle-child {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+}
+.category-table th,
+.category-table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.parent-row {
+    background-color: #ffffff;
+    font-weight: 500;
+}
+
+.category-row:hover {
+    background-color: #f8f9fa;
+}
+
