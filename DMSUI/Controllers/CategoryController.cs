@@ -96,6 +96,45 @@ namespace DMSUI.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var category = await _categoryManager.GetCategoryByIdAsync(id);
+            if (category == null)
+                return NotFound();
+            var model = new CategoryEditViewModel
+            {
+				Id = category.Id,
+				Name = category.Name,
+				Description = category.Description,
+				Slug = category.Slug,
+				Code = category.Code,
+				ParentId = category.ParentId,
+				ParentName = category.ParentName,
+				CompanyId = category.CompanyId,
+				CompanyName = category.CompanyName,
+				SortOrder = category.SortOrder,
+				IsActive = category.IsActive,
+				IsDeleted = category.IsDeleted,
+				CreatedAt = category.CreatedAt,
+				CreatedBy = category.CreatedBy,
+				CreatedByName = category.CreatedByName,
+				UpdatedBy = category.UpdatedBy,
+				UpdatedByName = category.UpdatedByName
+
+			};
+
+            var parents = await _categoryManager.GetAllCategoriesAsync();
+
+            model.ParentSelectList = parents
+                .Where(x => x.Id != id)
+                .Select( x => new SelectListItem
+                {
+                    Value = x.Id.ToString(),
+                    Text = x.Name,
+                }).ToList();
+            return View(model);
+        }
         private void BuildSelectList(List<CategoryTreeDTO> categoryTrees, List<SelectListItem> list, int level)
         {
             foreach (var item in categoryTrees)

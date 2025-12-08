@@ -2,6 +2,7 @@
 using DMSUI.Entities.DTOs.Category;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Company;
+using DMSUI.Entities.DTOs.Departments;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -123,5 +124,17 @@ namespace DMSUI.Business
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
-    }
+
+		public async Task<CategoryDetailDTO> GetCategoryByIdAsync(int id)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Category/get-by-id/{id}");
+			if (!response.IsSuccessStatusCode)
+                return new CategoryDetailDTO();
+            var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<CategoryDetailDTO>(
+				 body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+			 );
+		}
+	}
 }

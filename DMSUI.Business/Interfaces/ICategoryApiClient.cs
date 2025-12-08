@@ -12,6 +12,7 @@ namespace DMSUI.Business.Interfaces
     {
         Task<List<CategoryListDTO>> GetAllCategoriesAsync();
         Task<PagedResultDTO<CategoryListDTO>> GetPagedAsync(int page, int pageSize);
+        Task<CategoryDetailDTO> GetCategoryByIdAsync(int id);
         Task<List<CategoryListDTO>> SearchAsync(string keyword);
         Task<List<CategoryTreeDTO>> GetTreeAsync();
         Task<bool> CreateCategoryAsync(CreateCategoryDTO dto);

@@ -34,7 +34,12 @@ namespace DMSUI.Services
             return await _categoryApiClient.GetAllCategoriesAsync();
         }
 
-        public async Task<PagedResultDTO<CategoryListDTO>> GetPagedAsync(int page, int pageSize)
+		public async Task<CategoryDetailDTO> GetCategoryByIdAsync(int id)
+		{
+			return await _categoryApiClient.GetCategoryByIdAsync(id);
+		}
+
+		public async Task<PagedResultDTO<CategoryListDTO>> GetPagedAsync(int page, int pageSize)
         {
            return await _categoryApiClient.GetPagedAsync(page, pageSize);
         }
