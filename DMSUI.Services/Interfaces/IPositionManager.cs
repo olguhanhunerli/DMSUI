@@ -12,5 +12,7 @@ namespace DMSUI.Services.Interfaces
         Task<List<PositionListDTO>> GetAllPositionsAsync();
         Task<bool> AddPositionAsync(PositionCreateDTO position);
         Task<PositionDetailDTO> GetPositionByIdAsync(int id);
-	}
+        Task<bool> DeletePositionAsync(int id);
+        Task<bool> UpdatePositionAsync(PositionUpdateDTO positionUpdateDTO, int id);
+    }
 }

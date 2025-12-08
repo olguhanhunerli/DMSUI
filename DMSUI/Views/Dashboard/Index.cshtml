@@ -1,4 +1,93 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
 }
+<div class="container-fluid mt-3">
+    <div class="row g-3">
+
+        <!-- SOL PANEL -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <div class="fw-semibold">
+                        <i class="bi bi-hourglass-split me-1"></i> Bekleyen İşlerim
+                    </div>
+                    <span class="badge bg-primary">Toplam: 64</span>
+                </div>
+
+                <div class="card-body p-2">
+                    <div class="list-group list-group-flush">
+
+                        <div class="fw-semibold small text-muted mb-2">
+                            <i class="bi bi-folder me-1"></i> Doküman İşlemleri
+                        </div>
+
+                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center active small">
+                            Okunması Gereken Dokümanlar
+                            <span class="badge bg-light text-dark">64</span>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                    <div class="fw-semibold">
+                        <i class="bi bi-file-earmark-text me-1"></i> Okunması Gereken Doküman Listesi
+                    </div>
+
+                    <input type="text"
+                           class="form-control form-control-sm w-50"
+                           placeholder="Doküman ara..." />
+                </div>
+
+                <div class="card-body p-2">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr class="small">
+                                    <th style="width:30px;"></th>
+                                    <th>Doküman Kodu</th>
+                                    <th>Doküman Adı</th>
+                                    <th>Doküman Sahibi</th>
+                                    <th class="text-end">Görev Tarihi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                <tr>
+                                    <td><span class="badge bg-danger rounded-circle">●</span></td>
+                                    <td class="text-primary">KRM-TR-285</td>
+                                    <td>17260 6.5x17 TEKNİK RESİM</td>
+                                    <td>Muhammed Sartaş</td>
+                                    <td class="text-end">20.10.2025</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge bg-danger rounded-circle">●</span></td>
+                                    <td class="text-primary">KRM-TR-459</td>
+                                    <td>17294 7.0x17 KALIP RESMİ</td>
+                                    <td>Gökhan ERTEKİN</td>
+                                    <td class="text-end">20.10.2025</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer d-flex justify-content-between align-items-center py-1 small">
+                    <span>1 / 64</span>
+                    <select class="form-select form-select-sm" style="width:90px">
+                        <option>10</option>
+                        <option>25</option>
+                        <option>50</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 

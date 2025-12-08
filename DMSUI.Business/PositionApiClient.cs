@@ -73,5 +73,19 @@ namespace DMSUI.Business
 				body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
 			);
 		}
-	}
+
+        public async Task<bool> DeletePositionAsync(int id)
+        {
+			AttachToken();
+			var response = await _httpClient.DeleteAsync($"api/Position/delete/{id}");
+			return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdatePositionAsync(PositionUpdateDTO positionUpdateDTO, int id)
+        {
+			AttachToken();
+			var response = await _httpClient.PutAsJsonAsync("api/Position/update", positionUpdateDTO);
+			return response.IsSuccessStatusCode;
+        }
+    }
 }

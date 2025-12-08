@@ -1,8 +1,10 @@
 ﻿using DMSUI.Entities.DTOs.Position;
+using DMSUI.Entities.DTOs.Role;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Position;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
@@ -67,9 +69,8 @@ namespace DMSUI.Controllers
 				Name = position.Name,
 				CompanyId = position.CompanyId,
 				Description = position.Description,
-				Notes = position.Notes,
-				SortOrder = position.SortOrder,
                 IsActive = position.IsActive,
+                
 
 				CompanyList = (await _companyManager.GetAllCompaniesAsync())
 					.Select(c => new SelectListItem
@@ -82,5 +83,38 @@ namespace DMSUI.Controllers
 
 			return View(result);
 		}
+        [HttpPost]
+        public async Task<IActionResult> Edit(PositionEditViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+            var dto = new PositionUpdateDTO
+            {
+               Id=vm.Id,
+               Name=vm.Name,
+               CompanyId=vm.CompanyId,
+               Description = vm.Description,
+               IsActive = vm.IsActive,
+            };
+            var result = await _positionManager.UpdatePositionAsync(dto, vm.Id);
+            if (!result)
+            {
+                ModelState.AddModelError("", "Rol Güncellenemedi");
+                return View(vm);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _positionManager.DeletePositionAsync(id);
+
+            if (!result)
+                return BadRequest("Silme başarısız.");
+
+            return Ok();
+        }
     }
 }

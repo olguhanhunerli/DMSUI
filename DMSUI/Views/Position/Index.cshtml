@@ -105,16 +105,19 @@
 @section Scripts {
     <script>
         async function deletePosition(id) {
-            if (!confirm("Pozisyon silinsin mi?")) return;
 
-            const response = await fetch('/Position/Delete', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}`
+            if (!confirm("Bu Pozisyon silinsin mi?")) return;
+
+            const response = await fetch(`/Position/Delete?id=${id}`, {
+                method: 'DELETE'
             });
 
-            if (response.ok) location.reload();
-            else alert("Silme işlemi başarısız!");
+            if (response.ok) {
+                location.reload();
+            } else {
+                const text = await response.text();
+                alert("Pozisyon silinemedi! -> " + text);
+            }
         }
     </script>
 }

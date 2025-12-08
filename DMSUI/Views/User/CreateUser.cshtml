@@ -103,7 +103,7 @@
                         <select asp-for="CompanyId"
                                 asp-items="Model.CompanyList"
                                 class="form-select"
-                                disabled="@(Model.CompanyList.Count == 1 ? "disabled" : null)">
+                                Model.CompanyListl>
                             <option value="">-- Şirket Seçiniz --</option>
                         </select>
 

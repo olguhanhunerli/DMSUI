@@ -23,7 +23,12 @@ namespace DMSUI.Services
 			return await _positionApiClient.AddPositionAsync(position);	
 		}
 
-		public async Task<List<PositionListDTO>> GetAllPositionsAsync()
+        public async Task<bool> DeletePositionAsync(int id)
+        {
+            return await _positionApiClient.DeletePositionAsync(id);
+        }
+
+        public async Task<List<PositionListDTO>> GetAllPositionsAsync()
 		{
 			return await _positionApiClient.GetAllPositionsAsync();
 		}
@@ -32,5 +37,10 @@ namespace DMSUI.Services
 		{
 			return await _positionApiClient.GetPositionByIdAsync(id);
 		}
-	}
+
+        public async Task<bool> UpdatePositionAsync(PositionUpdateDTO positionUpdateDTO, int id)
+        {
+            return await _positionApiClient.UpdatePositionAsync(positionUpdateDTO, id);
+        }
+    }
 }
