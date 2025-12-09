@@ -1,4 +1,5 @@
-﻿using DMSUI.Entities.DTOs.Departments;
+﻿using DMSUI.Entities.DTOs.Common;
+using DMSUI.Entities.DTOs.Departments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,8 @@ namespace DMSUI.Services.Interfaces
     {
         Task<List<DepartmentListDTO>> GetAllDepartmentsAsync();
 		Task<DepartmentDetailDTO> GetDepartmentsByIdAsync(int id);
-		Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department);
+        Task<PagedResultDTO<DepartmentListDTO>> GetPagedAsync(int page, int pageSize);
+        Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department);
 		Task<bool> CreateDepartmentAsync(DepartmentCreateDTO department);
 		Task<bool> DeleteDepartmentAsync(int id);
 

@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Position;
 using DMSUI.Services.Interfaces;
 using System;
@@ -33,7 +34,12 @@ namespace DMSUI.Services
 			return await _positionApiClient.GetAllPositionsAsync();
 		}
 
-		public async Task<PositionDetailDTO> GetPositionByIdAsync(int id)
+        public async Task<PagedResultDTO<PositionListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+			return await _positionApiClient.GetPagedAsync(page, pageSize);
+        }
+
+        public async Task<PositionDetailDTO> GetPositionByIdAsync(int id)
 		{
 			return await _positionApiClient.GetPositionByIdAsync(id);
 		}

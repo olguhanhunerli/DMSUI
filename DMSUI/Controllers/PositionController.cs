@@ -1,8 +1,11 @@
 ﻿using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.Role;
+using DMSUI.Services;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Position;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,10 +25,16 @@ namespace DMSUI.Controllers
 			_userManager = userManager;
 		}
 
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var positions = await _positionManager.GetAllPositionsAsync();
-            return View(positions);
+            var result = await _positionManager.GetPagedAsync(page, pageSize);
+
+            ViewBag.Page = result.Page;
+            ViewBag.PageSize = result.PageSize;
+            ViewBag.TotalPages = result.TotalPages;
+            ViewBag.TotalCount = result.TotalCount;
+
+            return View(result.Items);
         }
         public async Task<IActionResult> Create()
         {
@@ -106,15 +115,17 @@ namespace DMSUI.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-        [HttpDelete]
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _positionManager.DeletePositionAsync(id);
 
             if (!result)
-                return BadRequest("Silme başarısız.");
+                TempData["Error"] = "Pozisyon silinemedi!";
+            else
+                TempData["Success"] = "Rol başarıyla silindi.";
 
-            return Ok();
+            return RedirectToAction(nameof(Index));
         }
     }
 }

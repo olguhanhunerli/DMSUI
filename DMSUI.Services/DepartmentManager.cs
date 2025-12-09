@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Services.Interfaces;
 using System;
@@ -38,7 +39,12 @@ namespace DMSUI.Services
 			return await _departmentApiClient.GetDepartmentsByIdAsync(id);
 		}
 
-		public async Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department)
+        public async Task<PagedResultDTO<DepartmentListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            return await _departmentApiClient.GetPagedAsync(page, pageSize);
+        }
+
+        public async Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department)
 		{
 			return await _departmentApiClient.UpdateDepartmentAsync(department);
 		}

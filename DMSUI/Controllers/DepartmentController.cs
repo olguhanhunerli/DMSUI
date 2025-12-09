@@ -5,6 +5,7 @@ using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Department;
 using DMSUI.ViewModels.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -23,10 +24,17 @@ namespace DMSUI.Controllers
 			_companyManager = companyManager;
 		}
 
-		public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var departments = await _departmentManager.GetAllDepartmentsAsync();
-            return View(departments);
+
+            var result = await _departmentManager.GetPagedAsync(page, pageSize);
+
+            ViewBag.Page = result.Page;
+            ViewBag.PageSize = result.PageSize;
+            ViewBag.TotalPages = result.TotalPages;
+            ViewBag.TotalCount = result.TotalCount;
+
+            return View(result.Items);
         }
 		public async Task<IActionResult> Create()
 		{
@@ -100,22 +108,9 @@ namespace DMSUI.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Edit(DepartmentEditViewModel vm)
 		{
-			Console.WriteLine(">>> POST EDIT TETİKLENDİ <<<");
 			if (!ModelState.IsValid)
 			{
-				Console.WriteLine(">>> MODELSTATE INVALID <<<");
-
-				foreach (var entry in ModelState)
-				{
-					if (entry.Value.Errors.Count > 0)
-					{
-						Console.WriteLine($"FIELD: {entry.Key}");
-						foreach (var error in entry.Value.Errors)
-						{
-							Console.WriteLine($"ERROR: {error.ErrorMessage}");
-						}
-					}
-				}
+				
 				var managers = await _userManager.GetAllUsersAsync();
 				vm.ManagerSelectList = managers.Select(u => new SelectListItem
 				{
@@ -161,14 +156,17 @@ namespace DMSUI.Controllers
 			TempData["Success"] = "Departman başarıyla güncellendi.";
 			return RedirectToAction(nameof(Index));
 		}
-		[HttpDelete]
-		public async Task<IActionResult> Delete(int id)
-		{
-			var result = await _departmentManager.DeleteDepartmentAsync(id);
-			if (!result)
-				return BadRequest("Silme başarısız.");
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _departmentManager.DeleteDepartmentAsync(id);
 
-			return Ok();
-		}
+            if (!result)
+                TempData["Error"] = "Silme işlemi başarısız!";
+            else
+                TempData["Success"] = "Departman silindi.";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

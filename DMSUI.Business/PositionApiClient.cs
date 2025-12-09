@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Position;
 using Microsoft.AspNetCore.Http;
@@ -76,9 +77,17 @@ namespace DMSUI.Business
 
         public async Task<bool> DeletePositionAsync(int id)
         {
-			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/Position/delete/{id}");
-			return response.IsSuccessStatusCode;
+            AttachToken();
+
+            var response = await _httpClient.DeleteAsync($"api/Position/delete/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<bool> UpdatePositionAsync(PositionUpdateDTO positionUpdateDTO, int id)
@@ -86,6 +95,23 @@ namespace DMSUI.Business
 			AttachToken();
 			var response = await _httpClient.PutAsJsonAsync("api/Position/update", positionUpdateDTO);
 			return response.IsSuccessStatusCode;
+        }
+
+        public async Task<PagedResultDTO<PositionListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Position/get-paged?page={page}&pageSize={pageSize}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new PagedResultDTO<PositionListDTO>();
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<PagedResultDTO<PositionListDTO>>(
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new PagedResultDTO<PositionListDTO>();
         }
     }
 }

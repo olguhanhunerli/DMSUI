@@ -1,4 +1,6 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Category;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.Role;
@@ -86,5 +88,22 @@ namespace DMSUI.Business
 			var response = await _httpClient.DeleteAsync($"api/Department/delete/{id}");
 			return response.IsSuccessStatusCode;	
 		}
-	}
+
+        public async Task<PagedResultDTO<DepartmentListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Department/get-paged?page={page}&pageSize={pageSize}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new PagedResultDTO<DepartmentListDTO>();
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<PagedResultDTO<DepartmentListDTO>>(
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new PagedResultDTO<DepartmentListDTO>();
+        }
+    }
 }

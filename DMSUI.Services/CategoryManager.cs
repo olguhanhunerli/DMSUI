@@ -49,9 +49,19 @@ namespace DMSUI.Services
             return await _categoryApiClient.GetTreeAsync();
         }
 
+        public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto)
+        {
+            return await _categoryApiClient.RestoreCategoryAsync(dto);
+        }
+
         public async Task<List<CategoryListDTO>> SearchAsync(string keyword)
         {
             return await _categoryApiClient.SearchAsync(keyword);
+        }
+
+        public async Task<bool> UpdateCategoryAsync(CategoryUpdateDTO dto)
+        {
+            return await _categoryApiClient.UpdateCategoryAsync(dto);
         }
     }
 }

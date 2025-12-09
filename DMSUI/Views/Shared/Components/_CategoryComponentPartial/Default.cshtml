@@ -1,0 +1,19 @@
+﻿@using DMSUI.Entities.DTOs.Category
+@model List<CategoryTreeDTO>
+
+<div class="card shadow-sm border-0 h-100">
+    <div class="card-header bg-light fw-semibold">
+        <i class="bi bi-folder2-open me-1"></i> Kategoriler
+    </div>
+
+    <div class="card-body p-2">
+        <div class="accordion" id="categoryAccordion">
+
+            @foreach (var cat in Model)
+            {
+                @await Html.PartialAsync("~/Views/Shared/Components/_CategoryComponentPartial/_CategoryNode.cshtml", cat)
+            }
+
+        </div>
+    </div>
+</div>

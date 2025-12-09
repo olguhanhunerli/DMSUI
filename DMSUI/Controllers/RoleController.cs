@@ -1,7 +1,9 @@
 ﻿using DMSUI.Entities.DTOs.Role;
+using DMSUI.Services;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Role;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using StackExchange.Redis;
 using System.Threading.Tasks;
 
@@ -16,10 +18,16 @@ namespace DMSUI.Controllers
             _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
-            var roles = await _roleManager.GetAllRolesAsync();
-            return View(roles);
+            var result = await _roleManager.GetPagedAsync(page, pageSize);
+
+            ViewBag.Page = result.Page;
+            ViewBag.PageSize = result.PageSize;
+            ViewBag.TotalPages = result.TotalPages;
+            ViewBag.TotalCount = result.TotalCount;
+
+            return View(result.Items);
         }
         public async Task<IActionResult> Create()
         {
@@ -78,15 +86,17 @@ namespace DMSUI.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-		[HttpDelete]
-		public async Task<IActionResult> Delete(int id)
-		{
-			var result = await _roleManager.DeleteRoleAsync(id);
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var result = await _roleManager.DeleteRoleAsync(id);
 
-			if (!result)
-				return BadRequest("Silme başarısız.");
+            if (!result)
+                TempData["Error"] = "Rol silinemedi!";
+            else
+                TempData["Success"] = "Rol başarıyla silindi.";
 
-			return Ok();
-		}
-	}
+            return RedirectToAction(nameof(Index));
+        }
+    }
 }

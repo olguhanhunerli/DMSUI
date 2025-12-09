@@ -18,6 +18,15 @@
         </a>
     </div>
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
     <div class="card border-0 shadow-sm">
         <div class="card-body p-2">
 
@@ -27,7 +36,7 @@
                         <tr>
                             <th class="px-3">#</th>
                             <th class="px-3">Departman Adı</th>
-                            <th class="px-3">Açıklamalar</th>
+                            <th class="px-3">Açıklama</th>
                             <th class="px-3">Notlar</th>
                             <th class="px-3">Kod</th>
                             <th class="px-3">Yönetici</th>
@@ -40,7 +49,7 @@
 
                     <tbody class="text-nowrap">
                         @{
-                            int rowNo = 1;
+                            int rowNo = ((ViewBag.Page - 1) * ViewBag.PageSize) + 1;
                         }
 
                         @foreach (var dept in Model)
@@ -49,8 +58,9 @@
                                 <td class="px-3">@rowNo</td>
 
                                 <td class="fw-semibold px-3">@dept.Name</td>
-                                <td class="fw-semibold px-3">@dept.Description</td>
-                                <td class="fw-semibold px-3">@dept.Notes</td>
+                                <td class="px-3">@dept.Description</td>
+                                <td class="px-3">@dept.Notes</td>
+
                                 <td class="px-3">
                                     <span class="badge bg-secondary">
                                         @dept.DepartmentCode
@@ -64,9 +74,11 @@
                                 <td class="px-3">
                                     @(dept.CompanyName ?? "-")
                                 </td>
+
                                 <td class="px-3">
                                     @(dept.CreatedByName ?? "-")
                                 </td>
+
                                 <td class="px-3">
                                     @(dept.UploadedByName ?? "-")
                                 </td>
@@ -80,14 +92,22 @@
                                             <i class="bi bi-pencil-square text-primary"></i>
                                         </a>
 
-                                        <button onclick="deleteDepartment(@dept.Id)"
-                                                class="btn btn-light border">
-                                            <i class="bi bi-trash text-danger"></i>
-                                        </button>
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@dept.Id" />
+                                            <button type="submit"
+                                                    onclick="return confirm('Departman silinsin mi?')"
+                                                    class="btn btn-light border">
+                                                <i class="bi bi-trash text-danger"></i>
+                                            </button>
+                                        </form>
 
                                     </div>
                                 </td>
                             </tr>
+
                             rowNo++;
                         }
 
@@ -98,21 +118,20 @@
         </div>
     </div>
 
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-end">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.Page == i ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-pageSize="@ViewBag.PageSize">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+
 </div>
-
-@section Scripts {
-    <script>
-        async function deleteDepartment(id) {
-            if (!confirm("Departman silinsin mi?")) return;
-
-          const response = await fetch(`/Department/Delete?id=${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `id=${id}`
-            });
-
-            if (response.ok) location.reload();
-            else alert("Silme işlemi başarısız!");
-        }
-    </script>
-}

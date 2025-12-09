@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Role;
 using DMSUI.Services.Interfaces;
 using System;
@@ -33,7 +34,12 @@ namespace DMSUI.Services
 			return await _roleApiClient.GetRoleListsAsync();
 		}
 
-		public async Task<RoleListDTO> GetRoleByIdAsync(int id)
+        public async Task<PagedResultDTO<RoleListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+			return await _roleApiClient.GetPagedAsync(page, pageSize);
+        }
+
+        public async Task<RoleListDTO> GetRoleByIdAsync(int id)
 		{
 			return await _roleApiClient.GetRoleByIdAsync(id);
 		}

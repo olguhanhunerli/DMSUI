@@ -3,6 +3,7 @@ using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Category;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StackExchange.Redis;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
@@ -66,7 +67,7 @@ namespace DMSUI.Controllers
                 Code = vm.Code,
                 SortOrder = vm.SortOrder,
                 IsActive = vm.IsActive,
-                CompanyId = vm.CompanyId
+                CompanyId = vm.CompanyId,
             };
 
             var result = await _categoryManager.CreateCategoryAsync(dto);
@@ -107,7 +108,6 @@ namespace DMSUI.Controllers
 				Id = category.Id,
 				Name = category.Name,
 				Description = category.Description,
-				Slug = category.Slug,
 				Code = category.Code,
 				ParentId = category.ParentId,
 				ParentName = category.ParentName,
@@ -124,29 +124,77 @@ namespace DMSUI.Controllers
 
 			};
 
-            var parents = await _categoryManager.GetAllCategoriesAsync();
-
-            model.ParentSelectList = parents
-                .Where(x => x.Id != id)
-                .Select( x => new SelectListItem
-                {
-                    Value = x.Id.ToString(),
-                    Text = x.Name,
-                }).ToList();
+            var tree = await _categoryManager.GetTreeAsync();
+            var list = new List<SelectListItem>();
+            BuildSelectList(tree, list, 0, id);
+            model.ParentSelectList = list;
             return View(model);
         }
-        private void BuildSelectList(List<CategoryTreeDTO> categoryTrees, List<SelectListItem> list, int level)
+        [HttpPost]
+        public async Task<IActionResult> Edit(CategoryEditViewModel vm)
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"❌ FIELD: {state.Key} | ERROR: {error.ErrorMessage}");
+                    }
+                }
+                var tree = await _categoryManager.GetTreeAsync();
+                var list = new List<SelectListItem>();
+                BuildSelectList(tree, list, 0, vm.Id);
+                vm.ParentSelectList = list;
+
+                return View(vm);
+            }
+
+            var dto = new CategoryUpdateDTO
+            {
+                Id = vm.Id,
+                Name = vm.Name,
+                Description = vm.Description,
+                ParentId = vm.ParentId,
+                SortOrder = vm.SortOrder,
+                IsActive = vm.IsActive
+            };
+
+            var result = await _categoryManager.UpdateCategoryAsync(dto);
+
+            if (!result)
+            {
+                TempData["Error"] = "Kategori güncellenemedi.";
+
+                var tree = await _categoryManager.GetTreeAsync();
+                var list = new List<SelectListItem>();
+                BuildSelectList(tree, list, 0, vm.Id);
+                vm.ParentSelectList = list;
+
+                return View(vm);
+            }
+
+            TempData["Success"] = "Kategori başarıyla güncellendi.";
+            return RedirectToAction(nameof(Index));
+        }
+       
+        private void BuildSelectList(List<CategoryTreeDTO> categoryTrees, List<SelectListItem> list, int level, int? excludeId = null)
         {
             foreach (var item in categoryTrees)
             {
+                if (excludeId.HasValue && item.Id == excludeId.Value)
+                    continue;
+
                 list.Add(new SelectListItem
                 {
                     Value = item.Id.ToString(),
-                    Text = new string('-', level*3)+ " "+ item.Name,
+                    Text = new string('-', level * 2) + item.Name
                 });
-                if (item.Children.Any())
+
+                if (item.Children != null && item.Children.Any())
                 {
-                    BuildSelectList(item.Children, list, level+1);
+                    BuildSelectList(item.Children, list, level + 1, excludeId);
                 }
             }
         }

@@ -1,4 +1,6 @@
-﻿using DMSUI.Entities.DTOs.Role;
+﻿using DMSUI.Entities.DTOs.Common;
+using DMSUI.Entities.DTOs.Departments;
+using DMSUI.Entities.DTOs.Role;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +17,6 @@ namespace DMSUI.Business.Interfaces
 
 		Task<bool> UpdateRoleAsync(int id, RoleUpdateDTO roleUpdateDTO);
         Task<bool> DeleteRoleAsync(int id);
+        Task<PagedResultDTO<RoleListDTO>> GetPagedAsync(int page, int pageSize);
     }
 }

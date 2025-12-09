@@ -1,5 +1,7 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Company;
+using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Role;
 using DMSUI.Entities.DTOs.User;
 using Microsoft.AspNetCore.Http;
@@ -88,5 +90,22 @@ namespace DMSUI.Business
 			var response = await _httpClient.DeleteAsync($"api/Role/delete/{id}");
 			return response.IsSuccessStatusCode;
 		}
-	}
+
+        public async Task<PagedResultDTO<RoleListDTO>> GetPagedAsync(int page, int pageSize)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Role/get-paged?page={page}&pageSize={pageSize}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new PagedResultDTO<RoleListDTO>();
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<PagedResultDTO<RoleListDTO>>(
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }) ?? new PagedResultDTO<RoleListDTO>();
+        }
+    }
 }

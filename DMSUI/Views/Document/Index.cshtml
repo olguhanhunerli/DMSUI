@@ -1,1 +1,77 @@
-﻿
+﻿@using DMSUI.Entities.DTOs.Document
+@model List<DocumentListDTO>
+
+@{
+	ViewData["Title"] = "Dokümanlar";
+}
+
+<div class="container mt-4">
+
+	<div class="card shadow-sm border-0">
+		<div class="card-header bg-dark text-white d-flex justify-content-between">
+			<h5 class="mb-0">
+				<i class="bi bi-folder2-open"></i> Dokümanlar
+			</h5>
+			<a asp-action="Create" class="btn btn-sm btn-success">
+				<i class="bi bi-plus-circle"></i> Yeni Doküman
+			</a>
+		</div>
+
+		<div class="card-body p-0">
+			<table class="table table-hover mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>Kod</th>
+						<th>Başlık</th>
+						<th>Şirket</th>
+						<th>Kategori</th>
+						<th>Versiyon</th>
+						<th>Durum</th>
+						<th>Oluşturan</th>
+						<th>Tarih</th>
+						<th class="text-end">İşlem</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>@item.DocumentCode</td>
+							<td>@item.Title</td>
+							<td>@item.CompanyName</td>
+							<td>@item.CategoryName</td>
+							<td>@item.VersionNumber</td>
+							<td>
+								<span class="badge bg-@(item.Status == "Approved" ? "success" : item.Status == "Rejected" ? "danger" : "warning")">
+									@item.Status
+								</span>
+							</td>
+							<td>@item.CreatedByName</td>
+							<td>@item.CreatedAt.ToString("dd.MM.yyyy")</td>
+							<td class="text-end">
+
+								<a asp-action="Detail" asp-route-id="@item.Id"
+								   class="btn btn-sm btn-outline-primary">
+									<i class="bi bi-eye"></i>
+								</a>
+
+								<a asp-action="Edit" asp-route-id="@item.Id"
+								   class="btn btn-sm btn-outline-warning">
+									<i class="bi bi-pencil"></i>
+								</a>
+
+								<button onclick="deleteDocument(@item.Id)"
+										class="btn btn-sm btn-outline-danger">
+									<i class="bi bi-trash"></i>
+								</button>
+
+							</td>
+						</tr>
+					}
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

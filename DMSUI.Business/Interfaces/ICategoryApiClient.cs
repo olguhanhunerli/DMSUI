@@ -17,5 +17,7 @@ namespace DMSUI.Business.Interfaces
         Task<List<CategoryTreeDTO>> GetTreeAsync();
         Task<bool> CreateCategoryAsync(CreateCategoryDTO dto);
         Task<bool> DeleteCategoryAsync(int id);
+        Task<bool> UpdateCategoryAsync(CategoryUpdateDTO dto);
+        Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto);
     }
 }

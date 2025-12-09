@@ -14,25 +14,22 @@
 
 <body class="bg-light m-0 p-0 overflow-hidden">
 
-    <!-- HEADER -->
     <header class="w-100">
         @await Component.InvokeAsync("_HeaderComponentPartial")
     </header>
 
-    <!-- ANA ALAN -->
     <div class="layout-wrapper">
 
-        <!-- SIDEBAR -->
         @await Component.InvokeAsync("_SideBarComponentPartial")
-
-        <!-- CONTENT -->
+        <div class="col-lg-3">
+            @await Component.InvokeAsync("_CategoryComponentPartial")
+        </div>
         <main role="main" class="content-wrapper">
             @RenderBody()
         </main>
 
     </div>
 
-    <!-- FOOTER -->
     <footer class="footer border-top text-muted">
         @await Component.InvokeAsync("_FooterComponentPartial")
     </footer>
@@ -41,4 +38,23 @@
     @await RenderSectionAsync("Scripts", required: false)
 
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const sidebar = document.getElementById("sidebar");
+        const toggleBtn = document.getElementById("navbarDmsToggle");
+
+        if (!sidebar || !toggleBtn) return;
+
+        toggleBtn.addEventListener("click", function () {
+
+            if (sidebar.style.width === "0px") {
+                sidebar.style.width = "260px";
+            } else {
+                sidebar.style.width = "0";
+            }
+
+        });
+    });
+</script>
 </html>

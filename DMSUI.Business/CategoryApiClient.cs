@@ -136,5 +136,19 @@ namespace DMSUI.Business
 				 body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
 			 );
 		}
-	}
+
+        public async Task<bool> UpdateCategoryAsync(CategoryUpdateDTO dto)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync("api/Category/update", dto);
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> RestoreCategoryAsync(CategoryRestoreDTO dto)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync("api/Category/restore", dto);
+            return response.IsSuccessStatusCode;
+        }
+    }
 }
