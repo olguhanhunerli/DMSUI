@@ -1,0 +1,194 @@
+﻿@model DMSUI.ViewModels.Document.DocumentCreatePreviewViewModel
+
+@{
+    ViewData["Title"] = "Yeni Doküman Oluştur";
+}
+
+<form asp-action="Create" method="post">
+
+    <!-- ✅ Hidden Sistem Alanları -->
+    <input type="hidden" asp-for="PreparedByUserId" />
+    <input type="hidden" asp-for="PreparedAt" />
+    <input type="hidden" asp-for="DocumentCode" />
+
+    <div class="container-fluid mt-4">
+
+        <div class="card shadow-sm border-0">
+
+            <!-- HEADER -->
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-plus"></i> Yeni Doküman Oluştur
+                </h5>
+            </div>
+
+            <div class="card-body p-0">
+
+                <!-- TABLAR -->
+                <ul class="nav nav-tabs px-3 pt-3" id="documentCreateTabs" role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active"
+                                id="preview-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#preview"
+                                type="button" role="tab">
+                            <i class="bi bi-eye"></i> Doküman Bilgileri
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="content-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#content"
+                                type="button" role="tab">
+                            <i class="bi bi-file-text"></i> İçerik
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="files-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#files"
+                                type="button" role="tab">
+                            <i class="bi bi-paperclip"></i> Dosyalar
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content p-4">
+
+                    <div class="tab-pane fade show active" id="preview" role="tabpanel">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Klasör Adı</label>
+                                <input class="form-control" value="@Model.CategoryName" readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Doküman Kodu</label>
+                                <input class="form-control" value="@Model.DocumentCode" readonly />
+
+                                @if (Model.IsCodeValid)
+                                {
+                                    <small class="text-success">Kod geçerli</small>
+                                }
+                                else
+                                {
+                                    <small class="text-danger">Kod geçersiz</small>
+                                }
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Doküman Adı (TR)</label>
+                                <input asp-for="TitleTr" class="form-control" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Doküman Tipi</label>
+                                <input asp-for="DocumentType" class="form-control" />
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Revizyon No</label>
+                                <input asp-for="RevisionNumber" class="form-control" readonly />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Hazırlayan</label>
+                                <input class="form-control" value="@Model.PreparedByUserName" readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Hazırlanma Tarihi</label>
+                                <input class="form-control"
+                                       value="@Model.PreparedAt.ToString("dd.MM.yyyy HH:mm")"
+                                       readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">İlgili Bölüm</label>
+                                <select asp-for="DepartmentId"
+                                        asp-items="Model.DepartmentList"
+                                        class="form-select">
+                                    <option value="">-- Departman Seçin --</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+
+                    </div>
+
+                    <div class="tab-pane fade" id="content" role="tabpanel">
+                        <div class="alert alert-info">
+                            Doküman içerik alanları burada olacak.
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="files" role="tabpanel">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Doküman Dosyası Yükle (TR / EN)
+                                </label>
+
+                                <input type="file"
+                                       class="form-control"
+                                       id="documentFileInput"
+                                       name="DocumentFile"
+                                       accept=".pdf,.doc,.docx,.xlsx,.png,.jpg" />
+
+                                <small class="text-muted">
+                                    Dosya adı <b>@Model.DocumentCode</b> ile başlamak zorundadır.
+                                </small>
+
+                                <div id="fileValidationMessage"
+                                     class="text-danger mt-1"
+                                     style="display:none;">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-light border mt-4">
+                                    <i class="bi bi-info-circle"></i>
+                                    Örnek:
+                                    <ul class="mb-0">
+                                        <li>@(Model.DocumentCode).pdf</li>
+                                        <li>@($"{Model.DocumentCode}_Example.docx")</li>
+                                        <li>@($"{Model.DocumentCode}_Example.pdf")</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card-footer d-flex justify-content-end gap-2">
+
+                <a asp-action="SelectCategory" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Listeye Dön
+                </a>
+
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-check-circle"></i> Kaydet
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>

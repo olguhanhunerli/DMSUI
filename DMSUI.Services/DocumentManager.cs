@@ -19,7 +19,12 @@ namespace DMSUI.Services
             _client = client;
         }
 
-        public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
+		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
+		{
+			return await _client.GetDocumentCreatePreview(categoryId);
+		}
+
+		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
         {
             return await _client.GetPagedAsync(page, pageSize);
         }

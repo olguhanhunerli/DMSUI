@@ -157,4 +157,21 @@ html, body {
 .category-row:hover {
     background-color: #f8f9fa;
 }
+.category-scroll-container {
+    max-height: calc(100vh - 340px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
+    .category-scroll-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .category-scroll-container::-webkit-scrollbar-thumb {
+        background-color: #c1c1c1;
+        border-radius: 4px;
+    }
+
+    .category-scroll-container::-webkit-scrollbar-track {
+        background-color: transparent;
+    }

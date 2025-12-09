@@ -52,5 +52,18 @@ namespace DMSUI.Business
                     PropertyNameCaseInsensitive = true
                 }) ?? new PagedResultDTO<DocumentListDTO>();
         }
-    }
+
+		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Document/create-preview?categoryId={categoryId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                return new DocumentCreatePreviewDTO();
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<DocumentCreatePreviewDTO>(body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+	}
 }

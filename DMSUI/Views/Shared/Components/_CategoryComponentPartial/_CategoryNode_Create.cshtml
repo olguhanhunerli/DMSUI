@@ -1,0 +1,30 @@
+﻿@using DMSUI.Entities.DTOs.Category
+@model CategoryTreeDTO
+
+<div class="mb-1">
+
+    <a class="d-flex justify-content-between align-items-center text-decoration-none text-dark p-2 border rounded mb-1"
+       asp-controller="Document"
+       asp-action="Create"
+       asp-route-categoryId="@Model.Id">
+
+        <span>
+            <i class="bi bi-folder"></i> @Model.Name
+        </span>
+
+        <i class="bi bi-arrow-right-circle"></i>
+    </a>
+
+    @if (Model.Children != null && Model.Children.Any())
+    {
+        <div class="ps-3">
+            @foreach (var child in Model.Children)
+            {
+                @await Html.PartialAsync(
+                         "~/Views/Shared/Components/_CategoryComponentPartial/_CategoryNode_Create.cshtml",
+                         child)
+            }
+        </div>
+    }
+
+</div>

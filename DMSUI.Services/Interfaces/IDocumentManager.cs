@@ -11,5 +11,6 @@ namespace DMSUI.Services.Interfaces
     public interface IDocumentManager
     {
         Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize);
-    }
+		Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId);
+	}
 }
