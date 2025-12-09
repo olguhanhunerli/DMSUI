@@ -25,7 +25,12 @@ namespace DMSUI.Services
             return await _userApiClient.CreateUserAsync(userRegisterDTO);
         }
 
-        public async Task<List<UserListDTO>> GetAllUsersAsync()
+		public async Task<List<ApproverUserDTO>> GetAllApprovers()
+		{
+			return await _userApiClient.GetAllApprovers();
+		}
+
+		public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
             return await _userApiClient.GetAllUsersAsync();
         }

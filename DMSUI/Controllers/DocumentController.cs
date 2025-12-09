@@ -2,6 +2,7 @@
 using DMSUI.Services;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Document;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IdentityModel.Tokens.Jwt;
@@ -42,7 +43,7 @@ namespace DMSUI.Controllers
             return View(categories);
         }
         [HttpGet]
-        public async Task<IActionResult> Create(int categoryId)
+		public async Task<IActionResult> Create(int categoryId)
         {
 			
 			if (categoryId <= 0)
@@ -68,7 +69,9 @@ namespace DMSUI.Controllers
             {
                 return NotFound();
             }
+            var approvers = await _userManager.GetAllApprovers();
 
+            
             var vm = new DocumentCreatePreviewViewModel
             {
 				DocumentCode = previewDTO.DocumentCode,
@@ -87,6 +90,13 @@ namespace DMSUI.Controllers
 				DepartmentList = (await _departmentManager.GetAllDepartmentsAsync())
                 .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name }).ToList(),
             };
+            vm.ApprovalList = approvers.Select(x => new ApprovalRowViewModel
+            {
+				UserId = x.Id,
+				UserName = x.FullName,
+				PositionName =x.PositionName,
+				ApprovalLevel = 1
+			}).ToList();
             return View(vm);
         }
     }

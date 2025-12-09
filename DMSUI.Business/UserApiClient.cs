@@ -146,5 +146,19 @@ namespace DMSUI.Business
 
             return response.IsSuccessStatusCode;
         }
-    }
+
+		public async Task<List<ApproverUserDTO>> GetAllApprovers()
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync("/api/User/approvers");
+            if(!response.IsSuccessStatusCode)
+            {
+				return new List<ApproverUserDTO>();
+
+			}
+			var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<ApproverUserDTO>>(
+               body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ApproverUserDTO>();
+		}
+	}
 }

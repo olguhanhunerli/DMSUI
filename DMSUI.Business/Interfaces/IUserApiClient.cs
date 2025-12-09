@@ -15,7 +15,7 @@ namespace DMSUI.Business.Interfaces
         Task<UserListDTO?> GetUserByIdAsync(int userId);
         Task<bool> CreateUserAsync(UserRegisterDTO userRegisterDTO);
         Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO);
-
+        Task<List<ApproverUserDTO>> GetAllApprovers();
         Task<bool> SetActiveStatusAsync(int id ,bool activeStatus);
         Task<bool> SoftDeleteUserIdAsync(int id);
         Task<PagedResultDTO<UserListDTO>> SearchUserAsync(UserSearchDTO userSearchDTO);
