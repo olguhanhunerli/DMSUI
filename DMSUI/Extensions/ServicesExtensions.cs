@@ -24,6 +24,7 @@ namespace DMSUI.Extensions
             services.AddScoped<ICompanyManager, CompanyManager>();
             services.AddScoped<ICategoryManager, CategoryManager>();
             services.AddScoped<IDocumentManager, DocumentManager>();
+            services.AddScoped<IDocumentApprovalManager, DocumentApprovalManager>();
 
 			services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -67,7 +68,11 @@ namespace DMSUI.Extensions
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
             });
 
-
+            services.AddHttpClient<IDocumentApprovalApiClient, DocumentApprovalApiClient>(client =>
+            {
+                var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+                client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            });
             services.AddTransient<ApiAuthMessageHandler>();
             return services;
         }

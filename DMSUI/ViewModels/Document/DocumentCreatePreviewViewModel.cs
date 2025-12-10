@@ -26,5 +26,6 @@ namespace DMSUI.ViewModels.Document
 
 		public List<SelectListItem> DepartmentList { get; set; } = new();
 		public List<ApprovalRowViewModel> ApprovalList { get; set; } = new();
-	}
+        public List<IFormFile> AttachmentFiles { get; set; } = new();
+    }
 }

@@ -35,7 +35,11 @@
                             <i class="bi bi-shield-check"></i> Onay Akışı
                         </button>
                     </li>
-
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#attachments">
+                            <i class="bi bi-folder-plus"></i> Ek Dosyalar
+                        </button>
+                    </li>
                     <li class="nav-item">
                         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#files">
                             <i class="bi bi-paperclip"></i> Dosyalar
@@ -163,7 +167,40 @@
                         </table>
 
                     </div>
+                    <div class="tab-pane fade" id="attachments">
 
+                        <div class="alert alert-info border mb-3">
+                            <i class="bi bi-paperclip"></i>
+                            Bu alandan dokümana ek dosyalar yükleyebilirsiniz.
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Ek Dosyalar</label>
+
+                                <input type="file"
+                                       class="form-control"
+                                       name="AttachmentFiles"
+                                       multiple
+                                       accept=".pdf,.doc,.docx,.xlsx,.png,.jpg" />
+
+                                <small class="text-muted">
+                                    Aynı dokümana birden fazla dosya ekleyebilirsiniz.
+                                </small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="alert alert-light border mt-4">
+                                    <i class="bi bi-info-circle"></i>
+                                    Bu dosyalar **doküman oluşturulduktan sonra**
+                                    ayrı bir istekle sisteme kaydedilecektir.
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
                     <div class="tab-pane fade" id="files">
 
                         <div class="row g-3">
