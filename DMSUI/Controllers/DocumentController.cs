@@ -119,7 +119,6 @@ namespace DMSUI.Controllers
              IFormFile? DocumentFile,
              List<IFormFile>? AttachmentFiles)
         {
-            // 1) Preview bilgilerinin tazelenmesi (ApprovalList hariç)
             var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
 
             vm.DocumentCode = preview.DocumentCode;
@@ -129,9 +128,6 @@ namespace DMSUI.Controllers
             vm.VersionNumber = preview.VersionNumber;
             vm.IsCodeValid = preview.IsCodeValid;
 
-            // -------------------------
-            // 2) Kod kontrolü
-            // -------------------------
             if (string.IsNullOrWhiteSpace(vm.DocumentCode))
             {
                 ModelState.AddModelError("", "Doküman kodu alınamadı.");
@@ -139,9 +135,6 @@ namespace DMSUI.Controllers
                 return View(vm);
             }
 
-            // -------------------------
-            // 3) Ana dosya ad kontrolü
-            // -------------------------
             if (DocumentFile != null &&
                 !DocumentFile.FileName.StartsWith(vm.DocumentCode, StringComparison.OrdinalIgnoreCase))
             {
@@ -152,9 +145,6 @@ namespace DMSUI.Controllers
                 return View(vm);
             }
 
-            // -------------------------
-            // 4) Departman Validation
-            // -------------------------
             if (vm.DepartmentId == null || vm.DepartmentId <= 0)
             {
                 ModelState.AddModelError("DepartmentId", "Departman seçilmelidir.");
@@ -162,9 +152,6 @@ namespace DMSUI.Controllers
                 return View(vm);
             }
 
-            // -------------------------
-            // 5) APPROVER Validation
-            // -------------------------
             var selectedApproverIds = vm.ApprovalList
                 .Where(a => a.IsSelected)
                 .OrderBy(a => a.ApprovalLevel)
@@ -178,34 +165,26 @@ namespace DMSUI.Controllers
                 return View(vm);
             }
 
-            // -------------------------
-            // 6) DTO hazırlama
-            // -------------------------
-            var createDto = new CreateDocumentDTO
-            {
-                TitleTr = vm.TitleTr,
-                TitleEn = vm.TitleEn,
-                CategoryId = vm.CategoryId,
-                DepartmentId = vm.DepartmentId.Value,
-                DocumentType = vm.DocumentType,
-                VersionNote = vm.VersionNote,
-                RevisionNumber = vm.RevisionNumber,
-                IsPublic = false,
-                ApproverUserIds = selectedApproverIds,
-                Files = new List<IFormFile>()
-            };
+			var createDto = new CreateDocumentDTO
+			{
+				TitleTr = vm.TitleTr,
+				TitleEn = vm.TitleEn,
+				CategoryId = vm.CategoryId,
+				DepartmentId = vm.DepartmentId.Value,
+				DocumentType = vm.DocumentType,
+				VersionNote = vm.VersionNote,
+				RevisionNumber = vm.RevisionNumber,
+				IsPublic = false,
+				ApproverUserIds = selectedApproverIds,
+				MainFile = DocumentFile,                
+				Attachments = AttachmentFiles           
+			};
 
-
-            if (DocumentFile != null) createDto.Files.Add(DocumentFile);
-            if (AttachmentFiles != null) createDto.Files.AddRange(AttachmentFiles);
-
-            // -------------------------
-            // 7) API CALL
-            // -------------------------
             try
             {
                 var created = await _documentManager.CreateAsync(createDto);
-            }
+				Console.WriteLine("DOCUMENT CREATE RESULT --- UI: " + created);
+			}
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "API Hatası: " + ex.Message);
@@ -214,7 +193,7 @@ namespace DMSUI.Controllers
             }
 
             TempData["Success"] = "Doküman başarıyla oluşturuldu.";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -246,7 +225,6 @@ namespace DMSUI.Controllers
             {
                 if (selectedMap.TryGetValue(x.Id, out var existing))
                 {
-                    // Kullanıcının seçtiği onaycı korunur
                     return existing;
                 }
 

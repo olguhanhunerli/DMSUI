@@ -85,7 +85,6 @@ namespace DMSUI.Business
             foreach (var id in dto.ApproverUserIds)
                 form.Add(new StringContent(id.ToString()), "ApproverUserIds");
 
-            // ✔ ANA DOSYA
             if (dto.MainFile != null)
             {
                 var main = new StreamContent(dto.MainFile.OpenReadStream());
@@ -93,7 +92,6 @@ namespace DMSUI.Business
                 form.Add(main, "MainFile", dto.MainFile.FileName);
             }
 
-            // ✔ EKLER
             if (dto.Attachments != null)
             {
                 foreach (var file in dto.Attachments)
