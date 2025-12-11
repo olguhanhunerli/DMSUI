@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Business
 {
-    public class DocumentAttachmentManager : IDocumentAttachmentApiClient
+    public class DocumentAttachmentManager : IDocumentAttachmentManager
     {
         private readonly IDocumentAttachmentApiClient _client;
 

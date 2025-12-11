@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Approval;
 using DMSUI.Entities.DTOs.Document;
 using DMSUI.Services.Interfaces;
 using System;
@@ -18,9 +19,24 @@ namespace DMSUI.Services
             _client = client;
         }
 
+        public async Task ApproveAsync(int documentId)
+        {
+             await _client.ApproveAsync(documentId);
+        }
+
         public async Task<List<MyPendingDocumentDTO>> GetMyPendingApprovalAsync(int page, int pageSize)
         {
             return await _client.GetMyPendingApprovalAsync(page, pageSize);
+        }
+
+        public async Task InitApprovalAsync(CreateDocumentApprovalDTO createDocumentApprovalDTO)
+        {
+             await _client.InitApprovalAsync(createDocumentApprovalDTO);
+        }
+
+        public async Task RejectAsync(int documentId, string reason)
+        {
+            await _client.RejectAsync(documentId, reason);
         }
     }
 }

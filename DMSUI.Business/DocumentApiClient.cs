@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Controllers;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Document;
@@ -10,6 +11,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace DMSUI.Business
 {
@@ -53,8 +55,8 @@ namespace DMSUI.Business
                 }) ?? new PagedResultDTO<DocumentListDTO>();
         }
 
-		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
-		{
+        public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
+        {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/Document/create-preview?categoryId={categoryId}");
             if (!response.IsSuccessStatusCode)
@@ -64,6 +66,53 @@ namespace DMSUI.Business
             var body = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<DocumentCreatePreviewDTO>(body,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-		}
-	}
+        }
+
+        public async Task<CreateDocumentResponseDTO> CreateAsync(CreateDocumentDTO dto)
+        {
+            AttachToken();
+
+            using var form = new MultipartFormDataContent();
+
+            form.Add(new StringContent(dto.TitleTr ?? ""), "TitleTr");
+            form.Add(new StringContent(dto.TitleEn ?? ""), "TitleEn");
+            form.Add(new StringContent(dto.CategoryId.ToString()), "CategoryId");
+            form.Add(new StringContent(dto.DepartmentId.ToString()), "DepartmentId");
+            form.Add(new StringContent(dto.DocumentType ?? ""), "DocumentType");
+            form.Add(new StringContent(dto.RevisionNumber.ToString()), "RevisionNumber");
+            form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
+
+            foreach (var id in dto.ApproverUserIds)
+                form.Add(new StringContent(id.ToString()), "ApproverUserIds");
+
+            // ✔ ANA DOSYA
+            if (dto.MainFile != null)
+            {
+                var main = new StreamContent(dto.MainFile.OpenReadStream());
+                main.Headers.ContentType = new MediaTypeHeaderValue(dto.MainFile.ContentType);
+                form.Add(main, "MainFile", dto.MainFile.FileName);
+            }
+
+            // ✔ EKLER
+            if (dto.Attachments != null)
+            {
+                foreach (var file in dto.Attachments)
+                {
+                    var stream = new StreamContent(file.OpenReadStream());
+                    stream.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                    form.Add(stream, "Attachments", file.FileName);
+                }
+            }
+
+            var response = await _httpClient.PostAsync("api/Document/create", form);
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<CreateDocumentResponseDTO>(
+                json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+        }
+    }
 }

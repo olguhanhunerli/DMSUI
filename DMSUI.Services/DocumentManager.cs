@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Controllers;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Document;
 using DMSUI.Services.Interfaces;
@@ -19,7 +20,12 @@ namespace DMSUI.Services
             _client = client;
         }
 
-		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
+        public async Task<CreateDocumentResponseDTO> CreateAsync(CreateDocumentDTO dto)
+        {
+            return await _client.CreateAsync(dto);
+        }
+
+        public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
 		{
 			return await _client.GetDocumentCreatePreview(categoryId);
 		}

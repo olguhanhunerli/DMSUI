@@ -1,4 +1,5 @@
 ﻿using DMSUI.Business.Interfaces;
+using DMSUI.Entities.DTOs.Approval;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Document;
 using Microsoft.AspNetCore.Http;
@@ -51,6 +52,27 @@ namespace DMSUI.Business
                 StatusId = x.StatusId,
                 CreatedAt = x.CreatedAt
             }).ToList();
+        }
+
+        public async Task InitApprovalAsync(CreateDocumentApprovalDTO createDocumentApprovalDTO)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/DocumentApproval/init-approval");
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task ApproveAsync(int documentId)
+        {
+            AttachToken();
+            var response = await _httpClient.PostAsync($"api/DocumentApproval/approve?documentId={documentId}", null);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task RejectAsync(int documentId, string reason)
+        {
+            AttachToken();
+            var response = await _httpClient.PostAsync($"api/DocumentApproval/reject?documentId={documentId}&reason={reason}",null);
+            response.EnsureSuccessStatusCode();
         }
     }
 }

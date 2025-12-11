@@ -6,7 +6,8 @@ namespace DMSUI.ViewModels.Document
 	{
 
 		public string DocumentCode { get; set; }
-		public string CompanyName { get; set; }
+        public int CategoryId { get; set; }
+        public string CompanyName { get; set; }
 		public string CategoryName { get; set; }
 		public string CategoryBreadcrumb { get; set; }
 		public int VersionNumber { get; set; }
@@ -27,5 +28,6 @@ namespace DMSUI.ViewModels.Document
 		public List<SelectListItem> DepartmentList { get; set; } = new();
 		public List<ApprovalRowViewModel> ApprovalList { get; set; } = new();
         public List<IFormFile> AttachmentFiles { get; set; } = new();
+        public string VersionNote { get; internal set; }
     }
 }

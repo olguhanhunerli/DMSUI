@@ -6,6 +6,7 @@
 
 <form asp-action="Create" method="post" enctype="multipart/form-data">
 
+    <input type="hidden" asp-for="CategoryId" />
     <input type="hidden" asp-for="PreparedByUserId" />
     <input type="hidden" asp-for="PreparedAt" />
     <input type="hidden" asp-for="DocumentCode" />
