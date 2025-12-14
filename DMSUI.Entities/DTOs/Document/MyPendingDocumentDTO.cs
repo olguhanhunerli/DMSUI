@@ -8,7 +8,8 @@ namespace DMSUI.Entities.DTOs.Document
 {
     public class MyPendingDocumentDTO
     {
-        public string DocumentCode { get; set; }
+		public int Id { get; set; }
+		public string DocumentCode { get; set; }
         public string Title { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; }

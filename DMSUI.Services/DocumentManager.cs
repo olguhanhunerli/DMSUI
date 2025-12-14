@@ -25,7 +25,12 @@ namespace DMSUI.Services
             return await _client.CreateAsync(dto);
         }
 
-        public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
+		public async Task<DocumentDetailDTO> GetByIdAsync(int documentId)
+		{
+			return await _client.GetByIdAsync(documentId);
+		}
+
+		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
 		{
 			return await _client.GetDocumentCreatePreview(categoryId);
 		}
@@ -34,5 +39,10 @@ namespace DMSUI.Services
         {
             return await _client.GetPagedAsync(page, pageSize);
         }
-    }
+
+		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
+		{
+			return await _client.GetPdfAsync(documentId);
+		}
+	}
 }

@@ -1,4 +1,5 @@
-﻿using DMSUI.Services.Interfaces;
+﻿using DMSUI.Services;
+using DMSUI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,16 +8,18 @@ namespace DMSUI.Controllers
     public class ApprovalController : Controller
     {
         private readonly IDocumentApprovalManager _manager;
+        private readonly IDocumentManager _documentManager;
 
-        public ApprovalController(IDocumentApprovalManager manager)
-        {
-            _manager = manager;
-        }
+		public ApprovalController(IDocumentApprovalManager manager, IDocumentManager documentManager)
+		{
+			_manager = manager;
+			_documentManager = documentManager;
+		}
 
-        public async Task<IActionResult> IndexAsync(int page =1 , int pageSize = 10)
+		public async Task<IActionResult> IndexAsync(int page =1 , int pageSize = 10)
         {
             var list = await _manager
-            .GetMyPendingApprovalAsync(page, pageSize); // SENİN LIST METODUN
+            .GetMyPendingApprovalAsync(page, pageSize);
 
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
@@ -24,5 +27,16 @@ namespace DMSUI.Controllers
 
             return View(list);
         }
-    }
+		[HttpGet]
+		public async Task<IActionResult> Detail(int id)
+		{
+			Console.WriteLine("DETAIL ID = " + id);
+			var document = await _documentManager.GetByIdAsync(id);
+			if (document == null)
+			{
+				return NotFound();
+			}
+			return View(document);
+		}
+	}
 }

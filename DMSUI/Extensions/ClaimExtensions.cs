@@ -14,6 +14,19 @@ public static class ClaimExtensions
 		return companyId;
 	}
 
+	public static int GetUserId(this ClaimsPrincipal user)
+	{
+		var value = user.Claims
+			.FirstOrDefault(x =>
+				x.Type == ClaimTypes.NameIdentifier ||
+				x.Type == "sub")?.Value;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return 0;
+
+		return int.TryParse(value, out var userId) ? userId : 0;
+	}
+
 	public static string GetRole(this ClaimsPrincipal user)
 		=> user.Claims.FirstOrDefault(x => x.Type == "role")?.Value ?? "";
 

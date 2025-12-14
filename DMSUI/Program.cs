@@ -1,4 +1,5 @@
 ﻿using DMSUI.Extensions;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 

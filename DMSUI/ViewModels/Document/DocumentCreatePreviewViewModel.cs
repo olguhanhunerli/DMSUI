@@ -19,7 +19,6 @@ namespace DMSUI.ViewModels.Document
 
 		public string? TitleTr { get; set; }
 		public string? TitleEn { get; set; }
-		public string? DocumentType { get; set; }
 		public int RevisionNumber { get; set; } = 0;
 		public int? DepartmentId { get; set; }
 

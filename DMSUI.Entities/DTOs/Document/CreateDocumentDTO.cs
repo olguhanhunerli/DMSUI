@@ -10,7 +10,6 @@ namespace DMSUI.Controllers
         public int CategoryId { get; set; }
         public int DepartmentId { get; set; }
 
-        public string? DocumentType { get; set; }
         public string? VersionNote { get; set; }
 
         public int RevisionNumber { get; set; }

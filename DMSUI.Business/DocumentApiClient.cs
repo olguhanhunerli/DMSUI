@@ -15,7 +15,7 @@ using static System.Net.WebRequestMethods;
 
 namespace DMSUI.Business
 {
-    public class DocumentApiClient : IDocumentApiClient
+	public class DocumentApiClient : IDocumentApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -41,7 +41,7 @@ namespace DMSUI.Business
         public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
         {
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/Document/get-paged?page={page}&pageSize={pageSize}");
+            var response = await _httpClient.GetAsync($"api/Document/approved={page}&pageSize={pageSize}");
             if (!response.IsSuccessStatusCode)
             {
                 return new PagedResultDTO<DocumentListDTO>();
@@ -78,7 +78,6 @@ namespace DMSUI.Business
             form.Add(new StringContent(dto.TitleEn ?? ""), "TitleEn");
             form.Add(new StringContent(dto.CategoryId.ToString()), "CategoryId");
             form.Add(new StringContent(dto.DepartmentId.ToString()), "DepartmentId");
-            form.Add(new StringContent(dto.DocumentType ?? ""), "DocumentType");
             form.Add(new StringContent(dto.RevisionNumber.ToString()), "RevisionNumber");
             form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
 
@@ -112,5 +111,35 @@ namespace DMSUI.Business
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             );
         }
-    }
+
+		public async Task<DocumentDetailDTO> GetByIdAsync(int documentId)
+		{
+            AttachToken();
+			var response = await _httpClient.GetAsync($"api/Document/{documentId}");
+			if (!response.IsSuccessStatusCode)
+			{
+				return new DocumentDetailDTO();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<DocumentDetailDTO>(body,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+
+		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Document/{documentId}/pdf");
+            if(!response.IsSuccessStatusCode)
+			{
+				return null;
+			}
+            var bytes = await response.Content.ReadAsByteArrayAsync();
+			var fileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"') ?? "document.pdf";
+			return new PdfFileResultDTO
+			{
+				FileName = fileName,
+				FileBytes = bytes
+			};
+		}
+	}
 }

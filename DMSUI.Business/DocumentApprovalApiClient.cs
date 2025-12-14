@@ -47,7 +47,8 @@ namespace DMSUI.Business
 
             return pagedResult.Items.Select(x => new MyPendingDocumentDTO
             {
-                DocumentCode = x.DocumentCode,
+				Id = x.Id,
+				DocumentCode = x.DocumentCode,
                 Title = x.Title,
                 StatusId = x.StatusId,
                 CreatedAt = x.CreatedAt

@@ -171,7 +171,6 @@ namespace DMSUI.Controllers
 				TitleEn = vm.TitleEn,
 				CategoryId = vm.CategoryId,
 				DepartmentId = vm.DepartmentId.Value,
-				DocumentType = vm.DocumentType,
 				VersionNote = vm.VersionNote,
 				RevisionNumber = vm.RevisionNumber,
 				IsPublic = false,
@@ -195,7 +194,18 @@ namespace DMSUI.Controllers
             TempData["Success"] = "Doküman başarıyla oluşturuldu.";
             return RedirectToAction(nameof(Index));
         }
-
+        [HttpGet]
+        public async Task<IActionResult> Pdf(int id)
+        {
+			var pdfResult = await _documentManager.GetPdfAsync(id);
+			if (pdfResult == null)
+			{
+				return NotFound();
+			}
+            return File(
+                pdfResult.FileBytes,
+                "application/pdf");
+		}
 
 
         private async Task PrepareCreateViewModelAsync(DocumentCreatePreviewViewModel vm)
@@ -209,13 +219,11 @@ namespace DMSUI.Controllers
             vm.VersionNumber = preview.VersionNumber;
             vm.IsCodeValid = preview.IsCodeValid;
 
-            // --- Departman Listesi ---
             var departments = await _departmentManager.GetAllDepartmentsAsync();
             vm.DepartmentList = departments
                 .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
                 .ToList();
 
-            // --- Onaycılar ---
             var approvers = await _userManager.GetAllApprovers();
 
             var selectedMap = vm.ApprovalList?.ToDictionary(a => a.UserId)
@@ -238,5 +246,6 @@ namespace DMSUI.Controllers
                 };
             }).ToList();
         }
-    }
+       
+	}
 }
