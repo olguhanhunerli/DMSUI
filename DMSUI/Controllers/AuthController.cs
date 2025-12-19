@@ -1,7 +1,11 @@
 ﻿using DMSUI.Entities.DTOs.Auth;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Login;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace DMSUI.Controllers
@@ -45,10 +49,33 @@ namespace DMSUI.Controllers
                 return View(model);
             }
 
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(result.AccessToken);
+
+            var claims = jwt.Claims.ToList();
+
+            var userId = jwt.Claims.First(x =>
+                x.Type == "userId" || x.Type == JwtRegisteredClaimNames.Sub).Value;
+
+            if (!claims.Any(c => c.Type == ClaimTypes.NameIdentifier))
+            {
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+            }
+
+            var identity = new ClaimsIdentity(
+                claims,
+                CookieAuthenticationDefaults.AuthenticationScheme
+            );
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity)
+            );
+
             Response.Cookies.Append("access_token", result.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,   
+                Secure = true,
                 SameSite = SameSiteMode.Lax
             });
 

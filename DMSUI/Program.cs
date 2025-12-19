@@ -1,7 +1,51 @@
 ﻿using DMSUI.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.FileProviders;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+    {
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/Login";
+
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnValidatePrincipal = context =>
+            {
+                var token = context.HttpContext.Request.Cookies["access_token"];
+                if (string.IsNullOrWhiteSpace(token))
+                    return Task.CompletedTask;
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                var claims = jwt.Claims.ToList();
+
+                // 🔥 KRİTİK: NameIdentifier ekle
+                var userId =
+                    claims.FirstOrDefault(x => x.Type == "userId")?.Value ??
+                    claims.FirstOrDefault(x => x.Type == "sub")?.Value;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+                }
+
+                var identity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme
+                );
+
+                context.ReplacePrincipal(new ClaimsPrincipal(identity));
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

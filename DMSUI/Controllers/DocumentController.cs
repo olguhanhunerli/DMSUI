@@ -1,15 +1,18 @@
 ﻿using DMSUI.Entities.DTOs.Document;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Document;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
+   
     public class DocumentController : Controller
     {
         private readonly IDocumentManager _documentManager;

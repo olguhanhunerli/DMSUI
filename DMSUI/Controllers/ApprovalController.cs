@@ -1,5 +1,7 @@
 ﻿using DMSUI.Services;
 using DMSUI.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -16,7 +18,7 @@ namespace DMSUI.Controllers
 			_documentManager = documentManager;
 		}
 
-		public async Task<IActionResult> IndexAsync(int page =1 , int pageSize = 10)
+		public async Task<IActionResult> Index(int page =1 , int pageSize = 10)
         {
             var list = await _manager
             .GetMyPendingApprovalAsync(page, pageSize);
@@ -38,5 +40,17 @@ namespace DMSUI.Controllers
 			}
 			return View(document);
 		}
-	}
+		[HttpPost]
+		public async Task<IActionResult> Approve(int documentId)
+		{
+			await _manager.ApproveAsync(documentId);
+			return RedirectToAction("Index");
+        }
+		[HttpPost]
+		public async Task<IActionResult> Reject(int documentId, string reason)
+		{
+			await _manager.RejectAsync(documentId, reason);
+			return RedirectToAction("Index");
+        }
+    }
 }

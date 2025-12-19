@@ -41,7 +41,7 @@ namespace DMSUI.Business
         public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
         {
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/Document/approved={page}&pageSize={pageSize}");
+            var response = await _httpClient.GetAsync($"api/Document/approved?page={page}&pageSize={pageSize}");
             if (!response.IsSuccessStatusCode)
             {
                 return new PagedResultDTO<DocumentListDTO>();
