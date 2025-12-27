@@ -82,6 +82,15 @@
                                 <label class="form-label fw-semibold">Revizyon No</label>
                                 <input asp-for="RevisionNumber" class="form-control" readonly />
                             </div>
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Versiyon Notu</label>
+
+                                <textarea asp-for="VersionNote" class="form-control"></textarea>
+
+                                <small class="text-muted">
+                                    Örn: İlk yayın, revizyon açıklaması, güncellenen alanlar vb.
+                                </small>
+                            </div>
 
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Hazırlayan</label>

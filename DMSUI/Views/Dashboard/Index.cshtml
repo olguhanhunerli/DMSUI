@@ -1,6 +1,21 @@
-﻿@{
+﻿@using DMSUI.Entities.DTOs.Document
+@model dynamic
+
+@{
     ViewData["Title"] = "Dashboard";
+
+    int pendingReadCount = ViewBag.PendingReadCount ?? 0;
+    int pendingApprovalCount = ViewBag.PendingApprovalCount ?? 0;
+
+    // Sağ panelde default olarak Onay bekleyenleri gösterelim (istersen okuma yaparız)
+    string activeTab = (ViewBag.ActiveTab as string) ?? "approval"; // "read" | "approval"
+
+    var pendingApprovals = ViewBag.PendingApprovals as List<MyPendingDocumentDTO>;
+    var pendingReads = ViewBag.PendingReads as IEnumerable<dynamic>; // kendi okuma DTO'nu koyarsın
+
+    int totalPending = pendingReadCount + pendingApprovalCount;
 }
+
 <div class="container-fluid mt-3">
     <div class="row g-3">
 
@@ -11,7 +26,7 @@
                     <div class="fw-semibold">
                         <i class="bi bi-hourglass-split me-1"></i> Bekleyen İşlerim
                     </div>
-                    <span class="badge bg-primary">Toplam: 64</span>
+                    <span class="badge bg-primary">Toplam: @totalPending</span>
                 </div>
 
                 <div class="card-body p-2">
@@ -21,11 +36,35 @@
                             <i class="bi bi-folder me-1"></i> Doküman İşlemleri
                         </div>
 
-                        <a href="#" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center active small">
+                        <!-- OKUMA BEKLEYEN -->
+                        <a asp-controller="Dashboard"
+                           asp-action="Index"
+                           asp-route-tab="read"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center small @(activeTab == "read" ? "active" : "")">
                             Okunması Gereken Dokümanlar
-                            <span class="badge bg-light text-dark">64</span>
+                            <span class="badge @(activeTab == "read" ? "bg-light text-dark" : "bg-secondary")">@pendingReadCount</span>
                         </a>
 
+                        <!-- ONAY BEKLEYEN -->
+                        <a asp-controller="Dashboard"
+                           asp-action="Index"
+                           asp-route-tab="approval"
+                           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center small @(activeTab == "approval" ? "active" : "")">
+                            Onay Bekleyen Dokümanlar
+                            <span class="badge @(activeTab == "approval" ? "bg-light text-dark" : "bg-warning text-dark")">@pendingApprovalCount</span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white py-2">
+                    <div class="d-flex gap-2">
+                        <a asp-controller="Approval" asp-action="Index" class="btn btn-sm btn-outline-warning w-100">
+                            <i class="bi bi-check2-square"></i> Onay Sayfası
+                        </a>
+                        <a asp-controller="Document" asp-action="Index" class="btn btn-sm btn-outline-primary w-100">
+                            <i class="bi bi-files"></i> Dokümanlar
+                        </a>
                     </div>
                 </div>
             </div>
@@ -34,55 +73,112 @@
         <!-- SAĞ PANEL -->
         <div class="col-lg-8">
             <div class="card shadow-sm h-100">
+
                 <div class="card-header d-flex justify-content-between align-items-center py-2">
                     <div class="fw-semibold">
-                        <i class="bi bi-file-earmark-text me-1"></i> Okunması Gereken Doküman Listesi
+                        @if (activeTab == "read")
+                        {
+                            <span><i class="bi bi-file-earmark-text me-1"></i> Okunması Gereken Doküman Listesi</span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-check2-circle me-1"></i> Onay Bekleyen Doküman Listesi</span>
+                        }
                     </div>
 
                     <input type="text"
                            class="form-control form-control-sm w-50"
-                           placeholder="Doküman ara..." />
+                           placeholder="Ara..."
+                           id="q"
+                           onkeyup="filterTable()" />
                 </div>
 
                 <div class="card-body p-2">
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle mb-0">
+                        <table class="table table-sm table-hover align-middle mb-0" id="tbl">
                             <thead class="table-light">
                                 <tr class="small">
                                     <th style="width:30px;"></th>
                                     <th>Doküman Kodu</th>
                                     <th>Doküman Adı</th>
                                     <th>Doküman Sahibi</th>
-                                    <th class="text-end">Görev Tarihi</th>
+                                    <th class="text-end">Tarih</th>
                                 </tr>
                             </thead>
+
                             <tbody class="small">
-                                <tr>
-                                    <td><span class="badge bg-danger rounded-circle">●</span></td>
-                                    <td class="text-primary">KRM-TR-285</td>
-                                    <td>17260 6.5x17 TEKNİK RESİM</td>
-                                    <td>Muhammed Sartaş</td>
-                                    <td class="text-end">20.10.2025</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="badge bg-danger rounded-circle">●</span></td>
-                                    <td class="text-primary">KRM-TR-459</td>
-                                    <td>17294 7.0x17 KALIP RESMİ</td>
-                                    <td>Gökhan ERTEKİN</td>
-                                    <td class="text-end">20.10.2025</td>
-                                </tr>
+
+                                @if (activeTab == "approval")
+                                {
+                                    if (pendingApprovals != null && pendingApprovals.Any())
+                                    {
+                                        foreach (var d in pendingApprovals)
+                                        {
+                                            <tr style="cursor:pointer"
+                                                onclick="location.href='@Url.Action("Detail","Approval", new { id = d.Id })'">
+                                                <td><span class="badge bg-warning rounded-circle">●</span></td>
+                                                <td class="text-primary fw-semibold">@d.DocumentCode</td>
+                                                <td>@d.Title</td>
+                                                <td>@d.CreatedByName</td>
+                                                <td class="text-end">@d.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">
+                                                Onay bekleyen doküman yok.
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    if (pendingReads != null && pendingReads.Any())
+                                    {
+                                        foreach (var r in pendingReads)
+                                        {
+                                            <tr style="cursor:pointer"
+                                                onclick="location.href='/Document/Detail/' + r.DocumentId">
+                                                <td><span class="badge bg-danger rounded-circle">●</span></td>
+                                                <td class="text-primary fw-semibold">@r.DocumentCode</td>
+                                                <td>@r.Title</td>
+                                                <td>@r.OwnerName</td>
+                                                <td class="text-end">@(((DateTime)r.TaskDate).ToString("dd.MM.yyyy"))</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">
+                                                Okunması gereken doküman yok.
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div class="card-footer d-flex justify-content-between align-items-center py-1 small">
-                    <span>1 / 64</span>
-                    <select class="form-select form-select-sm" style="width:90px">
-                        <option>10</option>
-                        <option>25</option>
-                        <option>50</option>
-                    </select>
+                <div class="card-footer d-flex justify-content-between align-items-center py-2 small">
+                    @if (activeTab == "approval")
+                    {
+                        <span>Toplam: @pendingApprovalCount</span>
+                        <a asp-controller="Approval" asp-action="Index" class="btn btn-sm btn-outline-warning">
+                            Tümünü Gör
+                        </a>
+                    }
+                    else
+                    {
+                        <span>Toplam: @pendingReadCount</span>
+                        <a asp-controller="Document" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            Tümünü Gör
+                        </a>
+                    }
                 </div>
 
             </div>
@@ -91,3 +187,15 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        function filterTable() {
+            const q = (document.getElementById('q').value || '').toLowerCase();
+            const rows = document.querySelectorAll('#tbl tbody tr');
+            rows.forEach(r => {
+                const text = (r.innerText || '').toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+    </script>
+}

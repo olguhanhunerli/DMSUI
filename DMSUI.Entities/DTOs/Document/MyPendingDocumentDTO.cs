@@ -14,6 +14,7 @@ namespace DMSUI.Entities.DTOs.Document
         public int StatusId { get; set; }
         public string StatusName { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string CreatedByName { get; set; }
         public int WaitingDays { get; set; }
     }
 }

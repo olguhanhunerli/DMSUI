@@ -51,8 +51,9 @@ namespace DMSUI.Business
 				DocumentCode = x.DocumentCode,
                 Title = x.Title,
                 StatusId = x.StatusId,
-                CreatedAt = x.CreatedAt
-            }).ToList();
+                CreatedAt = x.CreatedAt,
+                CreatedByName = x.CreatedByName,
+			}).ToList();
         }
 
         public async Task InitApprovalAsync(CreateDocumentApprovalDTO createDocumentApprovalDTO)

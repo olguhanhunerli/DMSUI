@@ -2,76 +2,171 @@
 @model List<DocumentListDTO>
 
 @{
-	ViewData["Title"] = "Dokümanlar";
+    ViewData["Title"] = "Dokümanlar";
+
+    int page = ViewBag.Page ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalCount = ViewBag.TotalCount ?? 0;
 }
 
 <div class="container mt-4">
 
-	<div class="card shadow-sm border-0">
-		<div class="card-header bg-dark text-white d-flex justify-content-between">
-			<h5 class="mb-0">
-				<i class="bi bi-folder2-open"></i> Dokümanlar
-			</h5>
-			<a asp-action="Create" class="btn btn-sm btn-success">
-				<i class="bi bi-plus-circle"></i> Yeni Doküman
-			</a>
-		</div>
+    <div class="card shadow-sm border-0">
 
-		<div class="card-body p-0">
-			<table class="table table-hover mb-0">
-				<thead class="table-light">
-					<tr>
-						<th>Kod</th>
-						<th>Başlık</th>
-						<th>Şirket</th>
-						<th>Kategori</th>
-						<th>Versiyon</th>
-						<th>Durum</th>
-						<th>Oluşturan</th>
-						<th>Tarih</th>
-						<th class="text-end">İşlem</th>
-					</tr>
-				</thead>
-				<tbody>
+        <!-- HEADER -->
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="bi bi-folder2-open"></i> Dokümanlar
+            </h5>
 
-					@foreach (var item in Model)
-					{
-						<tr>
-							<td>@item.DocumentCode</td>
-							<td>@item.Title</td>
-							<td>@item.CompanyName</td>
-							<td>@item.CategoryName</td>
-							<td>@item.VersionNumber</td>
-							<td>
-								<span class="badge bg-@(item.Status == "Approved" ? "success" : item.Status == "Rejected" ? "danger" : "warning")">
-									@item.Status
-								</span>
-							</td>
-							<td>@item.CreatedByName</td>
-							<td>@item.CreatedAt.ToString("dd.MM.yyyy")</td>
-							<td class="text-end">
+            <a asp-action="Create" class="btn btn-sm btn-success">
+                <i class="bi bi-plus-circle"></i> Yeni Doküman
+            </a>
+        </div>
 
-								<a asp-action="Detail" asp-route-id="@item.Id"
-								   class="btn btn-sm btn-outline-primary">
-									<i class="bi bi-eye"></i>
-								</a>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kod</th>
+                        <th>Başlık</th>
+                        <th>Şirket</th>
+                        <th>Kategori</th>
+                        <th>Versiyon</th>
+                        <th>Durum</th>
+                        <th>Oluşturan</th>
+                        <th>Oluşturma Tarihi</th>
+                        <th>Güncelleyen</th>
+                        <th>Güncelleme Tarihi</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-								<a asp-action="Edit" asp-route-id="@item.Id"
-								   class="btn btn-sm btn-outline-warning">
-									<i class="bi bi-pencil"></i>
-								</a>
+                @if (Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
 
-								<button onclick="deleteDocument(@item.Id)"
-										class="btn btn-sm btn-outline-danger">
-									<i class="bi bi-trash"></i>
-								</button>
+                            <td class="fw-semibold">
+                                <a asp-action="Detail"
+                                   asp-route-id="@item.Id"
+                                   class="text-decoration-none">
+                                    @item.DocumentCode
+                                </a>
 
-							</td>
-						</tr>
-					}
+                                @if (item.IsLatestVersion)
+                                {
+                                    <span class="badge bg-success ms-1">Latest</span>
+                                }
+                            </td>
 
-				</tbody>
-			</table>
-		</div>
-	</div>
+                            <td>
+                                <div class="fw-semibold">@item.Title</div>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-dark">@item.CompanyName</span>
+                            </td>
+
+                            <td>
+                                <div>@item.CategoryName</div>
+                            </td>
+
+                            <td>
+                                <span class="badge bg-info">
+                                    @item.VersionNumber
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill
+                                    bg-@(item.Status == "Onaylandı"
+                                        ? "success"
+                                        : item.Status == "Reddedildi"
+                                            ? "danger"
+                                            : "warning")">
+                                    @item.Status
+                                </span>
+
+                            </td>
+
+                            <td>
+                                @item.CreatedByName
+                            </td>
+
+                            <td>
+                                @item.CreatedAt.ToString("dd.MM.yyyy")
+                            </td>
+                             <td>
+                                @item.UpdatedByName
+                            </td>
+                                <td>
+                                    @item.UpdatedAt?.ToString("dd.MM.yyyy")
+                                </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            Doküman bulunamadı.
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+
+                <small class="text-muted">
+                    Toplam <strong>@totalCount</strong> kayıt ·
+                    Sayfa <strong></strong> / <strong>@totalPages</strong>
+                </small>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+
+                        <li class="page-item @(page == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(page - 1)"
+                               asp-route-pageSize="@pageSize">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-page="@i"
+                                   asp-route-pageSize="@pageSize">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(page == totalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(page + 1)"
+                               asp-route-pageSize="@pageSize">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+
+            </div>
+        }
+
+    </div>
 </div>

@@ -96,7 +96,6 @@ namespace DMSUI.Controllers
                 PreparedByUserId = user.Id,
                 PreparedByUserName = user.UserName,
                 PreparedAt = DateTime.Now,
-
                 RevisionNumber = 0,
 
                 DepartmentList = departments
@@ -115,89 +114,72 @@ namespace DMSUI.Controllers
             return View(vm);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-             DocumentCreatePreviewViewModel vm,
-             IFormFile? DocumentFile,
-             List<IFormFile>? AttachmentFiles)
-        {
-            var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Create(
+	         DocumentCreatePostViewModel vm,
+	         IFormFile? DocumentFile,
+	         List<IFormFile>? AttachmentFiles)
+		{
+			var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
+			Console.WriteLine("POST VersionNote = [" + vm.VersionNote + "]");
+			if (preview == null || string.IsNullOrWhiteSpace(preview.DocumentCode))
+			{
+				ModelState.AddModelError("", "Doküman ön bilgileri alınamadı.");
+				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
+			}
 
-            vm.DocumentCode = preview.DocumentCode;
-            vm.CompanyName = preview.CompanyName;
-            vm.CategoryName = preview.CategoryName;
-            vm.CategoryBreadcrumb = preview.CategoryBreadcrumb;
-            vm.VersionNumber = preview.VersionNumber;
-            vm.IsCodeValid = preview.IsCodeValid;
+			if (!ModelState.IsValid)
+			{
+				Console.WriteLine("MODELSTATE INVALID (POST VM)");
+			}
 
-            if (string.IsNullOrWhiteSpace(vm.DocumentCode))
-            {
-                ModelState.AddModelError("", "Doküman kodu alınamadı.");
-                await PrepareCreateViewModelAsync(vm);
-                return View(vm);
-            }
+			if (vm.DepartmentId <= 0)
+			{
+				ModelState.AddModelError("DepartmentId", "Departman seçilmelidir.");
+				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
+			}
 
-            if (DocumentFile != null &&
-                !DocumentFile.FileName.StartsWith(vm.DocumentCode, StringComparison.OrdinalIgnoreCase))
-            {
-                ModelState.AddModelError("DocumentFile",
-                    $"Ana dosya adı doküman kodu ({vm.DocumentCode}) ile başlamalıdır.");
+			var selectedApproverIds = vm.ApprovalList
+				.Where(a => a.IsSelected)
+				.OrderBy(a => a.ApprovalLevel)
+				.Select(a => a.UserId)
+				.ToList();
 
-                await PrepareCreateViewModelAsync(vm);
-                return View(vm);
-            }
+			if (!selectedApproverIds.Any())
+			{
+				ModelState.AddModelError("", "En az bir onaylayıcı seçmelisiniz.");
+				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
+			}
 
-            if (vm.DepartmentId == null || vm.DepartmentId <= 0)
-            {
-                ModelState.AddModelError("DepartmentId", "Departman seçilmelidir.");
-                await PrepareCreateViewModelAsync(vm);
-                return View(vm);
-            }
-
-            var selectedApproverIds = vm.ApprovalList
-                .Where(a => a.IsSelected)
-                .OrderBy(a => a.ApprovalLevel)
-                .Select(a => a.UserId)
-                .ToList();
-
-            if (!selectedApproverIds.Any())
-            {
-                ModelState.AddModelError("", "En az bir onaylayıcı seçmelisiniz.");
-                await PrepareCreateViewModelAsync(vm);
-                return View(vm);
-            }
+			if (DocumentFile != null &&
+				!DocumentFile.FileName.StartsWith(preview.DocumentCode, StringComparison.OrdinalIgnoreCase))
+			{
+				TempData["Error"] =
+					$"Ana dosya adı doküman kodu ({preview.DocumentCode}) ile başlamalıdır.";
+				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
+			}
 
 			var createDto = new CreateDocumentDTO
 			{
 				TitleTr = vm.TitleTr,
 				TitleEn = vm.TitleEn,
 				CategoryId = vm.CategoryId,
-				DepartmentId = vm.DepartmentId.Value,
+				DepartmentId = vm.DepartmentId,
 				VersionNote = vm.VersionNote,
 				RevisionNumber = vm.RevisionNumber,
 				IsPublic = false,
 				ApproverUserIds = selectedApproverIds,
-				MainFile = DocumentFile,                
-				Attachments = AttachmentFiles           
+				MainFile = DocumentFile,
+				Attachments = AttachmentFiles
 			};
 
-            try
-            {
-                var created = await _documentManager.CreateAsync(createDto);
-				Console.WriteLine("DOCUMENT CREATE RESULT --- UI: " + created);
-			}
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "API Hatası: " + ex.Message);
-                await PrepareCreateViewModelAsync(vm);
-                return View(vm);
-            }
+			await _documentManager.CreateAsync(createDto);
 
-            TempData["Success"] = "Doküman başarıyla oluşturuldu.";
-            return RedirectToAction(nameof(Index));
-        }
-        [HttpGet]
+			TempData["Success"] = "Doküman başarıyla oluşturuldu.";
+			return RedirectToAction(nameof(Index));
+		}
+		[HttpGet]
         public async Task<IActionResult> Pdf(int id)
         {
 			var pdfResult = await _documentManager.GetPdfAsync(id);
@@ -209,7 +191,15 @@ namespace DMSUI.Controllers
                 pdfResult.FileBytes,
                 "application/pdf");
 		}
-
+        public async Task<IActionResult> Detail(int id)
+        {
+			var document = await _documentManager.GetByIdAsync(id);
+			if (document == null)
+			{
+				return NotFound();
+			}
+			return View(document);
+		}
 
         private async Task PrepareCreateViewModelAsync(DocumentCreatePreviewViewModel vm)
         {
@@ -249,6 +239,7 @@ namespace DMSUI.Controllers
                 };
             }).ToList();
         }
+
        
 	}
 }

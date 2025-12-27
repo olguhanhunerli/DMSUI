@@ -80,6 +80,7 @@ namespace DMSUI.Business
             form.Add(new StringContent(dto.DepartmentId.ToString()), "DepartmentId");
             form.Add(new StringContent(dto.RevisionNumber.ToString()), "RevisionNumber");
             form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
+            form.Add(new StringContent(dto.VersionNote.ToString()), "VersionNote");
 
             foreach (var id in dto.ApproverUserIds)
                 form.Add(new StringContent(id.ToString()), "ApproverUserIds");
