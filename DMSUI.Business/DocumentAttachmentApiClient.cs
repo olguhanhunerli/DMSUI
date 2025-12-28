@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DMSUI.Entities.DTOs.Document;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Business.Interfaces
 {
-    public class DocumentAttachmentApiClient : IDocumentAttachmentApiClient
+	public class DocumentAttachmentApiClient : IDocumentAttachmentApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -49,5 +50,34 @@ namespace DMSUI.Business.Interfaces
             var response = await _httpClient.PostAsync("api/DocumentAttachment/upload-multiple", content);
             response.EnsureSuccessStatusCode();
         }
-    }
+
+		public async Task<DownloadFileResult> DownloadAttachmentAsync(int attachmentId)
+		{
+            AttachToken();
+			var response = await _httpClient.GetAsync(
+	              $"api/DocumentAttachment/download/{attachmentId}",
+	              HttpCompletionOption.ResponseHeadersRead 
+              );
+
+			response.EnsureSuccessStatusCode();
+
+			var stream = await response.Content.ReadAsStreamAsync();
+
+			var contentType =
+				response.Content.Headers.ContentType?.ToString()
+				?? "application/octet-stream";
+
+			var fileName =
+				response.Content.Headers.ContentDisposition?.FileNameStar
+				?? response.Content.Headers.ContentDisposition?.FileName
+				?? "attachment";
+
+			return new DownloadFileResult
+			{
+				Stream = stream,
+				ContentType = contentType,
+				FileName = fileName.Replace("\"", "")
+			};
+		}
+	}
 }

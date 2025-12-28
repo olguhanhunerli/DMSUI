@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Services
 {
-    public class DocumentManager : IDocumentManager
+	public class DocumentManager : IDocumentManager
     {
         private readonly IDocumentApiClient _client;
 
@@ -24,6 +24,16 @@ namespace DMSUI.Services
         {
             return await _client.CreateAsync(dto);
         }
+
+		public async Task<DownloadFileResult> DownloadOriginalAsync(int documentId)
+		{
+			return await _client.DownloadOriginalAsync(documentId);
+		}
+
+		public async Task<DownloadFileResult> DownloadPdfAsync(int documentId)
+		{
+			return await _client.DownloadPdfAsync(documentId);
+		}
 
 		public async Task<DocumentDetailDTO> GetByIdAsync(int documentId)
 		{
@@ -39,6 +49,11 @@ namespace DMSUI.Services
         {
             return await _client.GetPagedAsync(page, pageSize);
         }
+
+		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedRejectAsync(int page, int pageSize)
+		{
+			return await _client.GetPagedRejectAsync(page, pageSize);
+		}
 
 		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
 		{

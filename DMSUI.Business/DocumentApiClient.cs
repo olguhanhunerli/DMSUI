@@ -142,5 +142,61 @@ namespace DMSUI.Business
 				FileBytes = bytes
 			};
 		}
+
+		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedRejectAsync(int page, int pageSize)
+		{
+            AttachToken();
+			var response = await _httpClient.GetAsync($"api/Document/rejected?page={page}&pageSize={pageSize}");
+			if (!response.IsSuccessStatusCode)
+			{
+				return new PagedResultDTO<DocumentListDTO>();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<PagedResultDTO<DocumentListDTO>>(
+				body,
+				new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true
+				}) ?? new PagedResultDTO<DocumentListDTO>();
+		}
+
+		public async Task<DownloadFileResult> DownloadOriginalAsync(int documentId)
+		{
+            AttachToken();
+			var response = await _httpClient.GetAsync(
+		                                                $"api/Document/download/{documentId}",
+		                                                HttpCompletionOption.ResponseHeadersRead
+	                                                );
+
+			response.EnsureSuccessStatusCode();
+
+			return new DownloadFileResult
+			{
+				Stream = await response.Content.ReadAsStreamAsync(),
+				ContentType = response.Content.Headers.ContentType?.ToString()
+							  ?? "application/octet-stream",
+				FileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
+						   ?? $"document_{documentId}"
+			};
+		}
+
+		public async Task<DownloadFileResult> DownloadPdfAsync(int documentId)
+		{
+            AttachToken();
+			var response = await _httpClient.GetAsync(
+		        $"api/Document/download-pdf/{documentId}",
+		        HttpCompletionOption.ResponseHeadersRead
+	        );
+
+			response.EnsureSuccessStatusCode();
+
+			return new DownloadFileResult
+			{
+				Stream = await response.Content.ReadAsStreamAsync(),
+				ContentType = "application/pdf",
+				FileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
+						   ?? $"document_{documentId}.pdf"
+			};
+		}
 	}
 }

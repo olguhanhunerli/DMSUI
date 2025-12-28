@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DMSUI.Entities.DTOs.Document;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace DMSUI.Business.Interfaces
     public interface IDocumentAttachmentApiClient
     {
         Task UploadMultipleAsync(int documentId, List<IFormFile> files);
+        Task<DownloadFileResult> DownloadAttachmentAsync(int attachmentId);
     }
 }

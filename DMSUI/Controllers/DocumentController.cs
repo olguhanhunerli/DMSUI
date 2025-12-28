@@ -19,20 +19,23 @@ namespace DMSUI.Controllers
         private readonly ICategoryManager _categoryManager;
         private readonly IDepartmentManager _departmentManager;
         private readonly IUserManager _userManager;
+        private readonly IDocumentAttachmentManager _documentAttachmentManager;
 
-        public DocumentController(
-            IDocumentManager documentManager,
-            ICategoryManager categoryManager,
-            IUserManager userManager,
-            IDepartmentManager departmentManager)
-        {
-            _documentManager = documentManager;
-            _categoryManager = categoryManager;
-            _userManager = userManager;
-            _departmentManager = departmentManager;
-        }
+		public DocumentController(
+			IDocumentManager documentManager,
+			ICategoryManager categoryManager,
+			IUserManager userManager,
+			IDepartmentManager departmentManager,
+			IDocumentAttachmentManager documentAttachmentManager)
+		{
+			_documentManager = documentManager;
+			_categoryManager = categoryManager;
+			_userManager = userManager;
+			_departmentManager = departmentManager;
+			_documentAttachmentManager = documentAttachmentManager;
+		}
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+		public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var result = await _documentManager.GetPagedAsync(page, pageSize);
 
@@ -239,7 +242,53 @@ namespace DMSUI.Controllers
                 };
             }).ToList();
         }
+        [HttpGet]
+        public async Task<IActionResult> RejectedDocuments(int page = 1, int pageSize = 10)
+        {
+            var result = await _documentManager.GetPagedRejectAsync(page, pageSize);
+			return View(result);
+		}
+		public async Task<IActionResult> RejectDetail(int id)
+		{
+			var document = await _documentManager.GetByIdAsync(id);
+			if (document == null)
+			{
+				return NotFound();
+			}
+			return View(document);
+		}
+        [HttpGet]
+		public async Task<IActionResult> Download(int id)
+		{
+			var file = await _documentManager.DownloadOriginalAsync(id);
 
-       
+			return File(
+				file.Stream,
+				file.ContentType,
+				file.FileName
+			);
+		}
+		[HttpGet]
+		public async Task<IActionResult> DownloadPdf(int id)
+		{
+			var file = await _documentManager.DownloadPdfAsync(id);
+
+			return File(
+				file.Stream,
+				file.ContentType,
+				file.FileName
+			);
+		}
+		[HttpGet]
+		public async Task<IActionResult> DownloadAttachment(int id)
+		{
+			var file = await _documentAttachmentManager.DownloadAttachmentAsync(id);
+
+			return File(
+				file.Stream,
+				file.ContentType,
+				file.FileName
+			);
+		}
 	}
 }
