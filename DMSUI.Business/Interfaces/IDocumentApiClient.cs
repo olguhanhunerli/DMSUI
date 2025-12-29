@@ -13,7 +13,7 @@ namespace DMSUI.Business.Interfaces
     public interface IDocumentApiClient
     {
         Task<CreateDocumentResponseDTO> CreateAsync(CreateDocumentDTO dto);
-        Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize);
+        Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize, int roleId, int departmentId);
         Task<PagedResultDTO<DocumentListDTO>> GetPagedRejectAsync(int page, int pageSize);
        
         Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId);
@@ -21,5 +21,6 @@ namespace DMSUI.Business.Interfaces
 		Task<PdfFileResultDTO?> GetPdfAsync(int documentId);
         Task<DownloadFileResult> DownloadOriginalAsync(int documentId);
         Task<DownloadFileResult> DownloadPdfAsync(int documentId);
+        Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId);
 	}
 }

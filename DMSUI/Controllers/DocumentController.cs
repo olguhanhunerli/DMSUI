@@ -1,4 +1,5 @@
-﻿using DMSUI.Entities.DTOs.Document;
+﻿using DMSUI.Entities.DTOs.Common;
+using DMSUI.Entities.DTOs.Document;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Document;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,17 +40,41 @@ namespace DMSUI.Controllers
             _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int? categoryId, int page = 1, int pageSize = 10)
         {
-            var result = await _documentManager.GetPagedAsync(page, pageSize);
+			var userId = User.GetUserId();
+			var roleId = User.GetRoleId();
+			var departmentId = User.GetDepartmentId();
 
-            ViewBag.Page = result.Page;
-            ViewBag.PageSize = result.PageSize;
-            ViewBag.TotalPages = result.TotalPages;
-            ViewBag.TotalCount = result.TotalCount;
+			PagedResultDTO<DocumentListDTO> result;
 
-            return View(result.Items);
-        }
+			if (categoryId.HasValue && categoryId.Value > 0)
+			{
+				result = await _documentManager.GetDocumentsByCategoryAsync(
+					page,
+					pageSize,
+					categoryId.Value
+				);
+
+				ViewBag.CategoryId = categoryId.Value;
+			}
+			else
+			{
+				result = await _documentManager.GetPagedAsync(
+					page,
+					pageSize,
+					roleId,
+					departmentId
+				);
+			}
+
+			ViewBag.Page = result.Page;
+			ViewBag.PageSize = result.PageSize;
+			ViewBag.TotalPages = result.TotalPages;
+			ViewBag.TotalCount = result.TotalCount;
+
+			return View(result.Items);
+		}
 
         [HttpGet]
         public async Task<IActionResult> SelectCategory()

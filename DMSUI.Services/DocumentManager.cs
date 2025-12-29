@@ -6,6 +6,7 @@ using DMSUI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -45,9 +46,14 @@ namespace DMSUI.Services
 			return await _client.GetDocumentCreatePreview(categoryId);
 		}
 
-		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
+		public async Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId)
+		{
+			return await _client.GetDocumentsByCategoryAsync(page, pageSize, categoryId);
+		}
+
+		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize, int roleId, int departmentId)
         {
-            return await _client.GetPagedAsync(page, pageSize);
+            return await _client.GetPagedAsync(page, pageSize, roleId, departmentId);
         }
 
 		public async Task<PagedResultDTO<DocumentListDTO>> GetPagedRejectAsync(int page, int pageSize)

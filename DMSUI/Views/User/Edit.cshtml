@@ -29,7 +29,6 @@
 
     <div class="row g-4 mb-4">
 
-        <!-- SOL TEMEL BİLGİLER -->
         <div class="col-xl-4 col-lg-5 col-md-12">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -63,10 +62,8 @@
             </div>
         </div>
 
-        <!-- SAĞ TARAF -->
         <div class="col-xl-8 col-lg-7 col-md-12">
 
-            <!-- ORGANİZASYON -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold">Organizasyon</div>
 
@@ -116,7 +113,6 @@
                 </div>
             </div>
 
-            <!-- YETKİLER -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold">Yetkiler</div>
 
@@ -133,7 +129,7 @@
                         <label>Onay Seviyesi</label>
                         <input asp-for="ApprovalLevel"
                                type="number"
-                               class="form-control form-control-sm" />
+                               class="form-control form-control-sm" readonly/>
                     </div>
 
                     <div class="col-md-4">
@@ -146,30 +142,29 @@
                 </div>
             </div>
 
-            <!-- SİSTEM -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold">Sistem</div>
 
                 <div class="card-body row g-3">
                     <div class="col-md-3">
                         <label>Dil</label>
-                        <input asp-for="Language" class="form-control form-control-sm" />
+                        <input asp-for="Language" class="form-control form-control-sm" readonly />
                     </div>
 
                     <div class="col-md-3">
                         <label>Zaman Dilimi</label>
-                        <input asp-for="TimeZone" class="form-control form-control-sm" />
+                        <input asp-for="TimeZone" class="form-control form-control-sm" readonly />
                     </div>
 
                     <div class="col-md-3">
                         <label>Tema</label>
-                        <input asp-for="Theme" class="form-control form-control-sm" />
+                        <input asp-for="Theme" class="form-control form-control-sm" readonly />
                     </div>
 
                     <div class="col-md-3">
                         <label>Bildirimler</label>
                         <input asp-for="NotificationPreferences"
-                               class="form-control form-control-sm" />
+                               class="form-control form-control-sm"  readonly/>
                     </div>
                 </div>
             </div>

@@ -227,6 +227,7 @@ namespace DMSUI.Controllers
                 DepartmentName = user.DepartmentName,
                 CompanyId = user.CompanyId,
                 CompanyName = user.CompanyName,
+                ManagerId = (int)user.ManagerId,
                 ManagerName = user.ManagerName,
                 PositionId = user.PositionId,
                 PositionName = user.PositionName,

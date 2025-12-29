@@ -1,0 +1,132 @@
+﻿@using DMSUI.Entities.DTOs.Search
+@model GlobalSearchResultDTO
+
+@{
+    ViewData["Title"] = "Arama Sonuçları";
+
+    var docs = Model.Documents;
+    int page = docs.Page;
+    int totalPages = docs.TotalPages;
+    int totalCount = docs.TotalCount;
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-search"></i> Arama Sonuçları
+        </div>
+
+        <div class="card-body">
+
+            @if (Model.Categories.Any())
+            {
+                <h6 class="fw-bold mb-2">Kategoriler</h6>
+                <ul class="list-group mb-4">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <i class="bi bi-folder"></i>
+                                <strong>@cat.Name</strong>
+                                @if (!string.IsNullOrEmpty(cat.Code))
+                                {
+                                    <span class="text-muted ms-1">(@cat.Code)</span>
+                                }
+                            </div>
+                            <a asp-controller="Document"
+                               asp-action="Index"
+                               asp-route-categoryId="@cat.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                İçeri Gir
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <h6 class="fw-bold mb-2">Dokümanlar</h6>
+
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kod</th>
+                        <th>Başlık</th>
+                        <th>Kategori</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                @if (docs.Items.Any())
+                {
+                    foreach (var doc in docs.Items)
+                    {
+                        <tr>
+                            <td class="fw-semibold">
+                                <a asp-controller="Document"
+                                   asp-action="Detail"
+                                   asp-route-id="@doc.Id"
+                                   class="text-decoration-none">
+                                    @doc.DocumentCode
+                                </a>
+                            </td>
+                            <td>@doc.Title</td>
+                            <td>@doc.CategoryPath</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center text-muted py-4">
+                            Sonuç bulunamadı.
+                        </td>
+                    </tr>
+                }
+
+                </tbody>
+            </table>
+
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+
+                <small class="text-muted">
+                    Toplam <strong>@totalCount</strong> kayıt ·
+                    Sayfa <strong></strong> / <strong>@totalPages</strong>
+                </small>
+
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(page == 1 ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-route-page="@(page - 1)">
+                                ‹
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-route-page="@i">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                        <li class="page-item @(page == totalPages ? "disabled" : "")">
+                            <a class="page-link"
+                               asp-route-page="@(page + 1)">
+                                ›
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+
+    </div>
+</div>

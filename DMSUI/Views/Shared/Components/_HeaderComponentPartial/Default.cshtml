@@ -88,23 +88,19 @@
                     }
                 </ul>
 
-                <form class="d-flex mx-lg-4 my-2 my-lg-0">
-                    <div class="input-group input-group-sm">
+                <form asp-controller="Search"
+                      asp-action="Index"
+                      method="get"
+                      class="d-flex mx-lg-4">
 
-                        <span class="input-group-text bg-light border text-muted">
-                            <i class="bi bi-search"></i>
-                        </span>
+                    <input name="query"
+                           class="form-control form-control-sm"
+                           placeholder="Doküman, kategori ara..." />
 
-                        <input class="form-control bg-light border"
-                               type="search"
-                               placeholder="Doküman, kod, kategori ara..." />
-
-                        <button class="btn btn-outline-primary">
-                            Ara
-                        </button>
-                    </div>
+                    <button class="btn btn-outline-primary btn-sm ms-2">
+                        Ara
+                    </button>
                 </form>
-
                 <ul class="navbar-nav ms-auto">
 
                     <li class="nav-item me-3 d-flex align-items-center text-dark">
@@ -128,7 +124,10 @@
                                 </a>
                             </li>
                             <li><a class="dropdown-item" asp-controller="User" asp-action="ChangePassword" >Şifre Değiştir</a></li>
-                            <li><a class="dropdown-item" asp-controller="Approval" asp-action="Index" >Onay Bekleyen Dokümanlar</a></li>
+                            @if (role == "SUPER ADMIN" || role == "GLOBAL_ADMIN")
+                            {
+                                <li><a class="dropdown-item" asp-controller="Approval" asp-action="Index" >Onay Bekleyen Dokümanlar</a></li>
+                            }
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item text-danger"

@@ -29,7 +29,26 @@ public static class ClaimExtensions
 
 	public static string GetRole(this ClaimsPrincipal user)
 		=> user.Claims.FirstOrDefault(x => x.Type == "role")?.Value ?? "";
+	public static int GetRoleId(this ClaimsPrincipal user)
+	{
+		var value = user.Claims
+			.FirstOrDefault(x => x.Type == "roleId")?.Value;
 
+		if (string.IsNullOrWhiteSpace(value))
+			return 0;
+
+		return int.TryParse(value, out var roleId) ? roleId : 0;
+	}
+	public static int GetDepartmentId(this ClaimsPrincipal user)
+	{
+		var value = user.Claims
+			.FirstOrDefault(x => x.Type == "departmentId")?.Value;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return 0;
+
+		return int.TryParse(value, out var departmentId) ? departmentId : 0;
+	}
 	public static bool IsGlobalAdmin(this ClaimsPrincipal user)
 		=> user.GetRole() == "GLOBAL ADMIN";
 
@@ -40,4 +59,7 @@ public static class ClaimExtensions
 		=> user.GetRole() == "ADMIN"
 		|| user.GetRole() == "SUPER ADMIN"
 		|| user.GetRole() == "GLOBAL ADMIN";
+	
+
+	
 }

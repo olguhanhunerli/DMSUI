@@ -38,10 +38,10 @@ namespace DMSUI.Business
                     new AuthenticationHeaderValue("Bearer", token);
             }
         }
-        public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize)
+        public async Task<PagedResultDTO<DocumentListDTO>> GetPagedAsync(int page, int pageSize, int roleId, int departmentId)
         {
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/Document/approved?page={page}&pageSize={pageSize}");
+            var response = await _httpClient.GetAsync($"api/Document/approved?roleId={roleId}&departmentId={departmentId}&page={page}&pageSize={pageSize}");
             if (!response.IsSuccessStatusCode)
             {
                 return new PagedResultDTO<DocumentListDTO>();
@@ -217,6 +217,23 @@ namespace DMSUI.Business
 				FileName = response.Content.Headers.ContentDisposition?.FileName?.Trim('"')
 						   ?? $"document_{documentId}.pdf"
 			};
+		}
+
+		public async Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Document/get-paged-by-category?categoryId={categoryId}&page={page}&pageSize={pageSize}");
+			if (!response.IsSuccessStatusCode)
+			{
+				return new PagedResultDTO<DocumentListDTO>();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<PagedResultDTO<DocumentListDTO>>(
+				body,
+				new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true
+				}) ?? new PagedResultDTO<DocumentListDTO>();
 		}
 	}
 }
