@@ -16,8 +16,10 @@ namespace DMSUI.Controllers
         public bool IsPublic { get; set; }
 
         public List<int> ApproverUserIds { get; set; } = new();
-
-        public IFormFile? MainFile { get; set; }                 // ✔ ANA DOSYA
-        public List<IFormFile>? Attachments { get; set; } = new(); // ✔ EK DOSYALAR
+        public List<int> AllowedDepartmentIds { get; set; } = new();
+        public List<int> AllowedRoleIds { get; set; } = new();
+        public List<int> AllowedUserIds { get; set; } = new();
+        public IFormFile? MainFile { get; set; }                 
+        public List<IFormFile>? Attachments { get; set; } = new(); 
     }
 }

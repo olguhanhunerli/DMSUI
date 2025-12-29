@@ -20,22 +20,25 @@ namespace DMSUI.Controllers
         private readonly IDepartmentManager _departmentManager;
         private readonly IUserManager _userManager;
         private readonly IDocumentAttachmentManager _documentAttachmentManager;
+		private readonly IRoleManager _roleManager;
 
-		public DocumentController(
-			IDocumentManager documentManager,
-			ICategoryManager categoryManager,
-			IUserManager userManager,
-			IDepartmentManager departmentManager,
-			IDocumentAttachmentManager documentAttachmentManager)
-		{
-			_documentManager = documentManager;
-			_categoryManager = categoryManager;
-			_userManager = userManager;
-			_departmentManager = departmentManager;
-			_documentAttachmentManager = documentAttachmentManager;
-		}
+        public DocumentController(
+            IDocumentManager documentManager,
+            ICategoryManager categoryManager,
+            IUserManager userManager,
+            IDepartmentManager departmentManager,
+            IDocumentAttachmentManager documentAttachmentManager,
+            IRoleManager roleManager)
+        {
+            _documentManager = documentManager;
+            _categoryManager = categoryManager;
+            _userManager = userManager;
+            _departmentManager = departmentManager;
+            _documentAttachmentManager = documentAttachmentManager;
+            _roleManager = roleManager;
+        }
 
-		public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var result = await _documentManager.GetPagedAsync(page, pageSize);
 
@@ -85,10 +88,11 @@ namespace DMSUI.Controllers
 
             var approvers = await _userManager.GetAllApprovers();
             var departments = await _departmentManager.GetAllDepartmentsAsync();
+            var roles = await _roleManager.GetAllRolesAsync();
 
             var vm = new DocumentCreatePreviewViewModel
             {
-                CategoryId = categoryId, 
+                CategoryId = categoryId,
                 DocumentCode = previewDTO.DocumentCode,
                 CompanyName = previewDTO.CompanyName,
                 CategoryName = previewDTO.CategoryName,
@@ -103,7 +107,14 @@ namespace DMSUI.Controllers
 
                 DepartmentList = departments
                     .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
+                    .ToList(),
+                RoleList = roles
+                    .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
+                    .ToList(),
+                UserList = approvers
+                    .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.FullName })
                     .ToList()
+
             };
 
             vm.ApprovalList = approvers.Select(x => new ApprovalRowViewModel
@@ -125,8 +136,17 @@ namespace DMSUI.Controllers
 	         List<IFormFile>? AttachmentFiles)
 		{
 			var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
-			Console.WriteLine("POST VersionNote = [" + vm.VersionNote + "]");
-			if (preview == null || string.IsNullOrWhiteSpace(preview.DocumentCode))
+            Console.WriteLine(
+						"POST AllowedDepartmentIds = [" +
+						string.Join(",", vm.AllowedUserIds) +
+						"]"
+					);
+            Console.WriteLine(
+                       "POST AllowedDepartmentIds = [" +
+                       string.Join(",", vm.AllowedRoleIds) +
+                       "]"
+                   );
+            if (preview == null || string.IsNullOrWhiteSpace(preview.DocumentCode))
 			{
 				ModelState.AddModelError("", "Doküman ön bilgileri alınamadı.");
 				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
@@ -174,8 +194,11 @@ namespace DMSUI.Controllers
 				IsPublic = false,
 				ApproverUserIds = selectedApproverIds,
 				MainFile = DocumentFile,
-				Attachments = AttachmentFiles
-			};
+				Attachments = AttachmentFiles,
+                AllowedDepartmentIds = vm.AllowedDepartmentIds,
+				AllowedRoleIds = vm.AllowedRoleIds,
+				AllowedUserIds = vm.AllowedUserIds
+            };
 
 			await _documentManager.CreateAsync(createDto);
 

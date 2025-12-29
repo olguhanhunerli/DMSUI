@@ -37,6 +37,11 @@
                         </button>
                     </li>
                     <li class="nav-item">
+                        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#departmens">
+                            <i class="bi bi-shield-check"></i> Görüntüle
+                        </button>
+                    </li>
+                    <li class="nav-item">
                         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#attachments">
                             <i class="bi bi-folder-plus"></i> Ek Dosyalar
                         </button>
@@ -172,6 +177,91 @@
                         </table>
 
                     </div>
+                    <<div class="tab-pane fade" id="departmens">
+
+                        <div class="alert alert-info border mb-3">
+                            <i class="bi bi-eye"></i>
+                            Bu dokümanı görüntüleyebilecek departman, rol ve kullanıcıları seçiniz.
+                        </div>
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-diagram-3"></i> Departmanlar
+                        </h6>
+
+                        <div class="row mb-4">
+                            @for (int i = 0; i < Model.DepartmentList.Count; i++)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedDepartmentIds"
+                                               value="@Model.DepartmentList[i].Value"
+                                               id="dep_@Model.DepartmentList[i].Value" checked />
+
+                                        <label class="form-check-label"
+                                               for="dep_@Model.DepartmentList[i].Value">
+                                            @Model.DepartmentList[i].Text
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-shield-lock"></i> Roller
+                        </h6>
+
+                        <div class="row mb-4">
+                            @for (int i = 0; i < Model.RoleList.Count; i++)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedRoleIds"
+                                               value="@Model.RoleList[i].Value"
+                                               id="role_@Model.RoleList[i].Value" checked/>
+
+                                        <label class="form-check-label"
+                                               for="role_@Model.RoleList[i].Value">
+                                            @Model.RoleList[i].Text
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-person-check"></i> Kullanıcılar
+                        </h6>
+
+                        <div class="row">
+                            @for (int i = 0; i < Model.UserList.Count; i++)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedUserIds"
+                                               value="@Model.UserList[i].Value"
+                                               id="user_@Model.UserList[i].Value"  checked/>
+
+                                        <label class="form-check-label"
+                                               for="user_@Model.UserList[i].Value">
+                                            @Model.UserList[i].Text
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
                     <div class="tab-pane fade" id="attachments">
 
                         <div class="alert alert-info border mb-3">

@@ -13,5 +13,9 @@
 		public int RevisionNumber { get; set; }
 
 		public List<ApprovalRowViewModel> ApprovalList { get; set; } = new();
-	}
+        public List<int> AllowedDepartmentIds { get; set; } = new();
+        public List<int> AllowedRoleIds { get; set; } = new();
+        public List<int> AllowedUserIds { get; set; } = new();
+
+    }
 }

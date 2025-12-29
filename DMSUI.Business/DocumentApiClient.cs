@@ -81,7 +81,27 @@ namespace DMSUI.Business
             form.Add(new StringContent(dto.RevisionNumber.ToString()), "RevisionNumber");
             form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
             form.Add(new StringContent(dto.VersionNote.ToString()), "VersionNote");
-
+            if (dto.AllowedDepartmentIds != null && dto.AllowedDepartmentIds.Any())
+            {
+                foreach (var depId in dto.AllowedDepartmentIds)
+                {
+                    form.Add(new StringContent(depId.ToString()), "AllowedDepartmentIds");
+                }
+            }
+            if (dto.AllowedRoleIds != null && dto.AllowedRoleIds.Any())
+            {
+                foreach (var depId in dto.AllowedRoleIds)
+                {
+                    form.Add(new StringContent(depId.ToString()), "AllowedRoleIds");
+                }
+            }
+            if (dto.AllowedUserIds != null && dto.AllowedUserIds.Any())
+            {
+                foreach (var depId in dto.AllowedUserIds)
+                {
+                    form.Add(new StringContent(depId.ToString()), "AllowedUserIds");
+                }
+            }
             foreach (var id in dto.ApproverUserIds)
                 form.Add(new StringContent(id.ToString()), "ApproverUserIds");
 
