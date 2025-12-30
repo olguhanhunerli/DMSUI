@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = "Doküman Detayı";
+
     var currentUserId = User.GetUserId();
     bool canApprove = Model.CurrentApproverId == currentUserId;
 }
@@ -27,8 +28,8 @@
 
             <span class="badge rounded-pill px-3 py-2 fs-6
                 @(Model.StatusId == 1 ? "bg-warning text-dark" :
-                  Model.StatusId == 2 ? "bg-success" :
-                  Model.StatusId == 3 ? "bg-danger" : "bg-secondary")">
+                                    Model.StatusId == 2 ? "bg-success" :
+                                    Model.StatusId == 3 ? "bg-danger" : "bg-secondary")">
                 @Model.Status
             </span>
 
@@ -39,16 +40,25 @@
 
         <div class="card-header bg-white border-bottom-0">
             <ul class="nav nav-tabs card-header-tabs">
+
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info">
                         <i class="bi bi-info-circle"></i> Bilgiler
                     </button>
                 </li>
+
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-access">
+                        <i class="bi bi-shield-lock"></i> Erişim
+                    </button>
+                </li>
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-pdf">
                         <i class="bi bi-file-pdf"></i> PDF
                     </button>
                 </li>
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attachments">
                         <i class="bi bi-paperclip"></i> Ekler
@@ -58,21 +68,25 @@
                         }
                     </button>
                 </li>
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-approval">
                         <i class="bi bi-check2-circle"></i> Onay
                     </button>
                 </li>
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-history">
                         <i class="bi bi-clock-history"></i> Geçmiş
                     </button>
                 </li>
+
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-logs">
                         <i class="bi bi-activity"></i> Loglar
                     </button>
                 </li>
+
             </ul>
         </div>
 
@@ -115,45 +129,90 @@
                         <div class="col-md-12">
                             <div class="border rounded p-3">
                                 <small class="text-muted">Versiyon Notu</small>
-                                <div>
-                                    @(string.IsNullOrWhiteSpace(Model.VersionNote) ? "-" : Model.VersionNote)
-                                </div>
+                                <div>@(string.IsNullOrWhiteSpace(Model.VersionNote) ? "-" : Model.VersionNote)</div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="border rounded p-3 d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-file-earmark-pdf text-danger fs-4"></i>
-                            <div>
-                                <div class="fw-semibold">@Model.MainFile?.OriginalFileName</div>
-                                <small class="text-muted">
-                                    @(Model.MainFile?.FileSize / 1024) KB
-                                </small>
+                <div class="tab-pane fade" id="tab-access">
+                    <div class="row g-3 mt-3">
+
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="bi bi-diagram-3"></i> Departmanlar
+                                </h6>
+
+                                @if (Model.AllowedDepartments?.Any() == true)
+                                {
+                                    foreach (var dep in Model.AllowedDepartments)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" checked disabled type="checkbox" />
+                                            <label class="form-check-label">@dep.Name</label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Kısıtlama yok</small>
+                                }
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <a asp-controller="Document"
-                               asp-action="Pdf"
-                               asp-route-id="@Model.Id"
-                               target="_blank"
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-eye"></i> Görüntüle
-                            </a>
-                            <a asp-controller="Document"
-                               asp-action="DownloadPdf"
-                               asp-route-id="@Model.Id"
-                               class="btn btn-outline-danger btn-sm">
-                                <i class="bi bi-file-earmark-pdf"></i> PDF
-                            </a>
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="bi bi-shield-lock"></i> Roller
+                                </h6>
+
+                                @if (Model.AllowedRoles?.Any() == true)
+                                {
+                                    foreach (var role in Model.AllowedRoles)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" checked disabled type="checkbox" />
+                                            <label class="form-check-label">@role.Name</label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Kısıtlama yok</small>
+                                }
+                            </div>
                         </div>
+
+                        <div class="col-md-4">
+                            <div class="border rounded p-3 h-100">
+                                <h6 class="fw-semibold mb-3">
+                                    <i class="bi bi-people"></i> Kullanıcılar
+                                </h6>
+
+                                @if (Model.AllowedUsers?.Any() == true)
+                                {
+                                    foreach (var u in Model.AllowedUsers)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input" checked disabled type="checkbox" />
+                                            <label class="form-check-label">@u.FullName</label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Kısıtlama yok</small>
+                                }
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="tab-pane fade" id="tab-pdf">
                     <div class="ratio ratio-16x9 border rounded">
-                        <iframe src="@Url.Action("Pdf","Document",new{id=Model.Id})"></iframe>
+                        <iframe src="@Url.Action("Pdf", "Document", new { id = Model.Id })"></iframe>
                     </div>
                 </div>
 
@@ -173,15 +232,12 @@
                                 @foreach (var file in Model.Attachments)
                                 {
                                     <tr>
-                                        <td>
-                                            <i class="bi bi-paperclip"></i>
-                                            @file.OriginalFileName
-                                        </td>
+                                        <td>@file.OriginalFileName</td>
                                         <td>@file.UploadedByName</td>
                                         <td>@file.UploadedAt?.ToString("dd.MM.yyyy HH:mm")</td>
                                         <td class="text-end">
                                             <a class="btn btn-sm btn-outline-primary"
-                                               href="@Url.Action("DownloadAttachment","Document",new{id=file.Id})">
+                                               href="@Url.Action("DownloadAttachment", "Document", new { id = file.Id })">
                                                 <i class="bi bi-download"></i>
                                             </a>
                                         </td>
@@ -196,7 +252,6 @@
                     }
                 </div>
 
-                <!-- APPROVAL TAB -->
                 <div class="tab-pane fade" id="tab-approval">
 
                     @if (Model.StatusId == 1)
@@ -229,17 +284,16 @@
                             <form asp-action="Reject" method="post">
                                 <input type="hidden" name="documentId" value="@Model.Id" />
                                 <textarea name="reason"
-                                          class="form-control mb-2"
-                                          rows="3"
-                                          required
-                                          placeholder="Red gerekçesi"></textarea>
+                                      class="form-control mb-2"
+                                      rows="3"
+                                      required
+                                      placeholder="Red gerekçesi"></textarea>
                                 <button class="btn btn-danger">Gönder</button>
                             </form>
                         </div>
                     }
                 </div>
 
-                <!-- HISTORY -->
                 <div class="tab-pane fade" id="tab-history">
                     <ul class="list-group list-group-flush">
                         @foreach (var h in Model.ApprovalHistories ?? [])
@@ -247,15 +301,12 @@
                             <li class="list-group-item">
                                 <strong>@h.ActionType</strong> - @h.ActionByName
                                 <br />
-                                <small class="text-muted">
-                                    @h.ActionAt?.ToString("dd.MM.yyyy HH:mm")
-                                </small>
+                                <small class="text-muted">@h.ActionAt?.ToString("dd.MM.yyyy HH:mm")</small>
                             </li>
                         }
                     </ul>
                 </div>
 
-                <!-- LOGS -->
                 <div class="tab-pane fade" id="tab-logs">
                     <table class="table table-sm">
                         <thead>

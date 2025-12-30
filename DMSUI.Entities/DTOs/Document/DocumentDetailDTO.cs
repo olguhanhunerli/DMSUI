@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DMSUI.Entities.DTOs.Departments;
+using DMSUI.Entities.DTOs.Role;
+using DMSUI.Entities.DTOs.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,11 +29,15 @@ namespace DMSUI.Entities.DTOs.Document
 		public string? CompanyName { get; set; }
 
 		public bool IsPublic { get; set; }
+
 		public List<int> AllowedRoleIds { get; set; } = new();
 		public List<int> AllowedDepartmentIds { get; set; } = new();
 		public List<int> AllowedUserIds { get; set; } = new();
+        public List<RoleMiniDTO> AllowedRoles { get; set; } = new();
+        public List<DepartmentMiniDTO> AllowedDepartments { get; set; } = new();
+        public List<UserMiniDTO> AllowedUsers { get; set; } = new();
 
-		public int StatusId { get; set; }
+        public int StatusId { get; set; }
 		public string? Status { get; set; }
 
 		public int? CurrentApproverId { get; set; }
