@@ -24,22 +24,32 @@
     {
         <div class="card shadow-sm">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
                         <tr>
                             <th style="width:5%">#</th>
                             <th style="width:20%">Doküman Kodu</th>
                             <th>Başlık</th>
                             <th style="width:15%">Durum</th>
-                            <th style="width:20%">Oluşturma</th>
+                            <th style="width:15%">Oluşturan</th>
+                            <th style="width:15%">Oluşturma</th>
+                            <th style="width:10%">Bekleme</th>
                         </tr>
                     </thead>
                     <tbody>
                         @for (int i = 0; i < Model.Count; i++)
                         {
                             var d = Model[i];
+
+                            var badgeClass =
+                            d.StatusId == 1 ? "bg-warning text-dark" :
+                            d.StatusId == 2 ? "bg-success" :
+                            d.StatusId == 3 ? "bg-danger" :
+                            "bg-secondary";
+
                             <tr>
                                 <td>@((page - 1) * pageSize + i + 1)</td>
+
                                 <td>
                                     <a asp-controller="Approval"
                                        asp-action="Detail"
@@ -48,14 +58,24 @@
                                         @d.DocumentCode
                                     </a>
                                 </td>
+
                                 <td>@d.Title</td>
+
                                 <td>
-                                    <span class="badge bg-warning text-dark">
+                                    <span class="badge @badgeClass">
                                         @d.StatusName
                                     </span>
                                 </td>
+
+                                <td>@d.CreatedByName</td>
+
                                 <td>@d.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
 
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        @d.WaitingDays gün
+                                    </span>
+                                </td>
                             </tr>
                         }
                     </tbody>

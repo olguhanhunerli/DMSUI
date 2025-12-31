@@ -1,0 +1,68 @@
+﻿@model DMSUI.Entities.DTOs.Common.PagedResultDTO<
+       DMSUI.Entities.DTOs.Audit.DocumentAccessLogDTO>
+
+<table class="table table-hover table-sm">
+    <thead class="table-light">
+        <tr>
+            <th>Tarih</th>
+            <th>Doküman</th>
+            <th>Kullanıcı</th>
+            <th>İşlem</th>
+            <th>IP</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.Items)
+        {
+            <tr>
+                <td>@log.AccessAt?.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@log.DocumentCode</td>
+                <td>@log.UserName</td>
+                <td>
+                    <span class="badge bg-secondary">
+                        @log.AccessType
+                    </span>
+                </td>
+                <td>@log.IpAddress</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-end">
+
+            <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.Page - 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    ‹
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-pageSize="@Model.PageSize">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-page="@(Model.Page + 1)"
+                   asp-route-pageSize="@Model.PageSize">
+                    ›
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}

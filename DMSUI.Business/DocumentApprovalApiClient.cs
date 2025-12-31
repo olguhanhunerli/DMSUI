@@ -51,8 +51,10 @@ namespace DMSUI.Business
 				DocumentCode = x.DocumentCode,
                 Title = x.Title,
                 StatusId = x.StatusId,
+                StatusName = x.StatusName,
                 CreatedAt = x.CreatedAt,
                 CreatedByName = x.CreatedByName,
+                WaitingDays = x.WaitingDays
 			}).ToList();
         }
 
