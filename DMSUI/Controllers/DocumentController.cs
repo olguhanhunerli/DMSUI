@@ -161,20 +161,10 @@ namespace DMSUI.Controllers
 	         IFormFile? DocumentFile,
 	         List<IFormFile>? AttachmentFiles)
 		{
-			var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
-            Console.WriteLine(
-						"POST AllowedDepartmentIds = [" +
-						string.Join(",", vm.AllowedUserIds) +
-						"]"
-					);
-            Console.WriteLine(
-                       "POST AllowedDepartmentIds = [" +
-                       string.Join(",", vm.AllowedRoleIds) +
-                       "]"
-                   );
-            if (preview == null || string.IsNullOrWhiteSpace(preview.DocumentCode))
+
+			if (string.IsNullOrWhiteSpace(vm.DocumentCode))
 			{
-				ModelState.AddModelError("", "Doküman ön bilgileri alınamadı.");
+				TempData["Error"] = "Doküman kodu bulunamadı.";
 				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
 			}
 
@@ -202,15 +192,16 @@ namespace DMSUI.Controllers
 			}
 
 			if (DocumentFile != null &&
-				!DocumentFile.FileName.StartsWith(preview.DocumentCode, StringComparison.OrdinalIgnoreCase))
+				!DocumentFile.FileName.StartsWith(vm.DocumentCode, StringComparison.OrdinalIgnoreCase))
 			{
 				TempData["Error"] =
-					$"Ana dosya adı doküman kodu ({preview.DocumentCode}) ile başlamalıdır.";
+					$"Ana dosya adı doküman kodu ({vm.DocumentCode}) ile başlamalıdır.";
 				return RedirectToAction("Create", new { categoryId = vm.CategoryId });
 			}
 
 			var createDto = new CreateDocumentDTO
 			{
+				DocumentCode = vm.DocumentCode,
 				TitleTr = vm.TitleTr,
 				TitleEn = vm.TitleEn,
 				CategoryId = vm.CategoryId,

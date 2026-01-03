@@ -4,7 +4,8 @@ namespace DMSUI.Controllers
 {
     public class CreateDocumentDTO
     {
-        public string? TitleTr { get; set; }
+		public string DocumentCode { get; set; }
+		public string? TitleTr { get; set; }
         public string? TitleEn { get; set; }
 
         public int CategoryId { get; set; }

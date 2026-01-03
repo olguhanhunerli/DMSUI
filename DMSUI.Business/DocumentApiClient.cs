@@ -81,6 +81,7 @@ namespace DMSUI.Business
             form.Add(new StringContent(dto.RevisionNumber.ToString()), "RevisionNumber");
             form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
             form.Add(new StringContent(dto.VersionNote.ToString()), "VersionNote");
+            form.Add(new StringContent(dto.DocumentCode.ToString()), "DocumentCode");
             if (dto.AllowedDepartmentIds != null && dto.AllowedDepartmentIds.Any())
             {
                 foreach (var depId in dto.AllowedDepartmentIds)

@@ -3,6 +3,7 @@
 	public class DocumentCreatePostViewModel
 	{
 		public int CategoryId { get; set; }
+		public string DocumentCode { get; set; }
 
 		public string? TitleTr { get; set; }
 		public string? TitleEn { get; set; }

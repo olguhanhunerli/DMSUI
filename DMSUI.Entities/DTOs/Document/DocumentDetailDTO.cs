@@ -29,6 +29,10 @@ namespace DMSUI.Entities.DTOs.Document
 		public string? CompanyName { get; set; }
 
 		public bool IsPublic { get; set; }
+		public bool IsLocked { get; set; }
+		public int LockedByUserId { get; set; }
+		public string LockedByUserName { get; set; }
+		public DateTime LockedAt { get; set; }
 
 		public List<int> AllowedRoleIds { get; set; } = new();
 		public List<int> AllowedDepartmentIds { get; set; } = new();
