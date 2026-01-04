@@ -60,9 +60,20 @@
                 {
                     @if (canStartRevision)
                     {
-                        <button class="btn btn-outline-warning btn-sm">
-                            <i class="bi bi-arrow-repeat"></i> Revizyon Başlat
-                        </button>
+                        <form asp-controller="Document"
+                              asp-action="StartRevision"
+                              method="post"
+                              class="d-inline">
+
+                            <input type="hidden" name="documentId" value="@Model.Id" />
+                            <input type="hidden" name="revisionNote" value="Revizyon başlatıldı" />
+
+                            <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Revizyondan Başlatmak istediğinize emin misiniz?');">
+                                
+                                <i class="bi bi-arrow-repeat"></i> Revizyon Başlat
+                            </button>
+                        </form>
+                      
                     }
                 }
                 <span class="badge rounded-pill px-3 py-2 fs-6

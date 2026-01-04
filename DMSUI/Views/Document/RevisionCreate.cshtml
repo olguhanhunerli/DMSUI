@@ -1,0 +1,386 @@
+﻿@model DMSUI.ViewModels.Document.DocumentRevisionPreviewViewModel
+
+@{
+    ViewData["Title"] = "Doküman Revizyonu";
+}
+
+<form asp-action="RevisionCreate"
+      method="post"
+      enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="DocumentId" />
+    <input type="hidden" asp-for="CategoryId" />
+    <input type="hidden" asp-for="DocumentCode" />
+
+    <div class="container-fluid mt-4">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header bg-warning text-dark d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="bi bi-arrow-repeat"></i> Doküman Revizyonu
+                </h5>
+            </div>
+
+            <div class="card-body p-0">
+
+                <ul class="nav nav-tabs px-3 pt-3" role="tablist">
+
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link active"
+                                data-bs-toggle="tab"
+                                data-bs-target="#preview">
+                            <i class="bi bi-eye"></i> Doküman Bilgileri
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#content">
+                            <i class="bi bi-shield-check"></i> Onay Akışı
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#departmens">
+                            <i class="bi bi-eye"></i> Görüntüle
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#attachments">
+                            <i class="bi bi-folder-plus"></i> Ek Dosyalar
+                        </button>
+                    </li>
+
+                    <li class="nav-item">
+                        <button type="button"
+                                class="nav-link"
+                                data-bs-toggle="tab"
+                                data-bs-target="#files">
+                            <i class="bi bi-paperclip"></i> Dosyalar
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content p-4">
+
+                    <div class="tab-pane fade show active" id="preview">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Klasör Adı</label>
+                                <input class="form-control"
+                                       value="@Model.CategoryName"
+                                       readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Doküman Kodu</label>
+                                <input class="form-control"
+                                       value="@Model.DocumentCode"
+                                       readonly />
+                                <small class="text-warning">Revizyon</small>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Mevcut Versiyon</label>
+                                <input class="form-control"
+                                       value="@Model.VersionNumber"
+                                       readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Yeni Revizyon Açıklaması
+                                </label>
+                                <textarea asp-for="NewRevisionNote"
+                                          class="form-control"
+                                          rows="3"
+                                          min-lenght="20"
+                                          placeholder="Bu revizyonda yapılan değişiklikleri açıklayın...">
+                                </textarea>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Doküman Sahibi</label>
+                                <input class="form-control"
+                                       value="@Model.OwnerName"
+                                       readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Oluşturulma Tarihi</label>
+                                <input class="form-control"
+                                       value="@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")"
+                                       readonly />
+                            </div>
+
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold">Durum</label>
+                                <input class="form-control text-warning"
+                                       value="@Model.Status"
+                                       readonly />
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4" />
+                    </div>
+
+                    <div class="tab-pane fade" id="content">
+
+                        <div class="alert alert-warning border mb-3">
+                            <i class="bi bi-shield-check"></i>
+                            Revizyon sonrası onay akışını tanımlayın.
+                        </div>
+
+                        <table class="table table-bordered table-sm align-middle">
+
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th>Seç</th>
+                                    <th>#</th>
+                                    <th>Pozisyon</th>
+                                    <th>Personel</th>
+                                    <th>Seviye</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @for (int i = 0; i < Model.ApprovalList.Count; i++)
+                                {
+                                    <tr class="text-center">
+                                        <td>
+                                            <input type="checkbox"
+                                                   asp-for="ApprovalList[@i].IsSelected"
+                                                   class="form-check-input" />
+                                        </td>
+                                        <td>@(i + 1)</td>
+                                        <td>@Model.ApprovalList[i].PositionName</td>
+                                        <td>@Model.ApprovalList[i].UserName</td>
+                                        <td>
+                                            <input asp-for="ApprovalList[@i].ApprovalLevel"
+                                                   class="form-control form-control-sm text-center"
+                                                   style="width:70px;margin:auto;" />
+                                        </td>
+
+                                        <input type="hidden" asp-for="ApprovalList[@i].UserId" />
+                                        <input type="hidden" asp-for="ApprovalList[@i].UserName" />
+                                        <input type="hidden" asp-for="ApprovalList[@i].PositionName" />
+                                    </tr>
+                                }
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="departmens">
+
+                        <div class="alert alert-info border mb-3">
+                            <i class="bi bi-eye"></i>
+                            Revize edilen dokümanı kimler görüntüleyebilir?
+                        </div>
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-diagram-3"></i> Departmanlar
+                        </h6>
+
+                        <div class="row mb-4">
+                            @foreach (var dep in Model.DepartmentList)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedDepartmentIds"
+                                               value="@dep.Value"
+                                               checked />
+                                        <label class="form-check-label">@dep.Text</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-shield-lock"></i> Roller
+                        </h6>
+
+                        <div class="row mb-4">
+                            @foreach (var role in Model.RoleList)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedRoleIds"
+                                               value="@role.Value"
+                                               checked />
+                                        <label class="form-check-label">@role.Text</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <hr />
+
+                        <h6 class="fw-semibold mb-2">
+                            <i class="bi bi-person-check"></i> Kullanıcılar
+                        </h6>
+
+                        <div class="row">
+                            @foreach (var user in Model.UserList)
+                            {
+                                <div class="col-md-4 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               name="AllowedUserIds"
+                                               value="@user.Value"
+                                               checked />
+                                        <label class="form-check-label">@user.Text</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="attachments">
+
+                        <div class="alert alert-info border mb-3">
+                            <i class="bi bi-paperclip"></i>
+                            Mevcut ek dosyalar
+                        </div>
+
+                        @if (Model.Attachments.Any())
+                        {
+                            <table class="table table-sm table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Dosya</th>
+                                        <th>Yükleyen</th>
+                                        <th>Tarih</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var file in Model.Attachments)
+                                    {
+                                        <tr>
+                                            <td>@file.FileName</td>
+                                            <td>@file.UploadedByName</td>
+                                            <td>@file.UploadedAt?.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td class="text-end">
+                                                <a asp-controller="Document"
+                                                   asp-action="DownloadAttachment"
+                                                   asp-route-id="@file.Id"
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-download"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="text-muted">Bu dokümana ait ek dosya bulunmamaktadır.</div>
+                        }
+
+                        <hr />
+
+                        <div class="alert alert-secondary border mt-3">
+                            <i class="bi bi-upload"></i>
+                            Revizyona yeni ek dosyalar ekleyebilirsiniz.
+                        </div>
+
+                        <input type="file"
+                               class="form-control"
+                               name="AttachmentFiles"
+                               multiple />
+                    </div>
+
+                    <div class="tab-pane fade" id="files">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Yeni Doküman Dosyası
+                                </label>
+                                <a asp-action="Download"
+                                   asp-route-id="@Model.DocumentId"
+                                   class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-file-earmark-pdf"></i> Orjinal Dosyayı İndir
+                                </a>
+                                <input type="file"
+                                       class="form-control"
+                                       name="DocumentFile"
+                                       accept=".pdf,.doc,.docx,.xlsx,.png,.jpg" />
+
+                                <small class="text-muted">
+                                    Dosya adı <b>@Model.DocumentCode</b> ile başlamalı, <b>_v@(Model.VersionNumber + 1)</b> ile bitmelidir.
+                                </small>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card-footer d-flex justify-content-end gap-2">
+
+                <a asp-action="Detail"
+                   asp-route-id="@Model.DocumentId"
+                   class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Geri
+                </a>
+
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-check-circle"></i> Revizyonu Kaydet
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</form>
+<form asp-controller="Document"
+      asp-action="CancelRevision"
+      method="post"
+      class="text-end mt-2">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="documentId" value="@Model.DocumentId" />
+    <input type="hidden" name="reason" value="Revizyon iptal edildi" />
+
+    <button type="submit"
+            class="btn btn-danger"
+            onclick="return confirm('Revizyondan vazgeçmek istediğinize emin misiniz?');">
+        <i class="bi bi-x-circle"></i> Revizyondan Vazgeç
+    </button>
+</form>

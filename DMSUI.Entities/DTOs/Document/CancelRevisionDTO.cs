@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Entities.DTOs.Document
 {
-    public class StartRevisionDTO
+    public class CancelRevisionDTO
     {
-		public int DocumentId { get; set; }
-		public string RevisionNote { get; set; }
+		public int Id { get; set; }
+		public string Reason { get; set; }
 	}
 }

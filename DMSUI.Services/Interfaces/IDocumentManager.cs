@@ -20,6 +20,11 @@ namespace DMSUI.Services.Interfaces
 		Task<DownloadFileResult> DownloadOriginalAsync(int documentId);
 		Task<DownloadFileResult> DownloadPdfAsync(int documentId);
 		Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId);
+		Task<StartRevisionDTO> StartRevisionAsync(int documentId, string revisionNote);
+		Task<CancelRevisionDTO> CancelRevisionAsync(int documentId, string reason);
+
+		Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId);
+
 
 	}
 }

@@ -21,7 +21,12 @@ namespace DMSUI.Services
             _client = client;
         }
 
-        public async Task<CreateDocumentResponseDTO> CreateAsync(CreateDocumentDTO dto)
+		public async Task<CancelRevisionDTO> CancelRevisionAsync(int documentId, string reason)
+		{
+			return await _client.CancelRevisionAsync(documentId, reason);
+		}
+
+		public async Task<CreateDocumentResponseDTO> CreateAsync(CreateDocumentDTO dto)
         {
             return await _client.CreateAsync(dto);
         }
@@ -64,6 +69,16 @@ namespace DMSUI.Services
 		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
 		{
 			return await _client.GetPdfAsync(documentId);
+		}
+
+		public async Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId)
+		{
+			return await _client.GetRevisionReviewAsync(documentId);	
+		}
+
+		public async Task<StartRevisionDTO> StartRevisionAsync(int documentId, string revisionNote)
+		{
+			return await _client.StartRevisionAsync(documentId, revisionNote);
 		}
 	}
 }

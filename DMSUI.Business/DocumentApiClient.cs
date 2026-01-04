@@ -236,5 +236,59 @@ namespace DMSUI.Business
 					PropertyNameCaseInsensitive = true
 				}) ?? new PagedResultDTO<DocumentListDTO>();
 		}
+
+		public async Task<StartRevisionDTO> StartRevisionAsync(int documentId, string revisionNote)
+		{
+			AttachToken();
+            var payload = new
+            {
+                revisionNote = revisionNote
+			};
+            var content = new StringContent(
+				JsonSerializer.Serialize(payload),
+				Encoding.UTF8,
+				"application/json"
+			);
+			var response = await _httpClient.PostAsync($"api/Document/{documentId}/start-revision",content);
+			if (!response.IsSuccessStatusCode)
+			{
+				return new StartRevisionDTO();
+			}
+			
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<StartRevisionDTO>(body,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+
+		public async Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Document/{documentId}/revision-preview");
+			if (!response.IsSuccessStatusCode)
+			{
+				return new DocumentRevisionReviewDTO();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<DocumentRevisionReviewDTO>(body,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+
+		public async Task<CancelRevisionDTO> CancelRevisionAsync(int documentId, string reason)
+		{
+            AttachToken();
+            var payload = new
+            {
+                reason = reason
+            };
+            var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"api/Document/{documentId}/cancel-revision", content);
+			if (!response.IsSuccessStatusCode)
+			{
+				return new CancelRevisionDTO();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<CancelRevisionDTO>(body,
+				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
 	}
 }

@@ -10,38 +10,39 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
-   
-    public class DocumentController : Controller
-    {
-        private readonly IDocumentManager _documentManager;
-        private readonly ICategoryManager _categoryManager;
-        private readonly IDepartmentManager _departmentManager;
-        private readonly IUserManager _userManager;
-        private readonly IDocumentAttachmentManager _documentAttachmentManager;
+
+	public class DocumentController : Controller
+	{
+		private readonly IDocumentManager _documentManager;
+		private readonly ICategoryManager _categoryManager;
+		private readonly IDepartmentManager _departmentManager;
+		private readonly IUserManager _userManager;
+		private readonly IDocumentAttachmentManager _documentAttachmentManager;
 		private readonly IRoleManager _roleManager;
 
-        public DocumentController(
-            IDocumentManager documentManager,
-            ICategoryManager categoryManager,
-            IUserManager userManager,
-            IDepartmentManager departmentManager,
-            IDocumentAttachmentManager documentAttachmentManager,
-            IRoleManager roleManager)
-        {
-            _documentManager = documentManager;
-            _categoryManager = categoryManager;
-            _userManager = userManager;
-            _departmentManager = departmentManager;
-            _documentAttachmentManager = documentAttachmentManager;
-            _roleManager = roleManager;
-        }
+		public DocumentController(
+			IDocumentManager documentManager,
+			ICategoryManager categoryManager,
+			IUserManager userManager,
+			IDepartmentManager departmentManager,
+			IDocumentAttachmentManager documentAttachmentManager,
+			IRoleManager roleManager)
+		{
+			_documentManager = documentManager;
+			_categoryManager = categoryManager;
+			_userManager = userManager;
+			_departmentManager = departmentManager;
+			_documentAttachmentManager = documentAttachmentManager;
+			_roleManager = roleManager;
+		}
 
-        public async Task<IActionResult> Index(int? categoryId, int page = 1, int pageSize = 10)
-        {
+		public async Task<IActionResult> Index(int? categoryId, int page = 1, int pageSize = 10)
+		{
 			var userId = User.GetUserId();
 			var roleId = User.GetRoleId();
 			var departmentId = User.GetDepartmentId();
@@ -76,90 +77,90 @@ namespace DMSUI.Controllers
 			return View(result.Items);
 		}
 
-        [HttpGet]
-        public async Task<IActionResult> SelectCategory()
-        {
-            var categories = await _categoryManager.GetTreeAsync();
-            return View(categories);
-        }
+		[HttpGet]
+		public async Task<IActionResult> SelectCategory()
+		{
+			var categories = await _categoryManager.GetTreeAsync();
+			return View(categories);
+		}
 
-        [HttpGet]
-        public async Task<IActionResult> Create(int categoryId)
-        {
-            if (categoryId <= 0)
-            {
-                return RedirectToAction("SelectCategory");
-            }
+		[HttpGet]
+		public async Task<IActionResult> Create(int categoryId)
+		{
+			if (categoryId <= 0)
+			{
+				return RedirectToAction("SelectCategory");
+			}
 
-            var token = Request.Cookies["access_token"];
-            if (string.IsNullOrEmpty(token))
-            {
-                return Unauthorized("Token Bilgisi Alınamadı");
-            }
+			var token = Request.Cookies["access_token"];
+			if (string.IsNullOrEmpty(token))
+			{
+				return Unauthorized("Token Bilgisi Alınamadı");
+			}
 
-            var handler = new JwtSecurityTokenHandler();
-            var jwt = handler.ReadJwtToken(token);
+			var handler = new JwtSecurityTokenHandler();
+			var jwt = handler.ReadJwtToken(token);
 
-            var userId = int.Parse(
-                jwt.Claims.First(x => x.Type == "userId" || x.Type == "sub").Value
-            );
+			var userId = int.Parse(
+				jwt.Claims.First(x => x.Type == "userId" || x.Type == "sub").Value
+			);
 
-            var user = await _userManager.GetUserByIdAsync(userId);
+			var user = await _userManager.GetUserByIdAsync(userId);
 
-            var previewDTO = await _documentManager.GetDocumentCreatePreview(categoryId);
-            if (previewDTO == null)
-            {
-                return NotFound();
-            }
+			var previewDTO = await _documentManager.GetDocumentCreatePreview(categoryId);
+			if (previewDTO == null)
+			{
+				return NotFound();
+			}
 
-            var approvers = await _userManager.GetAllApprovers();
-            var departments = await _departmentManager.GetAllDepartmentsAsync();
-            var roles = await _roleManager.GetAllRolesAsync();
+			var approvers = await _userManager.GetAllApprovers();
+			var departments = await _departmentManager.GetAllDepartmentsAsync();
+			var roles = await _roleManager.GetAllRolesAsync();
 
-            var vm = new DocumentCreatePreviewViewModel
-            {
-                CategoryId = categoryId,
-                DocumentCode = previewDTO.DocumentCode,
-                CompanyName = previewDTO.CompanyName,
-                CategoryName = previewDTO.CategoryName,
-                CategoryBreadcrumb = previewDTO.CategoryBreadcrumb,
-                VersionNumber = previewDTO.VersionNumber,
-                IsCodeValid = previewDTO.IsCodeValid,
+			var vm = new DocumentCreatePreviewViewModel
+			{
+				CategoryId = categoryId,
+				DocumentCode = previewDTO.DocumentCode,
+				CompanyName = previewDTO.CompanyName,
+				CategoryName = previewDTO.CategoryName,
+				CategoryBreadcrumb = previewDTO.CategoryBreadcrumb,
+				VersionNumber = previewDTO.VersionNumber,
+				IsCodeValid = previewDTO.IsCodeValid,
 
-                PreparedByUserId = user.Id,
-                PreparedByUserName = user.UserName,
-                PreparedAt = DateTime.Now,
-                RevisionNumber = 0,
+				PreparedByUserId = user.Id,
+				PreparedByUserName = user.UserName,
+				PreparedAt = DateTime.Now,
+				RevisionNumber = 0,
 
-                DepartmentList = departments
-                    .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
-                    .ToList(),
-                RoleList = roles
-                    .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
-                    .ToList(),
-                UserList = approvers
-                    .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.FullName })
-                    .ToList()
+				DepartmentList = departments
+					.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
+					.ToList(),
+				RoleList = roles
+					.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
+					.ToList(),
+				UserList = approvers
+					.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.FullName })
+					.ToList()
 
-            };
+			};
 
-            vm.ApprovalList = approvers.Select(x => new ApprovalRowViewModel
-            {
-                UserId = x.Id,
-                UserName = x.FullName,
-                PositionName = x.PositionName,
-                ApprovalLevel = 1
-            }).ToList();
+			vm.ApprovalList = approvers.Select(x => new ApprovalRowViewModel
+			{
+				UserId = x.Id,
+				UserName = x.FullName,
+				PositionName = x.PositionName,
+				ApprovalLevel = 1
+			}).ToList();
 
-            return View(vm);
-        }
+			return View(vm);
+		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(
-	         DocumentCreatePostViewModel vm,
-	         IFormFile? DocumentFile,
-	         List<IFormFile>? AttachmentFiles)
+			 DocumentCreatePostViewModel vm,
+			 IFormFile? DocumentFile,
+			 List<IFormFile>? AttachmentFiles)
 		{
 
 			if (string.IsNullOrWhiteSpace(vm.DocumentCode))
@@ -212,10 +213,10 @@ namespace DMSUI.Controllers
 				ApproverUserIds = selectedApproverIds,
 				MainFile = DocumentFile,
 				Attachments = AttachmentFiles,
-                AllowedDepartmentIds = vm.AllowedDepartmentIds,
+				AllowedDepartmentIds = vm.AllowedDepartmentIds,
 				AllowedRoleIds = vm.AllowedRoleIds,
 				AllowedUserIds = vm.AllowedUserIds
-            };
+			};
 
 			await _documentManager.CreateAsync(createDto);
 
@@ -223,20 +224,20 @@ namespace DMSUI.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 		[HttpGet]
-        public async Task<IActionResult> Pdf(int id)
-        {
+		public async Task<IActionResult> Pdf(int id)
+		{
 			var pdfResult = await _documentManager.GetPdfAsync(id);
 			if (pdfResult == null)
 			{
 				return NotFound();
 			}
 
-            return File(
-                pdfResult.FileBytes,
-                "application/pdf");
+			return File(
+				pdfResult.FileBytes,
+				"application/pdf");
 		}
-        public async Task<IActionResult> Detail(int id)
-        {
+		public async Task<IActionResult> Detail(int id)
+		{
 			var document = await _documentManager.GetByIdAsync(id);
 			if (document == null)
 			{
@@ -245,48 +246,48 @@ namespace DMSUI.Controllers
 			return View(document);
 		}
 
-        private async Task PrepareCreateViewModelAsync(DocumentCreatePreviewViewModel vm)
-        {
-            var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
+		private async Task PrepareCreateViewModelAsync(DocumentCreatePreviewViewModel vm)
+		{
+			var preview = await _documentManager.GetDocumentCreatePreview(vm.CategoryId);
 
-            vm.DocumentCode = preview.DocumentCode;
-            vm.CompanyName = preview.CompanyName;
-            vm.CategoryName = preview.CategoryName;
-            vm.CategoryBreadcrumb = preview.CategoryBreadcrumb;
-            vm.VersionNumber = preview.VersionNumber;
-            vm.IsCodeValid = preview.IsCodeValid;
+			vm.DocumentCode = preview.DocumentCode;
+			vm.CompanyName = preview.CompanyName;
+			vm.CategoryName = preview.CategoryName;
+			vm.CategoryBreadcrumb = preview.CategoryBreadcrumb;
+			vm.VersionNumber = preview.VersionNumber;
+			vm.IsCodeValid = preview.IsCodeValid;
 
-            var departments = await _departmentManager.GetAllDepartmentsAsync();
-            vm.DepartmentList = departments
-                .Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
-                .ToList();
+			var departments = await _departmentManager.GetAllDepartmentsAsync();
+			vm.DepartmentList = departments
+				.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Name })
+				.ToList();
 
-            var approvers = await _userManager.GetAllApprovers();
+			var approvers = await _userManager.GetAllApprovers();
 
-            var selectedMap = vm.ApprovalList?.ToDictionary(a => a.UserId)
-                              ?? new Dictionary<int, ApprovalRowViewModel>();
+			var selectedMap = vm.ApprovalList?.ToDictionary(a => a.UserId)
+							  ?? new Dictionary<int, ApprovalRowViewModel>();
 
-            vm.ApprovalList = approvers.Select(x =>
-            {
-                if (selectedMap.TryGetValue(x.Id, out var existing))
-                {
-                    return existing;
-                }
+			vm.ApprovalList = approvers.Select(x =>
+			{
+				if (selectedMap.TryGetValue(x.Id, out var existing))
+				{
+					return existing;
+				}
 
-                return new ApprovalRowViewModel
-                {
-                    UserId = x.Id,
-                    UserName = x.FullName,
-                    PositionName = x.PositionName,
-                    ApprovalLevel = 1,
-                    IsSelected = false
-                };
-            }).ToList();
-        }
-        [HttpGet]
-        public async Task<IActionResult> RejectedDocuments(int page = 1, int pageSize = 10)
-        {
-            var result = await _documentManager.GetPagedRejectAsync(page, pageSize);
+				return new ApprovalRowViewModel
+				{
+					UserId = x.Id,
+					UserName = x.FullName,
+					PositionName = x.PositionName,
+					ApprovalLevel = 1,
+					IsSelected = false
+				};
+			}).ToList();
+		}
+		[HttpGet]
+		public async Task<IActionResult> RejectedDocuments(int page = 1, int pageSize = 10)
+		{
+			var result = await _documentManager.GetPagedRejectAsync(page, pageSize);
 			return View(result);
 		}
 		public async Task<IActionResult> RejectDetail(int id)
@@ -298,7 +299,7 @@ namespace DMSUI.Controllers
 			}
 			return View(document);
 		}
-        [HttpGet]
+		[HttpGet]
 		public async Task<IActionResult> Download(int id)
 		{
 			var file = await _documentManager.DownloadOriginalAsync(id);
@@ -330,6 +331,117 @@ namespace DMSUI.Controllers
 				file.ContentType,
 				file.FileName
 			);
+		}
+		[HttpPost]
+		public async Task<IActionResult> StartRevision([FromForm] int documentId, [FromForm] string revisionNote)
+		{
+
+			Console.WriteLine($"POST -> documentId: {documentId}");
+			Console.WriteLine($"POST -> revisionNote: {revisionNote}");
+			var result = await _documentManager.StartRevisionAsync(documentId, revisionNote);
+			if (result == null)
+			{
+				TempData["Error"] = "Revizyon süreci başlatılırken bir hata oluştu.";
+			}
+			else
+			{
+				TempData["Success"] = "Revizyon süreci başarıyla başlatıldı.";
+			}
+			return RedirectToAction(nameof(Index));
+		}
+		[HttpGet("Document/RevisionCreate/{documentId:int}")]
+		public async Task<IActionResult> RevisionCreate(int documentId)
+		{
+			if (documentId <= 0)
+			{
+				return RedirectToAction(nameof(Index));
+			}
+			var userId = User.GetUserId();
+			var user = await _userManager.GetUserByIdAsync(userId);
+			var revisionReviewDTO = await _documentManager.GetRevisionReviewAsync(documentId);
+			if (revisionReviewDTO == null)
+			{
+				return NotFound();
+			}
+
+			var roles = await _roleManager.GetAllRolesAsync();
+			var departments = await _departmentManager.GetAllDepartmentsAsync();
+			var approvers = await _userManager.GetAllApprovers();
+			var vm = new DocumentRevisionPreviewViewModel
+			{
+				DocumentId = revisionReviewDTO.DocumentId,
+				CategoryId = revisionReviewDTO.CategoryId,
+
+				DocumentCode = revisionReviewDTO.DocumentCode,
+				CompanyName = revisionReviewDTO.CompanyName,
+				CategoryName = revisionReviewDTO.CategoryName,
+				CategoryBreadcrumb = revisionReviewDTO.CategoryBreadcrumb,
+
+				VersionNumber = revisionReviewDTO.VersionNumber,
+				VersionNote = revisionReviewDTO.VersionNote,
+				StatusId = revisionReviewDTO.StatusId,
+				Status = revisionReviewDTO.Status,
+
+				OwnerUserId = revisionReviewDTO.OwnerUserId,
+				OwnerName = revisionReviewDTO.OwnerName,
+				CreatedAt = revisionReviewDTO.CreatedAt,
+
+				IsCodeValid = revisionReviewDTO.IsCodeValid,
+				IsRevision = true,
+				Attachments = revisionReviewDTO.Attachments,
+
+				DepartmentList = departments
+				.Select(x => new SelectListItem
+				{
+					Value = x.Id.ToString(),
+					Text = x.Name
+				}).ToList(),
+
+				RoleList = roles
+				.Select(x => new SelectListItem
+				{
+					Value = x.Id.ToString(),
+					Text = x.Name
+				}).ToList(),
+
+				UserList = approvers
+				.Select(x => new SelectListItem
+				{
+					Value = x.Id.ToString(),
+					Text = x.FullName
+				}).ToList()
+			};
+			vm.ApprovalList = approvers.Select(x => new ApprovalRowViewModel
+			{
+				UserId = x.Id,
+				UserName = x.FullName,
+				PositionName = x.PositionName,
+				ApprovalLevel = 1
+			}).ToList();
+			return View(vm);
+		}
+		[HttpPost]
+		public async Task<IActionResult> CancelRevision(int documentId, string reason)
+		{
+
+			Console.WriteLine($"{documentId}");
+			Console.WriteLine($"{reason}");
+
+			if (documentId == 0)
+			{
+				return RedirectToAction(nameof(Index));
+
+			}
+			var result = await _documentManager.CancelRevisionAsync(documentId, reason);
+			if (result == null)
+			{
+				TempData["Error"] = "Revizyon iptali sırasında bir hata oluştu.";
+			}
+			else
+			{
+				TempData["Success"] = "Revizyon başarıyla iptal edildi.";
+			}
+			return RedirectToAction(nameof(Index));
 		}
 	}
 }
