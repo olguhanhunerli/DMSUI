@@ -27,6 +27,10 @@ namespace DMSUI.Controllers
 			ViewBag.PendingReadCount = 0;
 			ViewBag.PendingReads = new List<object>();
 
+			var myRevisions = await _documentManager.MyActiveRevisionAsync(1, 5);
+			ViewBag.PendingRevisions = myRevisions.Items;
+			ViewBag.PendingRevisionsCount = myRevisions.TotalCount;
+
 			return View();
 		}
 	}

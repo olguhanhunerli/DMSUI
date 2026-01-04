@@ -443,5 +443,13 @@ namespace DMSUI.Controllers
 			}
 			return RedirectToAction(nameof(Index));
 		}
+		[HttpGet]
+		public async Task<IActionResult> MyActiveRevisions(int page = 1, int pageSize = 10)
+		{
+			var result = await _documentManager.MyActiveRevisionAsync(page, pageSize);
+			ViewBag.Page = result.Page;
+			ViewBag.PageSize = result.PageSize;
+			return View(result.Items);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using DMSUI.Controllers;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Document;
+using DMSUI.Entities.DTOs.Revision;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace DMSUI.Services.Interfaces
 		Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId);
 		Task<StartRevisionDTO> StartRevisionAsync(int documentId, string revisionNote);
 		Task<CancelRevisionDTO> CancelRevisionAsync(int documentId, string reason);
+		Task<PagedResultDTO<MyActiveRevisionDTO>> MyActiveRevisionAsync(int page, int pageSize);
 
 		Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId);
 

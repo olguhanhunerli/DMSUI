@@ -1,0 +1,144 @@
+﻿@using DMSUI.Entities.DTOs.Revision
+@model List<MyActiveRevisionDTO>
+
+@{
+    ViewData["Title"] = "Aktif Revizyonlarım";
+    var page = ViewBag.Page ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow-sm border-0">
+
+        <div class="card-header bg-warning text-dark d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">
+                <i class="bi bi-arrow-repeat"></i> Üzerimdeki Aktif Revizyonlar
+            </h5>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-3">
+                    <i class="bi bi-info-circle"></i>
+                    Üzerinizde aktif bir revizyon bulunmamaktadır.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle mb-0">
+
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>#</th>
+                                <th>Doküman</th>
+                                <th>Kategori</th>
+                                <th>Mevcut Versiyon</th>
+                                <th>Yeni Versiyon</th>
+                                <th>Başlama Tarihi</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                var item = Model[i];
+
+                                <tr>
+                                    <td class="text-center">@(i + 1)</td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @item.DocumentTitle
+                                        </div>
+                                        <small class="text-muted">
+                                            @item.DocumentCode
+                                        </small>
+                                    </td>
+
+                                    <td>@item.CategoryName</td>
+
+                                    <td class="text-center">
+                                        @item.CurrentVersion
+                                    </td>
+
+                                    <td class="text-center text-warning fw-semibold">
+                                        @item.NewVersionNumber
+                                    </td>
+
+                                    <td class="text-center">
+                                        @item.StartedAt.ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        <a asp-controller="Document"
+                                           asp-action="RevisionCreate"
+                                           asp-route-documentId="@item.DocumentId"
+                                           class="btn btn-sm btn-warning me-1">
+                                            <i class="bi bi-pencil-square"></i>
+                                            Devam Et
+                                        </a>
+
+                                        <form asp-controller="Document"
+                                              asp-action="CancelRevision"
+                                              method="post"
+                                              class="d-inline">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="documentId"
+                                                   value="@item.DocumentId" />
+                                            <input type="hidden" name="reason"
+                                                   value="Kullanıcı revizyondan vazgeçti" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Revizyondan vazgeçmek istediğinize emin misiniz?');">
+                                                <i class="bi bi-x-circle"></i>
+                                                Vazgeç
+                                            </button>
+                                        </form>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            }
+
+        </div>
+
+        @if (totalPages > 1)
+        {
+            <div class="card-footer d-flex justify-content-center">
+
+                <nav>
+                    <ul class="pagination mb-0">
+
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(i == page ? "active" : "")">
+                                <a class="page-link"
+                                   asp-action="MyActiveRevisions"
+                                   asp-route-page="@i">
+                                    @i
+                                </a>
+                            </li>
+                        }
+
+                    </ul>
+                </nav>
+
+            </div>
+        }
+
+    </div>
+
+</div>

@@ -3,6 +3,7 @@ using DMSUI.Controllers;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Document;
+using DMSUI.Entities.DTOs.Revision;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -289,6 +290,23 @@ namespace DMSUI.Business
 			var body = await response.Content.ReadAsStringAsync();
 			return JsonSerializer.Deserialize<CancelRevisionDTO>(body,
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+		}
+
+		public async Task<PagedResultDTO<MyActiveRevisionDTO>> MyActiveRevisionAsync(int page, int pageSize)
+		{
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Document/my-active-revision?page={page}&pageSize={pageSize}");
+			if (!response.IsSuccessStatusCode)
+			{
+				return new PagedResultDTO<MyActiveRevisionDTO>();
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<PagedResultDTO<MyActiveRevisionDTO>>(
+				body,
+				new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true
+				}) ?? new PagedResultDTO<MyActiveRevisionDTO>();
 		}
 	}
 }

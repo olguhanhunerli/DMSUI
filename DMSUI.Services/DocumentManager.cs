@@ -2,6 +2,7 @@
 using DMSUI.Controllers;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Document;
+using DMSUI.Entities.DTOs.Revision;
 using DMSUI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -74,6 +75,11 @@ namespace DMSUI.Services
 		public async Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId)
 		{
 			return await _client.GetRevisionReviewAsync(documentId);	
+		}
+
+		public async Task<PagedResultDTO<MyActiveRevisionDTO>> MyActiveRevisionAsync(int page, int pageSize)
+		{
+			return await _client.MyActiveRevisionAsync(page, pageSize);
 		}
 
 		public async Task<StartRevisionDTO> StartRevisionAsync(int documentId, string revisionNote)
