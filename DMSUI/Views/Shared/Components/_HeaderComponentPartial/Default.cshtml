@@ -70,7 +70,7 @@
                         </ul>
                     </li>
 
-                    @if (role == "SUPER ADMIN" || role == "GLOBAL_ADMIN")
+                    @if (role == "SUPER_ADMIN" || role == "Admin")
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle fw-semibold text-warning" href="#" role="button" data-bs-toggle="dropdown">
@@ -125,7 +125,7 @@
                                 </a>
                             </li>
                             <li><a class="dropdown-item" asp-controller="User" asp-action="ChangePassword" >Şifre Değiştir</a></li>
-                            @if (role == "SUPER ADMIN" || role == "GLOBAL_ADMIN")
+                            @if (role == "SUPER_ADMIN" || role == "Admin" || role == "Approver")
                             {
                                 <li><a class="dropdown-item" asp-controller="Approval" asp-action="Index" >Onay Bekleyen Dokümanlar</a></li>
                                 <li><a class="dropdown-item" asp-controller="Document" asp-action="MyActiveRevisions">Açık Revizyonlarım</a></li>
