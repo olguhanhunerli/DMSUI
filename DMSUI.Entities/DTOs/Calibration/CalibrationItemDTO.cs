@@ -21,7 +21,7 @@ namespace DMSUI.Entities.DTOs.Calibration
 		public DateTime DueDate { get; set; }
 		public int IntervalMonths { get; set; }
 
-		public string Result { get; set; }   // PASS / FAIL vs
+		public string Result { get; set; }  
 		public string CalibrationCompany { get; set; }
 		public string CertificateNo { get; set; }
 

@@ -19,9 +19,29 @@ namespace DMSUI.Services
 			_apiClient = apiClient;
 		}
 
+		public async Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO)
+		{
+			return await _apiClient.CreateCalibrationAsync(createCalibrationDTO);
+		}
+
+		public async Task<bool> DeleteByIdAsync(int calibrationId)
+		{
+			return await _apiClient.DeleteByIdAsync(calibrationId);
+		}
+
+		public async Task<CalibrationItemDTO> GetCalibrationItemByIdAsync(int calibrationId)
+		{
+			return await _apiClient.GetCalibrationItemByIdAsync(calibrationId);
+		}
+
 		public async Task<PagedResultDTO<CalibrationItemDTO>> GetCalibrationItemsAsync(int pageNumber, int pageSize)
 		{
 			return await _apiClient.GetCalibrationItemsAsync(pageNumber, pageSize);
+		}
+
+		public async Task<bool> UpdateCalibrationAsync(ulong id, EditCalibrationDTO editCalibrationDTO)
+		{
+			return await _apiClient.UpdateCalibrationAsync(id, editCalibrationDTO);
 		}
 	}
 }

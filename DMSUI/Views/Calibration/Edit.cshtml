@@ -1,0 +1,177 @@
+﻿@using DMSUI.Entities.DTOs.Calibration
+@model EditCalibrationDTO
+
+@{
+    ViewData["Title"] = "Kalibrasyon Düzenle";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Kalibrasyon Düzenle</h4>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Detail" asp-route-id="@Model.CalibrationId" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Geri
+        </a>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post" class="card shadow-sm">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="CalibrationId" />
+
+    <div class="card-body">
+
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h6 class="text-muted mb-0">Cihaz Bilgileri (Readonly)</h6>
+
+            <span class="badge rounded-pill @(Model.Result == "PASS" ? "bg-success" : "bg-danger")">
+                @Model.Result
+            </span>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="text-muted small">Kod</div>
+                <div class="fw-semibold">@Model.AssetCode</div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="text-muted small">Cihaz</div>
+                <div class="fw-semibold">@Model.InstrumentName</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Seri No</div>
+                <div>@Model.SerialNo</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Şirket</div>
+                <div>@Model.CompanyName</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Kalibrasyon Bilgileri</h6>
+
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-3">
+                <label asp-for="CalibrationDate" class="form-label small text-muted mb-1">Kalibrasyon Tarihi</label>
+                <input asp-for="CalibrationDate" type="date" class="form-control form-control-sm" />
+                <span asp-validation-for="CalibrationDate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="IntervalMonths" class="form-label small text-muted mb-1">Aralık (Ay)</label>
+                <input asp-for="IntervalMonths" type="number" min="1" max="120" class="form-control form-control-sm" />
+                <span asp-validation-for="IntervalMonths" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small text-muted mb-1">Geçerlilik Tarihi (Hesaplanır)</label>
+                <input value="@Model.DueDate.ToString("yyyy-MM-dd")" type="date" class="form-control form-control-sm" disabled />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Result" class="form-label small text-muted mb-1">Sonuç</label>
+                <select asp-for="Result" class="form-select form-select-sm">
+                    <option value="PASS">PASS</option>
+                    <option value="FAIL">FAIL</option>
+                </select>
+                <span asp-validation-for="Result" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Location" class="form-label small text-muted mb-1">Lokasyon</label>
+                <input asp-for="Location" class="form-control form-control-sm" />
+                <span asp-validation-for="Location" class="text-danger small"></span>
+            </div>
+
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Firma & Sertifika</h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label asp-for="CalibrationCompany" class="form-label small text-muted mb-1">Kalibrasyon Firması</label>
+                <input asp-for="CalibrationCompany" class="form-control form-control-sm" />
+                <span asp-validation-for="CalibrationCompany" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="CertificateNo" class="form-label small text-muted mb-1">Sertifika No</label>
+                <input asp-for="CertificateNo" class="form-control form-control-sm" />
+                <span asp-validation-for="CertificateNo" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Dosyalar (Readonly)</h6>
+        @if (Model.Files != null && Model.Files.Any())
+        {
+            <ul class="list-group list-group-flush mb-3">
+                @foreach (var file in Model.Files)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-truncate">
+                            <i class="bi bi-paperclip me-1"></i> @file.FileName
+                        </span>
+                        <a class="btn btn-sm btn-outline-primary"
+                           asp-action="DownloadFile"
+                           asp-route-id="@file.Id">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="text-muted small mb-3">
+                <i class="bi bi-x-circle me-1"></i> Dosya bulunmuyor.
+            </div>
+        }
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Kayıt Bilgileri (Readonly)</h6>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="text-muted small">Oluşturan</div>
+                <div>@Model.CreatedByName</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Oluşturma Tarihi</div>
+                <div>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Son Güncelleyen</div>
+                <div>@Model.UpdatedByName</div>
+                <div class="text-muted small">@Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card-footer bg-white d-flex align-items-center justify-content-between">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            İptal
+        </a>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i> Kaydet
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,6 +48,47 @@ namespace DMSUI.Business
 				body,
 				new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
 			) ?? new PagedResultDTO<CalibrationItemDTO>();
+		}
+
+		public async Task<CalibrationItemDTO> GetCalibrationItemByIdAsync(int calibrationId)
+		{
+			AttachToken();
+			var respoonse = await _httpClient.GetAsync($"api/InstrumentCalibrations/{calibrationId}");
+			if (!respoonse.IsSuccessStatusCode)
+			{
+				return new CalibrationItemDTO();
+			}
+			var body = await respoonse.Content.ReadAsStringAsync();
+			return System.Text.Json.JsonSerializer.Deserialize<CalibrationItemDTO>(
+				body,
+				new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+			) ?? new CalibrationItemDTO();
+		}
+
+		public async Task<bool> DeleteByIdAsync(int calibrationId)
+		{
+			AttachToken();
+			var response = await _httpClient.DeleteAsync($"api/InstrumentCalibrations/{calibrationId}");
+			return response.IsSuccessStatusCode;
+		}
+
+		public async Task<bool> UpdateCalibrationAsync(ulong id, EditCalibrationDTO editCalibrationDTO)
+		{
+			AttachToken();
+			var result = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);
+			return result.IsSuccessStatusCode;
+		}
+
+		public async Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO)
+		{
+			AttachToken();
+			var result = await _httpClient.PostAsJsonAsync("api/InstrumentCalibrations", createCalibrationDTO);
+			if(!result.IsSuccessStatusCode)
+			{
+				return null;
+			}
+			var created = await result.Content.ReadFromJsonAsync<CalibrationItemDTO>();
+			return (ulong?)(created?.CalibrationId);
 		}
 	}
 }

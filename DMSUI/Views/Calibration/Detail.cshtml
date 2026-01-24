@@ -1,0 +1,155 @@
+﻿@using DMSUI.Entities.DTOs.Calibration
+@model CalibrationItemDTO
+
+@{
+    ViewData["Title"] = "Kalibrasyon Detayı";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Kalibrasyon Detayı</h4>
+
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Geri
+    </a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+
+        <h6 class="text-muted mb-3">Cihaz Bilgileri</h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="text-muted small">Kod</div>
+                <div class="fw-semibold">@Model.AssetCode</div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="text-muted small">Cihaz</div>
+                <div class="fw-semibold">@Model.InstrumentName</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Seri No</div>
+                <div>@Model.SerialNo</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Lokasyon</div>
+                <div>@Model.Location</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Kalibrasyon Bilgileri</h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="text-muted small">Kalibrasyon Tarihi</div>
+                <div>@Model.CalibrationDate.ToString("dd.MM.yyyy")</div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="text-muted small">Geçerlilik Tarihi</div>
+                <div>@Model.DueDate.ToString("dd.MM.yyyy")</div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="text-muted small">Aralık (Ay)</div>
+                <div>@Model.IntervalMonths</div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="text-muted small">Kalan Gün</div>
+                <div class="fw-semibold @(Model.RemainingDays <= 30 ? "text-danger" : "")">
+                    @Model.RemainingDays
+                </div>
+            </div>
+
+            <div class="col-md-2 text-center">
+                <div class="text-muted small">Sonuç</div>
+                <span class="badge rounded-pill @(Model.Result == "PASS" ? "bg-success" : "bg-danger")">
+                    @Model.Result
+                </span>
+            </div>
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Firma & Sertifika</h6>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="text-muted small">Kalibrasyon Firması</div>
+                <div>@Model.CalibrationCompany</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Sertifika No</div>
+                <div>@Model.CertificateNo</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Şirket</div>
+                <div>@Model.CompanyName</div>
+            </div>
+        </div>
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Dosyalar</h6>
+
+        @if (Model.Files != null && Model.Files.Any())
+        {
+            <ul class="list-group list-group-flush mb-3">
+                @foreach (var file in Model.Files)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-paperclip me-1"></i>
+                            @file.FileName
+                        </span>
+
+                        <a class="btn btn-sm btn-outline-primary"
+                           asp-action="DownloadFile"
+                           asp-route-id="@file.Id">
+                            <i class="bi bi-download"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="text-muted small">
+                <i class="bi bi-x-circle me-1"></i> Dosya bulunmuyor.
+            </div>
+        }
+
+        <hr />
+
+        <h6 class="text-muted mb-3">Kayıt Bilgileri</h6>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="text-muted small">Oluşturan</div>
+                <div>@Model.CreatedByName</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Oluşturma Tarihi</div>
+                <div>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Güncelleyen</div>
+                <div>@Model.UpdatedByName</div>
+                <div class="text-muted small">
+                    @Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm")
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
