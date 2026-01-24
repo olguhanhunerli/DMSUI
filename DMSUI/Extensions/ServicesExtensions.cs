@@ -29,6 +29,7 @@ namespace DMSUI.Extensions
             services.AddScoped<ISearchManager, SearchManager>();
             services.AddScoped<IAuditManager, AuditManager>();
             services.AddScoped<IInstrumentManager, InstrumentManager>();
+            services.AddScoped<ICalibrationManager, CalibrationManager>();
 
             services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -93,6 +94,11 @@ namespace DMSUI.Extensions
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
             });
 			services.AddHttpClient<IInstrumentApiClient, InstrumentApiClient>(client =>
+			{
+				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+				client.BaseAddress = new Uri(apiSettings.BaseUrl);
+			});
+			services.AddHttpClient<ICalibrationApiClient, CalibrationApiClient>(client =>
 			{
 				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
 				client.BaseAddress = new Uri(apiSettings.BaseUrl);

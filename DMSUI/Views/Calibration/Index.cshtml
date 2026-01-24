@@ -1,0 +1,295 @@
+﻿@using DMSUI.Entities.DTOs.Calibration
+@using DMSUI.Entities.DTOs.Common
+@model PagedResultDTO<CalibrationItemDTO>
+
+@{
+    ViewData["Title"] = "Kalibrasyonlar";
+
+    var q = Context.Request.Query["q"].ToString();
+    var result = Context.Request.Query["result"].ToString(); // PASS/FAIL
+    var companyId = Context.Request.Query["companyId"].ToString();
+    var location = Context.Request.Query["location"].ToString();
+
+    var pageSize = Model?.PageSize ?? 10;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Kalibrasyonlar</h4>
+
+    <a class="btn btn-primary btn-sm" asp-action="Create">
+        <i class="bi bi-plus-circle me-1"></i> Yeni Kalibrasyon
+    </a>
+</div>
+
+<form method="get" class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <div class="row g-2 align-items-center">
+
+            <div class="col-6 col-md-1">
+                <select name="pageSize" class="form-select form-select-sm">
+                    <option value="10" selected="@(pageSize == 10)">10</option>
+                    <option value="25" selected="@(pageSize == 25)">25</option>
+                    <option value="50" selected="@(pageSize == 50)">50</option>
+                </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <input name="q"
+                value="@q"
+                class="form-control form-control-sm"
+                placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
+            </div>
+
+            <div class="col-6 col-md-2">
+                <select name="result" class="form-select form-select-sm">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(result))">Tümü</option>
+                    <option value="PASS" selected="@(result == "PASS")">PASS</option>
+                    <option value="FAIL" selected="@(result == "FAIL")">FAIL</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <input name="companyId"
+                value="@companyId"
+                class="form-control form-control-sm"
+                placeholder="Company Id" />
+            </div>
+
+            <div class="col-12 col-md-2">
+                <input name="location"
+                value="@location"
+                class="form-control form-control-sm"
+                placeholder="Lokasyon" />
+            </div>
+
+            <div class="col-12 col-md-2 d-grid">
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <i class="bi bi-search me-1"></i> Ara
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr class="small">
+                    <th>Şirket</th>
+                    <th>Kod</th>
+                    <th>Cihaz</th>
+                    <th>Seri No</th>
+                    <th>Lokasyon</th>
+                    <th>Kalibrasyon Tarihi</th>
+                    <th>Kalibrasyon Geçerlilik Tarihi</th>
+                    <th style="width:90px;" class="text-center">Kalan</th>
+                    <th style="width: 90px" class="text-center">Firma</th>
+                    <th>Sertifika No</th>
+                    <th>Dosya No</th>
+                    <th style="width:110px;" class="text-center">Sonuç</th>
+                    <th style="width:120px;" class="text-center">İşlemler</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model?.Items != null && Model.Items.Any())
+                {
+                    var row = (Model.Page - 1) * Model.PageSize;
+
+                    foreach (var item in Model.Items)
+                    {
+                        row++;
+
+                        var rowClass =
+                        item.Result == "FAIL" ? "table-danger" :
+                        item.RemainingDays < 0 ? "table-danger" :
+                        item.RemainingDays <= 30 ? "table-warning" :
+                        "";
+                        <tr class="@rowClass">
+
+                            <td>
+                                <div class="fw-semibold">@item.CompanyName</div>
+                            </td>
+
+                            <td class="fw-semibold">@item.AssetCode</td>
+                            <td>@item.InstrumentName</td>
+                            <td>@item.SerialNo</td>
+                            <td>@item.Location</td>
+
+                            <td>@item.CalibrationDate.ToString("dd.MM.yyyy")</td>
+                            <td>@item.DueDate.ToString("dd.MM.yyyy")</td>
+
+                            <td class="text-end">
+                                <span class="fw-semibold  @(item.RemainingDays <= 30 ? "text-danger" : "")">
+                                    @item.RemainingDays
+                                </span>
+                                <span class="text-muted small">gün</span>
+                            </td>
+
+                            <td>@item.CalibrationCompany</td>
+                            <td class="text-nowrap">@item.CertificateNo</td>
+
+                            <td class="text-center">
+                                <span class="badge rounded-pill
+                                    @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
+                                    @item.Result
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.Files?.Any() == true)
+                                {
+                                    <span class="text-success fw-semibold">
+                                        <i class="bi bi-paperclip me-1"></i> Dosya Yüklü
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        <i class="bi bi-x-circle me-1"></i> Dosya Yok
+                                    </span>
+                                }
+                            </td>
+                        
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-secondary"
+                                       title="Detay"
+                                       asp-action="Detail"
+                                       asp-route-id="@item.CalibrationId">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a class="btn btn-outline-primary"
+                                       title="Düzenle"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.CalibrationId">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <form asp-action="Delete"
+                                          asp-route-id="@item.CalibrationId"
+                                          method="post"
+                                          class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                class="btn btn-outline-danger"
+                                                title="Sil"
+                                                onclick="return confirm('Silmek istediğine emin misin?');">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="13" class="text-center text-muted py-4">
+                            Kayıt bulunamadı.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer bg-white d-flex align-items-center justify-content-between">
+        <div class="text-muted small">
+            Toplam: <strong>@Model.TotalCount</strong>
+            • Sayfa: <strong>@Model.Page</strong> / <strong>@Model.TotalPages</strong>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @{
+                        int current = Model.Page;
+                        int total = Model.TotalPages;
+
+                        int start = Math.Max(1, current - 2);
+                        int end = Math.Min(total, current + 2);
+                    }
+
+                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(current - 1)"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-q="@q"
+                           asp-route-result="@result"
+                           asp-route-companyId="@companyId"
+                           asp-route-location="@location">‹</a>
+                    </li>
+
+                    @if (start > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="1"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-q="@q"
+                               asp-route-result="@result"
+                               asp-route-companyId="@companyId"
+                               asp-route-location="@location">1</a>
+                        </li>
+
+                        @if (start > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+                    }
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == current ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-q="@q"
+                               asp-route-result="@result"
+                               asp-route-companyId="@companyId"
+                               asp-route-location="@location">@i</a>
+                        </li>
+                    }
+
+                    @if (end < total)
+                    {
+                        @if (end < total - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        }
+
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@total"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-q="@q"
+                               asp-route-result="@result"
+                               asp-route-companyId="@companyId"
+                               asp-route-location="@location">@total</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(current == total ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(current + 1)"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-q="@q"
+                           asp-route-result="@result"
+                           asp-route-companyId="@companyId"
+                           asp-route-location="@location">›</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
