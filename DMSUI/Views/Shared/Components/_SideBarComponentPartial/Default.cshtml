@@ -38,12 +38,43 @@
                 ▸ Doküman Ekle
             </a>
         </li>
-        <li class="nav-item ps-2">
-            <a asp-controller="Instrument" asp-action="Index"
-               class="nav-link text-dark fw-medium">
-                ▸ Cihazlar
+        <li class="nav-item dropdown ps-2">
+            <a class="nav-link dropdown-toggle text-dark fw-medium"
+               href="#"
+               id="instrumentDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+                ▸ Cihaz Yönetimi
             </a>
+
+            <ul class="dropdown-menu" aria-labelledby="instrumentDropdown">
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="Instrument"
+                       asp-action="Index">
+                        📋 Tüm Cihazlar
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="Instrument"
+                       asp-action="Create">
+                        ➕ Yeni Cihaz
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item"
+                       asp-controller="Instrument"
+                       asp-action="Deleted">
+                        🗑️ Silinen Cihazlar
+                    </a>
+                </li>
+            </ul>
         </li>
+
     </ul>
 
 </div>

@@ -1,0 +1,92 @@
+﻿@using DMSUI.Entities.DTOs.Instruments
+@model CreateInstrumentDTO
+
+<h3>➕ Ölçüm Aleti Oluştur</h3>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <label class="form-label">Demirbaş Kodu</label>
+            <input asp-for="Asset_Code" class="form-control" />
+            <span asp-validation-for="Asset_Code" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Cihaz Adı</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Marka</label>
+            <input asp-for="Brand" class="form-control" />
+            <span asp-validation-for="Brand" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Model</label>
+            <input asp-for="Model" class="form-control" />
+            <span asp-validation-for="Model" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Seri No</label>
+            <input asp-for="Serial_No" class="form-control" />
+            <span asp-validation-for="Serial_No" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Ölçüm Aralığı</label>
+            <input asp-for="Measurement_Range" class="form-control" />
+            <span asp-validation-for="Measurement_Range" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Hassasiyet</label>
+            <input asp-for="Resolution" class="form-control" />
+            <span asp-validation-for="Resolution" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Birim</label>
+            <input asp-for="Unit" class="form-control" />
+            <span asp-validation-for="Unit" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label class="form-label">Lokasyon</label>
+            <input asp-for="Location" class="form-control" />
+            <span asp-validation-for="Location" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Sorumlu</label>
+            <input asp-for="Owner_Person" class="form-control" />
+            <span asp-validation-for="Owner_Person" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-success">
+            ✅ Kaydet
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            ↩️ Geri
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

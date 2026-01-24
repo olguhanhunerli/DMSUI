@@ -1,0 +1,116 @@
+﻿@using DMSUI.Entities.DTOs.Instruments
+@model InstrumentDTO
+
+<h3>📏 Ölçüm Aleti Detayı</h3>
+
+<form>
+    <!-- READONLY ALANLAR -->
+    <div class="row">
+        <div class="col-md-4">
+            <label>Firma</label>
+            <input value="@Model.CompanyName" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Demirbaş Kodu</label>
+            <input asp-for="Asset_Code" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Durum</label>
+            <input asp-for="Status" class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Cihaz Adı</label>
+            <input asp-for="Name" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Marka</label>
+            <input asp-for="Brand" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Model</label>
+            <input asp-for="Model" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Seri No</label>
+            <input asp-for="Serial_No" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Ölçüm Aralığı</label>
+            <input asp-for="Measurement_Range" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Hassasiyet</label>
+            <input asp-for="Resolution" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Birim</label>
+            <input asp-for="Unit" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Lokasyon</label>
+            <input asp-for="Location" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Sorumlu</label>
+            <input asp-for="Owner_Person" class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <!-- AUDIT BİLGİLERİ -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label>Oluşturan</label>
+            <input asp-for="CreatedByName" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-3">
+            <label>Oluşturma Tarihi</label>
+            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-3">
+            <label>Güncelleyen</label>
+            <input asp-for="UpdatedByName" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-3">
+            <label>Güncelleme Tarihi</label>
+            <input value="@Model.Updated_At?.ToString("dd.MM.yyyy HH:mm")"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <a asp-action="Index" class="btn btn-secondary">
+            ↩️ Geri
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-id="@Model.Instrument_Id"
+           class="btn btn-primary ms-2">
+            ✏️ Düzenle
+        </a>
+    </div>
+</form>

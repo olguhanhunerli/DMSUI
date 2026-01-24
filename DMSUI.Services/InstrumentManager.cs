@@ -19,9 +19,49 @@ namespace DMSUI.Services
 			_instrumentApiClient = instrumentApiClient;
 		}
 
+		public async Task CreateInstrumentAsync(CreateInstrumentDTO dto)
+		{
+			await _instrumentApiClient.CreateInstrumentAsync(dto);
+		}
+
+		public async Task DeleteInstrumentAsync(int id)
+		{
+			await _instrumentApiClient.DeleteInstrumentAsync(id);
+		}
+
+		public async Task<PagedResultDTO<InstrumentDTO>> GetDeletedByInstrumentsAsync(int pageNumber, int pageSize)
+		{
+			return await _instrumentApiClient.GetDeletedByInstrumentsAsync(pageNumber, pageSize);
+		}
+
+		public async Task<InstrumentDTO> GetInstrumentByIdAsync(int instrumentId)
+		{
+			return await _instrumentApiClient.GetInstrumentByIdAsync(instrumentId);
+		}
+
+		public async Task<InstrumentDTO> GetInstrumentDeletedByIdAsync(int instrumentId)
+		{
+			return await _instrumentApiClient.GetInstrumentDeletedByIdAsync(instrumentId);
+		}
+
 		public async Task<PagedResultDTO<InstrumentDTO>> GetInstrumentsAsync(int pageNumber, int pageSize)
 		{
 			return await _instrumentApiClient.GetInstrumentsAsync(pageNumber, pageSize);
+		}
+
+		public async Task RollBackInstrumentAsync(int id)
+		{
+			await _instrumentApiClient.RollBackInstrumentAsync(id);
+		}
+
+		public async Task ToggleInstrumentActiveAsync(int id, bool isActive)
+		{
+			await _instrumentApiClient.ToggleInstrumentActiveAsync(id, isActive);
+		}
+
+		public async Task UpdateInstrumentAsync(int id,UpdateInstrumentDTO dto)
+		{
+			await _instrumentApiClient.UpdateInstrumentAsync(id,dto);
 		}
 	}
 }
