@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace DMSUI.Business
 {
@@ -75,8 +77,16 @@ namespace DMSUI.Business
 		public async Task<bool> UpdateCalibrationAsync(ulong id, EditCalibrationDTO editCalibrationDTO)
 		{
 			AttachToken();
-			var result = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);
-			return result.IsSuccessStatusCode;
+			var response = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);
+
+			var responseText = await response.Content.ReadAsStringAsync();
+			Console.WriteLine($"UpdateCalibration Status: {(int)response.StatusCode} {response.ReasonPhrase}");
+			Console.WriteLine($"ResponseBody: {responseText}");
+
+			if (!response.IsSuccessStatusCode)
+				return false;
+
+			return true;
 		}
 
 		public async Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO)

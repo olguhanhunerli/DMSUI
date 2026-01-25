@@ -131,7 +131,7 @@ namespace DMSUI.Controllers
 				TempData["Error"] = "Kalibrasyon kaydı bulunamadı.";
 				return RedirectToAction(nameof(Index));
 			}
-
+			var companyId = User.GetCompanyIdSafe();
 			var model = new EditCalibrationDTO
 			{
 				CalibrationId = (ulong)entity.CalibrationId,
@@ -140,7 +140,7 @@ namespace DMSUI.Controllers
 				CalibrationDate = entity.CalibrationDate,
 				IntervalMonths = entity.IntervalMonths,
 				Result = entity.Result,
-
+				CompanyId = companyId.Value,
 				CalibrationCompany = entity.CalibrationCompany,
 				CertificateNo = entity.CertificateNo,
 
@@ -164,6 +164,7 @@ namespace DMSUI.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Edit(ulong id, EditCalibrationDTO model)
 		{
+			Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(model));
 			if (id != model.CalibrationId)
 			{
 				TempData["Error"] = "Id uyuşmazlığı tespit edildi.";
@@ -175,11 +176,12 @@ namespace DMSUI.Controllers
 				TempData["Error"] = "Lütfen zorunlu alanları kontrol edin.";
 				return View(model);
 			}
-
+		
 			var result = await _calibrationManager.UpdateCalibrationAsync(id, model);
 
 			if (!result)
 			{
+				Console.WriteLine(result);
 				TempData["Error"] = "Güncelleme başarısız.";
 				return View(model);
 			}
