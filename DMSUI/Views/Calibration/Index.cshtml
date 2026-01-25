@@ -167,7 +167,15 @@
                                        asp-route-id="@item.CalibrationId">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-
+                                    <button type="button"
+                                            class="btn btn-outline-success"
+                                            title="Doküman Ekle"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#uploadModal"
+                                            data-calibration-id="@item.CalibrationId"
+                                            data-instrument-name="@item.InstrumentName">
+                                        <i class="bi bi-paperclip"></i>
+                                    </button>
                                     <form asp-action="Delete"
                                           asp-route-id="@item.CalibrationId"
                                           method="post"
@@ -293,3 +301,71 @@
         }
     </div>
 </div>
+<div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="UploadCalibrationFiles"
+                  asp-controller="CalibrationFile"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Doküman Yükle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="CalibrationId" id="ufCalibrationId" />
+
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">Cihaz</label>
+                        <input type="text" class="form-control form-control-sm" id="ufInstrumentName" name="InstrumentName" readonly />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">Dosya</label>
+                        <input type="file" name="File" class="form-control form-control-sm" required />
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Dosya Tipi</label>
+                            <select name="FileType" class="form-select form-select-sm">
+                                <option value="ORIGINAL" selected>ORIGINAL</option>
+                                <option value="PDF">PDF</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small text-muted">Açıklama</label>
+                            <input type="text" name="Description" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">İptal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-upload me-1"></i> Yükle
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('show.bs.modal', function (event) {
+        const modal = document.getElementById('uploadModal');
+        if (!modal || event.target !== modal) return;
+
+        const btn = event.relatedTarget;
+        const calibrationId = btn.getAttribute('data-calibration-id');
+        const instrumentName = btn.getAttribute('data-instrument-name') || '';
+
+        modal.querySelector('#ufCalibrationId').value = calibrationId;
+        modal.querySelector('#ufInstrumentName').value = instrumentName;
+    });
+</script>

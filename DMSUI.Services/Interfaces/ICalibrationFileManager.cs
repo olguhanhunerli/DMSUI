@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMSUI.Business.Interfaces
+namespace DMSUI.Services.Interfaces
 {
-    public interface ICalibrationFileApiClient
+    public interface ICalibrationFileManager
     {
-        Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto);
+		Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto);
+
 	}
 }
