@@ -3,7 +3,8 @@
 
 <h3>📏 Ölçüm Aleti Detayı</h3>
 
-<form asp-action="Edit" method="post" >
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Instrument_Id" />
 
     <div class="row">
@@ -79,6 +80,78 @@
     <hr />
 
     <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Tip</label>
+            <select asp-for="Instrument_Type" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Dimensional">Dimensional</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Pressure">Pressure</option>
+                <option value="Temperature">Temperature</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label>Disiplin</label>
+            <select asp-for="Measurement_Discipline" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Length">Length</option>
+                <option value="Temperature">Temperature</option>
+                <option value="Pressure">Pressure</option>
+                <option value="Voltage">Voltage</option>
+                <option value="Current">Current</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label>Risk Seviyesi</label>
+            <select asp-for="Risk_Level" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Belirsizlik</label>
+            <input asp-for="Measurement_Uncertainty" class="form-control" placeholder="Örn: ±0.02 mm" />
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="Is_Critical" />
+                <label class="form-check-label">Kritik Cihaz</label>
+            </div>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="Environment_Required" id="envRequired" />
+                <label class="form-check-label" for="envRequired">Ortam Şartı Gerekli</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <label>Ortam Notları</label>
+            <input asp-for="Environment_Notes" class="form-control" placeholder="Örn: 20±1°C, %45±10 RH" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label>Aktiflik</label>
+            <input class="form-control" value="@(Model.IsActive ? "Aktif" : "Pasif")" readonly />
+        </div>
+
         <div class="col-md-3">
             <label>Oluşturan</label>
             <input asp-for="CreatedByName" class="form-control" readonly />
@@ -86,19 +159,12 @@
 
         <div class="col-md-3">
             <label>Oluşturma Tarihi</label>
-            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")"
-                   class="form-control" readonly />
-        </div>
-
-        <div class="col-md-3">
-            <label>Güncelleyen</label>
-            <input asp-for="UpdatedByName" class="form-control" readonly />
+            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
         </div>
 
         <div class="col-md-3">
             <label>Güncelleme Tarihi</label>
-            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")"
-                   class="form-control" readonly />
+            <input value="@Model.Updated_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
         </div>
     </div>
 

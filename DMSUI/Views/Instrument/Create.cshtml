@@ -7,7 +7,6 @@
     @Html.AntiForgeryToken()
 
     <div class="row">
-
         <div class="col-md-4">
             <label class="form-label">Demirbaş Kodu</label>
             <input asp-for="Asset_Code" class="form-control" />
@@ -62,6 +61,80 @@
             <span asp-validation-for="Unit" class="text-danger"></span>
         </div>
     </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Tip</label>
+            <select asp-for="Instrument_Type" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Dimensional">Dimensional</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Pressure">Pressure</option>
+                <option value="Temperature">Temperature</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Instrument_Type" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Disiplin</label>
+            <select asp-for="Measurement_Discipline" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Length">Length</option>
+                <option value="Temperature">Temperature</option>
+                <option value="Pressure">Pressure</option>
+                <option value="Voltage">Voltage</option>
+                <option value="Current">Current</option>
+                <option value="Other">Other</option>
+            </select>
+            <span asp-validation-for="Measurement_Discipline" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Risk Seviyesi</label>
+            <select asp-for="Risk_Level" class="form-select">
+                <option value="">Seçiniz</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+            <span asp-validation-for="Risk_Level" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Belirsizlik</label>
+            <input asp-for="Measurement_Uncertainty" class="form-control" placeholder="Örn: ±0.02 mm" />
+            <span asp-validation-for="Measurement_Uncertainty" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="Is_Critical" id="isCritical" />
+                <label class="form-check-label" for="isCritical">Kritik Cihaz</label>
+            </div>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" asp-for="Environment_Required" id="envRequired" />
+                <label class="form-check-label" for="envRequired">Ortam Şartı Gerekli</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <label class="form-label">Ortam Notları</label>
+            <input asp-for="Environment_Notes" class="form-control" placeholder="Örn: 20±1°C, %45±10 RH" />
+            <span asp-validation-for="Environment_Notes" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
 
     <div class="row mt-3">
         <div class="col-md-6">

@@ -4,7 +4,6 @@
 <h3>📏 Ölçüm Aleti Detayı</h3>
 
 <form>
-    <!-- READONLY ALANLAR -->
     <div class="row">
         <div class="col-md-4">
             <label>Firma</label>
@@ -77,8 +76,73 @@
 
     <hr />
 
-    <!-- AUDIT BİLGİLERİ -->
+    @{
+        string riskBadge = Model.Risk_Level switch
+        {
+            "High" => "bg-danger",
+            "Medium" => "bg-warning text-dark",
+            "Low" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
     <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Tip</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model.Instrument_Type) ? "-" : Model.Instrument_Type)"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Disiplin</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model.Measurement_Discipline) ? "-" : Model.Measurement_Discipline)"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Risk Seviyesi</label>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge @riskBadge">@((string.IsNullOrWhiteSpace(Model.Risk_Level) ? "-" : Model.Risk_Level))</span>
+                <input value="" class="form-control" readonly style="display:none;" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label>Kritik</label>
+            <input value="@(Model.Is_Critical ? "Evet" : "Hayır")" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Belirsizlik</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model.Measurement_Uncertainty) ? "-" : Model.Measurement_Uncertainty)"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label>Ortam Şartı</label>
+            <input value="@(Model.Environment_Required ? "Gerekli" : "Gerekli Değil")"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <label>Ortam Notları</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model.Environment_Notes) ? "-" : Model.Environment_Notes)"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label>Aktiflik</label>
+            <input value="@(Model.IsActive ? "Aktif" : "Pasif")" class="form-control" readonly />
+        </div>
+
         <div class="col-md-3">
             <label>Oluşturan</label>
             <input asp-for="CreatedByName" class="form-control" readonly />
@@ -88,11 +152,6 @@
             <label>Oluşturma Tarihi</label>
             <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")"
                    class="form-control" readonly />
-        </div>
-
-        <div class="col-md-3">
-            <label>Güncelleyen</label>
-            <input asp-for="UpdatedByName" class="form-control" readonly />
         </div>
 
         <div class="col-md-3">

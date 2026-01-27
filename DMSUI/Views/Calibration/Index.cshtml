@@ -1,4 +1,4 @@
-﻿@using DMSUI.Entities.DTOs.Calibration
+﻿﻿@using DMSUI.Entities.DTOs.Calibration
 @using DMSUI.Entities.DTOs.Common
 @model PagedResultDTO<CalibrationItemDTO>
 
@@ -35,9 +35,9 @@
 
             <div class="col-12 col-md-3">
                 <input name="q"
-                value="@q"
-                class="form-control form-control-sm"
-                placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
+                       value="@q"
+                       class="form-control form-control-sm"
+                       placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
             </div>
 
             <div class="col-6 col-md-2">
@@ -50,16 +50,16 @@
 
             <div class="col-6 col-md-2">
                 <input name="companyId"
-                value="@companyId"
-                class="form-control form-control-sm"
-                placeholder="Company Id" />
+                       value="@companyId"
+                       class="form-control form-control-sm"
+                       placeholder="Company Id" />
             </div>
 
             <div class="col-12 col-md-2">
                 <input name="location"
-                value="@location"
-                class="form-control form-control-sm"
-                placeholder="Lokasyon" />
+                       value="@location"
+                       class="form-control form-control-sm"
+                       placeholder="Lokasyon" />
             </div>
 
             <div class="col-12 col-md-2 d-grid">
@@ -133,7 +133,7 @@
 
                             <td class="text-center">
                                 <span class="badge rounded-pill
-                                    @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
+                                            @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
                                     @item.Result
                                 </span>
                             </td>
@@ -151,7 +151,7 @@
                                     </span>
                                 }
                             </td>
-                        
+
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a class="btn btn-outline-secondary"

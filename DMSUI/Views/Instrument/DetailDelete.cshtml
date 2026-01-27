@@ -1,7 +1,11 @@
 ﻿@using DMSUI.Entities.DTOs.Instruments
 @model InstrumentDTO
 
-<h3>📏 Ölçüm Aleti Detayı</h3>
+<h3 class="text-danger">🗑️ Silinen Ölçüm Aleti Detayı</h3>
+
+<div class="alert alert-warning mt-3">
+    Bu cihaz sistemden <strong>silinmiştir</strong>. Bilgiler yalnızca görüntüleme amaçlıdır.
+</div>
 
 <form>
     <div class="row">
@@ -84,8 +88,7 @@
 
         <div class="col-md-3">
             <label>Oluşturma Tarihi</label>
-            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")"
-                   class="form-control" readonly />
+            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
         </div>
 
         <div class="col-md-3">
@@ -95,15 +98,29 @@
 
         <div class="col-md-3">
             <label>Güncelleme Tarihi</label>
-            <input value="@Model.Updated_At?.ToString("dd.MM.yyyy HH:mm")"
-                   class="form-control" readonly />
+            <input value="@Model.Updated_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label>Silinme Tarihi</label>
+            <input value="@(Model.DeletedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")" 
+                    class="form-control" readonly />
+        </div>
+
+        <div class="col-md-6">
+            <label>Silen Kullanıcı</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model.DeletedByUser) ? "-" : Model.DeletedByUser)"
+                    class="form-control" readonly />
         </div>
     </div>
 
     <div class="mt-4 text-end">
         <a asp-action="Deleted" class="btn btn-secondary">
-            ↩️ Geri
-        </a>
+            ↩️ Silinenlere Dön
         </a>
     </div>
 </form>

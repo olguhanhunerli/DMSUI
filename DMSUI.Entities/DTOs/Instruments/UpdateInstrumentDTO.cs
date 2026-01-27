@@ -10,22 +10,52 @@ namespace DMSUI.Entities.DTOs.Instruments
 {
     public class UpdateInstrumentDTO
     {
-		public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
 
-		public string? Brand { get; set; }
+        [JsonPropertyName("brand")]
+        public string? Brand { get; set; }
 
-		public string? Model { get; set; }
+        [JsonPropertyName("model")]
+        public string? Model { get; set; }
 
-		public string? Serial_No { get; set; }
+        [JsonPropertyName("serial_No")]
+        public string? Serial_No { get; set; }
 
-		public string? Measurement_Range { get; set; }
+        [JsonPropertyName("measurement_Range")]
+        public string? Measurement_Range { get; set; }
 
-		public string? Resolution { get; set; }
+        [JsonPropertyName("resolution")]
+        public string? Resolution { get; set; }
 
-		public string? Unit { get; set; }
+        [JsonPropertyName("unit")]
+        public string? Unit { get; set; }
 
-		public string? Location { get; set; }
+        [JsonPropertyName("instrument_Type")]
+        public string? Instrument_Type { get; set; }
 
-		public string? Owner_Person { get; set; }
-	}
+        [JsonPropertyName("measurement_Discipline")]
+        public string? Measurement_Discipline { get; set; }
+
+        [JsonPropertyName("is_Critical")]
+        public bool? Is_Critical { get; set; }
+
+        [JsonPropertyName("risk_Level")]
+        public string? Risk_Level { get; set; }
+
+        [JsonPropertyName("measurement_Uncertainty")]
+        public string? Measurement_Uncertainty { get; set; }
+
+        [JsonPropertyName("environment_Required")]
+        public bool? Environment_Required { get; set; }
+
+        [JsonPropertyName("environment_Notes")]
+        public string? Environment_Notes { get; set; }
+
+        [JsonPropertyName("location")]
+        public string? Location { get; set; }
+
+        [JsonPropertyName("owner_Person")]
+        public string? Owner_Person { get; set; }
+    }
 }

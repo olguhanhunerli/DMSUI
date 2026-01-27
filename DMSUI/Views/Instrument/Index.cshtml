@@ -1,4 +1,5 @@
-﻿@using DMSUI.Entities.DTOs.Common
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@using DMSUI.Entities.DTOs.Common
 @using DMSUI.Entities.DTOs.Instruments
 @model PagedResultDTO<InstrumentDTO>
 
@@ -6,10 +7,17 @@
     ViewData["Title"] = "Cihazlar";
 
     var q = Context.Request.Query["q"].ToString();
-    var status = Context.Request.Query["status"].ToString();
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
+    var instrumentType = Context.Request.Query["instrumentType"].ToString();
+    var riskLevel = Context.Request.Query["riskLevel"].ToString();
+    var isCritical = Context.Request.Query["isCritical"].ToString();
+    var isActive = Context.Request.Query["isActive"].ToString();
+
     var pageSize = Model?.PageSize ?? 10;
+
+    var companies = ViewBag.Companies as List<SelectListItem> ?? new();
+    var locations = ViewBag.Locations as List<SelectListItem> ?? new();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -21,10 +29,77 @@
 </div>
 
 <form method="get" class="card shadow-sm mb-3">
-    <div class="card-body py-2">
-        <div class="row g-2 align-items-center">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label small text-muted mb-1">Arama</label>
+                <input type="text" name="q" value="@q" class="form-control form-control-sm" placeholder="Kod / Cihaz / Seri No" />
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">Şirket</label>
+                <select name="companyId" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    @foreach (var c in companies)
+                    {
+                        <option value="@c.Value" selected="@(c.Value == companyId)">@c.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">Lokasyon</label>
+                <select name="location" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    @foreach (var l in locations)
+                    {
+                        <option value="@l.Value" selected="@(l.Value == location)">@l.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">Tip</label>
+                <select name="instrumentType" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    <option value="Dimensional" selected="@(instrumentType == "Dimensional")">Dimensional</option>
+                    <option value="Electrical" selected="@(instrumentType == "Electrical")">Electrical</option>
+                    <option value="Pressure" selected="@(instrumentType == "Pressure")">Pressure</option>
+                    <option value="Temperature" selected="@(instrumentType == "Temperature")">Temperature</option>
+                    <option value="Other" selected="@(instrumentType == "Other")">Other</option>
+                </select>
+            </div>
 
             <div class="col-6 col-md-1">
+                <label class="form-label small text-muted mb-1">Risk</label>
+                <select name="riskLevel" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    <option value="Low" selected="@(riskLevel == "Low")">Low</option>
+                    <option value="Medium" selected="@(riskLevel == "Medium")">Medium</option>
+                    <option value="High" selected="@(riskLevel == "High")">High</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-1">
+                <label class="form-label small text-muted mb-1">Kritik</label>
+                <select name="isCritical" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    <option value="true" selected="@(isCritical == "true")">Evet</option>
+                    <option value="false" selected="@(isCritical == "false")">Hayır</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-1">
+                <label class="form-label small text-muted mb-1">Aktif</label>
+                <select name="isActive" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    <option value="true" selected="@(isActive == "true")">Aktif</option>
+                    <option value="false" selected="@(isActive == "false")">Pasif</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-1">
+                <label class="form-label small text-muted mb-1">Sayfa</label>
                 <select name="pageSize" class="form-select form-select-sm">
                     <option value="10" selected="@(pageSize == 10)">10</option>
                     <option value="25" selected="@(pageSize == 25)">25</option>
@@ -33,9 +108,10 @@
             </div>
 
             <div class="col-12 col-md-2 d-grid">
-                <button class="btn btn-primary btn-sm" type="submit">Ara</button>
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <i class="bi bi-search me-1"></i> Ara
+                </button>
             </div>
-
         </div>
     </div>
 </form>
@@ -49,8 +125,10 @@
                     <th>Şirket</th>
                     <th>Kod</th>
                     <th>Cihaz</th>
-                    <th>Marka</th>
-                    <th>Model</th>
+                    <th>Tip</th>
+                    <th>Disiplin</th>
+                    <th class="text-center">Risk</th>
+                    <th class="text-center">Kritik</th>
                     <th>Seri No</th>
                     <th>Aralık</th>
                     <th>Hass.</th>
@@ -71,17 +149,37 @@
                     {
                         row++;
 
+                        string riskBadge = item.Risk_Level switch
+                        {
+                            "High" => "bg-danger",
+                            "Medium" => "bg-warning text-dark",
+                            "Low" => "bg-success",
+                            _ => "bg-secondary"
+                        };
+
                         <tr class="@(item.IsActive ? "" : "table-secondary")">
                             <td class="text-muted">@row</td>
-
-                            <td>
-                                <div class="fw-semibold">@item.CompanyName</div>
-                            </td>
-
+                            <td><div class="fw-semibold">@item.CompanyName</div></td>
                             <td class="fw-semibold">@item.Asset_Code</td>
                             <td>@item.Name</td>
-                            <td>@item.Brand</td>
-                            <td>@item.Model</td>
+                            <td>@(item.Instrument_Type ?? "-")</td>
+                            <td>@(item.Measurement_Discipline ?? "-")</td>
+
+                            <td class="text-center">
+                                <span class="badge @riskBadge">@((item.Risk_Level ?? "-"))</span>
+                            </td>
+
+                            <td class="text-center">
+                                @if (item.Is_Critical)
+                                {
+                                    <span class="badge bg-danger">Kritik</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">-</span>
+                                }
+                            </td>
+
                             <td>@item.Serial_No</td>
                             <td>@item.Measurement_Range</td>
                             <td>@item.Resolution</td>
@@ -98,8 +196,7 @@
                                     @Html.AntiForgeryToken()
 
                                     <button type="submit"
-                                            class="btn btn-sm rounded-pill px-3
-                                                   @(item.IsActive ? "btn-success" : "btn-secondary")"
+                                            class="btn btn-sm rounded-pill px-3 @(item.IsActive ? "btn-success" : "btn-secondary")"
                                             title="Durum Değiştir"
                                             onclick="return confirm('Durum değiştirilsin mi?');">
                                         @(item.IsActive ? "Aktif" : "Pasif")
@@ -109,24 +206,15 @@
 
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a class="btn btn-outline-secondary"
-                                       title="Detay"
-                                       asp-action="Detail"
-                                       asp-route-id="@item.Instrument_Id">
+                                    <a class="btn btn-outline-secondary" title="Detay" asp-action="Detail" asp-route-id="@item.Instrument_Id">
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    <a class="btn btn-outline-primary"
-                                       title="Düzenle"
-                                       asp-action="Edit"
-                                       asp-route-id="@item.Instrument_Id">
+                                    <a class="btn btn-outline-primary" title="Düzenle" asp-action="Edit" asp-route-id="@item.Instrument_Id">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
-                                    <form asp-action="Delete"
-                                          asp-route-id="@item.Instrument_Id"
-                                          method="post"
-                                          class="d-inline">
+                                    <form asp-action="Delete" asp-route-id="@item.Instrument_Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <button type="submit"
                                                 class="btn btn-outline-danger"
@@ -143,9 +231,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="14" class="text-center text-muted py-4">
-                            Kayıt bulunamadı.
-                        </td>
+                        <td colspan="16" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
                     </tr>
                 }
             </tbody>
@@ -170,43 +256,22 @@
                         int end = Math.Min(total, current + 2);
                     }
 
-                    <!-- Prev -->
                     <li class="page-item @(current == 1 ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@(current - 1)"
                            asp-route-pageSize="@pageSize"
                            asp-route-q="@q"
-                           asp-route-status="@status"
                            asp-route-companyId="@companyId"
-                           asp-route-location="@location">
+                           asp-route-location="@location"
+                           asp-route-instrumentType="@instrumentType"
+                           asp-route-riskLevel="@riskLevel"
+                           asp-route-isCritical="@isCritical"
+                           asp-route-isActive="@isActive">
                             ‹
                         </a>
                     </li>
 
-                    <!-- First -->
-                    @if (start > 1)
-                    {
-                        <li class="page-item">
-                            <a class="page-link"
-                               asp-action="Index"
-                               asp-route-page="1"
-                               asp-route-pageSize="@pageSize"
-                               asp-route-q="@q"
-                               asp-route-status="@status"
-                               asp-route-companyId="@companyId"
-                               asp-route-location="@location">
-                                1
-                            </a>
-                        </li>
-
-                        @if (start > 2)
-                        {
-                            <li class="page-item disabled"><span class="page-link">…</span></li>
-                        }
-                    }
-
-                    <!-- Pages -->
                     @for (int i = start; i <= end; i++)
                     {
                         <li class="page-item @(i == current ? "active" : "")">
@@ -215,46 +280,29 @@
                                asp-route-page="@i"
                                asp-route-pageSize="@pageSize"
                                asp-route-q="@q"
-                               asp-route-status="@status"
                                asp-route-companyId="@companyId"
-                               asp-route-location="@location">
+                               asp-route-location="@location"
+                               asp-route-instrumentType="@instrumentType"
+                               asp-route-riskLevel="@riskLevel"
+                               asp-route-isCritical="@isCritical"
+                               asp-route-isActive="@isActive">
                                 @i
                             </a>
                         </li>
                     }
 
-                    <!-- Last -->
-                    @if (end < total)
-                    {
-                        @if (end < total - 1)
-                        {
-                            <li class="page-item disabled"><span class="page-link">…</span></li>
-                        }
-
-                        <li class="page-item">
-                            <a class="page-link"
-                               asp-action="Index"
-                               asp-route-page="@total"
-                               asp-route-pageSize="@pageSize"
-                               asp-route-q="@q"
-                               asp-route-status="@status"
-                               asp-route-companyId="@companyId"
-                               asp-route-location="@location">
-                                @total
-                            </a>
-                        </li>
-                    }
-
-                    <!-- Next -->
                     <li class="page-item @(current == total ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
                            asp-route-page="@(current + 1)"
                            asp-route-pageSize="@pageSize"
                            asp-route-q="@q"
-                           asp-route-status="@status"
                            asp-route-companyId="@companyId"
-                           asp-route-location="@location">
+                           asp-route-location="@location"
+                           asp-route-instrumentType="@instrumentType"
+                           asp-route-riskLevel="@riskLevel"
+                           asp-route-isCritical="@isCritical"
+                           asp-route-isActive="@isActive">
                             ›
                         </a>
                     </li>
