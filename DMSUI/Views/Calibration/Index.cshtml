@@ -6,7 +6,7 @@
     ViewData["Title"] = "Kalibrasyonlar";
 
     var q = Context.Request.Query["q"].ToString();
-    var result = Context.Request.Query["result"].ToString(); // PASS/FAIL
+    var result = Context.Request.Query["result"].ToString(); 
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
 
@@ -21,7 +21,7 @@
     </a>
 </div>
 
-<form method="get" class="card shadow-sm mb-3">
+<form method="get" class="card shadow-sm mb-3" id="filterForm">
     <div class="card-body py-2">
         <div class="row g-2 align-items-center">
 
@@ -34,29 +34,24 @@
             </div>
 
             <div class="col-12 col-md-3">
-                <input name="q"
+                <input id="fQ"
+                       name="q"
                        value="@q"
                        class="form-control form-control-sm"
                        placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
             </div>
 
             <div class="col-6 col-md-2">
-                <select name="result" class="form-select form-select-sm">
+                <select id="fResult" name="result" class="form-select form-select-sm">
                     <option value="" selected="@(string.IsNullOrWhiteSpace(result))">Tümü</option>
                     <option value="PASS" selected="@(result == "PASS")">PASS</option>
                     <option value="FAIL" selected="@(result == "FAIL")">FAIL</option>
                 </select>
             </div>
 
-            <div class="col-6 col-md-2">
-                <input name="companyId"
-                       value="@companyId"
-                       class="form-control form-control-sm"
-                       placeholder="Company Id" />
-            </div>
-
             <div class="col-12 col-md-2">
-                <input name="location"
+                <input id="fLocation"
+                       name="location"
                        value="@location"
                        class="form-control form-control-sm"
                        placeholder="Lokasyon" />
@@ -107,7 +102,12 @@
                         item.RemainingDays < 0 ? "table-danger" :
                         item.RemainingDays <= 30 ? "table-warning" :
                         "";
-                        <tr class="@rowClass">
+
+                        <tr class="@rowClass"
+                            data-result="@item.Result"
+                            data-companyid="@item.CompanyId"
+                            data-location="@item.InstrumentLocation"
+                            data-q="@($"{item.InstrumentName} {item.AssetCode} {item.SerialNo} {item.CertificateNo}")">
 
                             <td>
                                 <div class="fw-semibold">@item.CompanyName</div>
@@ -122,7 +122,7 @@
                             <td>@item.DueDate.ToString("dd.MM.yyyy")</td>
 
                             <td class="text-end">
-                                <span class="fw-semibold  @(item.RemainingDays <= 30 ? "text-danger" : "")">
+                                <span class="fw-semibold @(item.RemainingDays <= 30 ? "text-danger" : "")">
                                     @item.RemainingDays
                                 </span>
                                 <span class="text-muted small">gün</span>
@@ -132,11 +132,11 @@
                             <td class="text-nowrap">@item.CertificateNo</td>
 
                             <td class="text-center">
-                                <span class="badge rounded-pill
-                                            @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
+                                <span class="badge rounded-pill @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
                                     @item.Result
                                 </span>
                             </td>
+
                             <td>
                                 @if (item.Files?.Any() == true)
                                 {
@@ -167,6 +167,7 @@
                                        asp-route-id="@item.CalibrationId">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
+
                                     <button type="button"
                                             class="btn btn-outline-success"
                                             title="Doküman Ekle"
@@ -176,6 +177,7 @@
                                             data-instrument-name="@item.InstrumentName">
                                         <i class="bi bi-paperclip"></i>
                                     </button>
+
                                     <form asp-action="Delete"
                                           asp-route-id="@item.CalibrationId"
                                           method="post"
@@ -301,6 +303,7 @@
         }
     </div>
 </div>
+
 <div class="modal fade" id="uploadModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -330,7 +333,7 @@
                     </div>
 
                     <div class="row g-2">
-                            <input type="hidden" name="FileType" value="ORIGINAL" />
+                        <input type="hidden" name="FileType" value="ORIGINAL" />
                         <div class="col-12">
                             <label class="form-label small text-muted">Açıklama</label>
                             <input type="text" name="Description" class="form-control form-control-sm" />
@@ -362,4 +365,54 @@
         modal.querySelector('#ufCalibrationId').value = calibrationId;
         modal.querySelector('#ufInstrumentName').value = instrumentName;
     });
+
+    (function () {
+        const form = document.getElementById('filterForm');
+        if (!form) return;
+
+        const q = document.getElementById('fQ');
+        const result = document.getElementById('fResult');
+        const companyId = document.getElementById('fCompanyId');
+        const location = document.getElementById('fLocation');
+
+        function norm(v) {
+            return (v || '').toString().trim().toLowerCase();
+        }
+
+        function apply() {
+            const qv = norm(q?.value);
+            const rv = norm(result?.value);
+            const civ = norm(companyId?.value);
+            const lv = norm(location?.value);
+
+            const rows = document.querySelectorAll('tbody tr[data-result]');
+
+            rows.forEach(tr => {
+                const trResult = norm(tr.dataset.result);
+                const trCompanyId = norm(tr.dataset.companyid);
+                const trLocation = norm(tr.dataset.location);
+                const trHay = norm(tr.dataset.q);
+
+                const okQ = !qv || trHay.includes(qv);
+                const okR = !rv || trResult === rv;
+                const okC = !civ || trCompanyId === civ;       
+                const okL = !lv || trLocation.includes(lv);    
+
+                tr.style.display = (okQ && okR && okC && okL) ? '' : 'none';
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            apply();
+        });
+
+        [q, result, companyId, location].forEach(el => {
+            if (!el) return;
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        });
+
+        apply();
+    })();
 </script>

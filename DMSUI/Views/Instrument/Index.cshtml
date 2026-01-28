@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Cihazlar";
 
+    // Client-side filtre yapacağız: bunlar sadece default değerler olarak kalabilir
     var q = Context.Request.Query["q"].ToString();
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
@@ -28,28 +29,23 @@
     </a>
 </div>
 
-<form method="get" class="card shadow-sm mb-3">
+<form method="get" class="card shadow-sm mb-3" id="filterForm">
     <div class="card-body">
         <div class="row g-2 align-items-end">
+
             <div class="col-12 col-md-3">
                 <label class="form-label small text-muted mb-1">Arama</label>
-                <input type="text" name="q" value="@q" class="form-control form-control-sm" placeholder="Kod / Cihaz / Seri No" />
-            </div>
-
-            <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Şirket</label>
-                <select name="companyId" class="form-select form-select-sm">
-                    <option value="">Tümü</option>
-                    @foreach (var c in companies)
-                    {
-                        <option value="@c.Value" selected="@(c.Value == companyId)">@c.Text</option>
-                    }
-                </select>
+                <input id="fQ"
+                       type="text"
+                       name="q"
+                       value="@q"
+                       class="form-control form-control-sm"
+                       placeholder="Kod / Cihaz / Seri No" />
             </div>
 
             <div class="col-6 col-md-2">
                 <label class="form-label small text-muted mb-1">Lokasyon</label>
-                <select name="location" class="form-select form-select-sm">
+                <select id="fLocation" name="location" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     @foreach (var l in locations)
                     {
@@ -60,7 +56,7 @@
 
             <div class="col-6 col-md-2">
                 <label class="form-label small text-muted mb-1">Tip</label>
-                <select name="instrumentType" class="form-select form-select-sm">
+                <select id="fInstrumentType" name="instrumentType" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="Dimensional" selected="@(instrumentType == "Dimensional")">Dimensional</option>
                     <option value="Electrical" selected="@(instrumentType == "Electrical")">Electrical</option>
@@ -72,7 +68,7 @@
 
             <div class="col-6 col-md-1">
                 <label class="form-label small text-muted mb-1">Risk</label>
-                <select name="riskLevel" class="form-select form-select-sm">
+                <select id="fRiskLevel" name="riskLevel" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="Low" selected="@(riskLevel == "Low")">Low</option>
                     <option value="Medium" selected="@(riskLevel == "Medium")">Medium</option>
@@ -82,7 +78,7 @@
 
             <div class="col-6 col-md-1">
                 <label class="form-label small text-muted mb-1">Kritik</label>
-                <select name="isCritical" class="form-select form-select-sm">
+                <select id="fIsCritical" name="isCritical" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="true" selected="@(isCritical == "true")">Evet</option>
                     <option value="false" selected="@(isCritical == "false")">Hayır</option>
@@ -91,7 +87,7 @@
 
             <div class="col-6 col-md-1">
                 <label class="form-label small text-muted mb-1">Aktif</label>
-                <select name="isActive" class="form-select form-select-sm">
+                <select id="fIsActive" name="isActive" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="true" selected="@(isActive == "true")">Aktif</option>
                     <option value="false" selected="@(isActive == "false")">Pasif</option>
@@ -112,6 +108,7 @@
                     <i class="bi bi-search me-1"></i> Ara
                 </button>
             </div>
+
         </div>
     </div>
 </form>
@@ -157,7 +154,15 @@
                             _ => "bg-secondary"
                         };
 
-                        <tr class="@(item.IsActive ? "" : "table-secondary")">
+                        <tr class="@(item.IsActive ? "" : "table-secondary")"
+                            data-q="@($"{item.Asset_Code} {item.Name} {item.Serial_No}")"
+                            data-companyid="@item.CompanyId"
+                            data-location="@item.Location"
+                            data-instrumenttype="@(item.Instrument_Type ?? "")"
+                            data-risklevel="@(item.Risk_Level ?? "")"
+                            data-iscritical="@(item.Is_Critical ? "true" : "false")"
+                            data-isactive="@(item.IsActive ? "true" : "false")">
+
                             <td class="text-muted">@row</td>
                             <td><div class="fw-semibold">@item.CompanyName</div></td>
                             <td class="fw-semibold">@item.Asset_Code</td>
@@ -311,3 +316,67 @@
         }
     </div>
 </div>
+
+<script>
+    (function () {
+        const form = document.getElementById('filterForm');
+        if (!form) return;
+
+        const q = document.getElementById('fQ');
+        const companyId = document.getElementById('fCompanyId');
+        const location = document.getElementById('fLocation');
+        const instrumentType = document.getElementById('fInstrumentType');
+        const riskLevel = document.getElementById('fRiskLevel');
+        const isCritical = document.getElementById('fIsCritical');
+        const isActive = document.getElementById('fIsActive');
+
+        function norm(v) {
+            return (v || '').toString().trim().toLowerCase();
+        }
+
+        function apply() {
+            const qv = norm(q?.value);
+            const civ = norm(companyId?.value);
+            const lv = norm(location?.value);
+            const tv = norm(instrumentType?.value);
+            const rv = norm(riskLevel?.value);
+            const cv = norm(isCritical?.value);
+            const av = norm(isActive?.value);
+
+            const rows = document.querySelectorAll('tbody tr[data-companyid]');
+
+            rows.forEach(tr => {
+                const trQ = norm(tr.dataset.q);
+                const trCompanyId = norm(tr.dataset.companyid);
+                const trLocation = norm(tr.dataset.location);
+                const trType = norm(tr.dataset.instrumenttype);
+                const trRisk = norm(tr.dataset.risklevel);
+                const trCritical = norm(tr.dataset.iscritical);
+                const trActive = norm(tr.dataset.isactive);
+
+                const okQ = !qv || trQ.includes(qv);
+                const okC = !civ || trCompanyId === civ;         
+                const okL = !lv || trLocation.includes(lv);     
+                const okT = !tv || trType === tv;
+                const okR = !rv || trRisk === rv;
+                const okCr = !cv || trCritical === cv;          
+                const okA = !av || trActive === av;              
+
+                tr.style.display = (okQ && okC && okL && okT && okR && okCr && okA) ? '' : 'none';
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            apply();
+        });
+
+        [q, companyId, location, instrumentType, riskLevel, isCritical, isActive].forEach(el => {
+            if (!el) return;
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        });
+
+        apply();
+    })();
+</script>
