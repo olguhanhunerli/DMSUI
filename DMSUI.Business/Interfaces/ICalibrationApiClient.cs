@@ -13,7 +13,7 @@ namespace DMSUI.Business.Interfaces
         Task<PagedResultDTO<CalibrationItemDTO>> GetCalibrationItemsAsync(int pageNumber, int pageSize);
         Task<CalibrationItemDTO> GetCalibrationItemByIdAsync(int calibrationId);
         Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO);
-		Task<bool> UpdateCalibrationAsync(ulong id,EditCalibrationDTO editCalibrationDTO);
+		Task<bool> UpdateCalibrationAsync(int id,EditCalibrationDTO editCalibrationDTO);
 		Task<bool> DeleteByIdAsync(int calibrationId);
 	}
 }

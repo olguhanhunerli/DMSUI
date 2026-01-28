@@ -90,8 +90,9 @@ namespace DMSUI.Controllers
 					CalibrationCompany = model.CalibrationCompany,
 					CertificateNo = model.CertificateNo,
 					CompanyId = companyId.Value,
-					Location = model.Location
-				};
+					Location = model.Location,
+					Notes = model.Notes
+                };
 
 				var id = await _calibrationManager.CreateCalibrationAsync(dto);
 
@@ -134,8 +135,8 @@ namespace DMSUI.Controllers
 			var companyId = User.GetCompanyIdSafe();
 			var model = new EditCalibrationDTO
 			{
-				CalibrationId = (ulong)entity.CalibrationId,
-				InstrumentId = (ulong)entity.InstrumentId,
+				CalibrationId = entity.CalibrationId,
+				InstrumentId = entity.InstrumentId,
 
 				CalibrationDate = entity.CalibrationDate,
 				IntervalMonths = entity.IntervalMonths,
@@ -144,7 +145,7 @@ namespace DMSUI.Controllers
 				CalibrationCompany = entity.CalibrationCompany,
 				CertificateNo = entity.CertificateNo,
 
-				Location = entity.Location,
+				InstrumentLocation = entity.InstrumentLocation,
 
 				AssetCode = entity.AssetCode,
 				InstrumentName = entity.InstrumentName,
@@ -156,13 +157,14 @@ namespace DMSUI.Controllers
 				UpdatedAt = (DateTime)entity.UpdatedAt,
 				CreatedByName = entity.CreatedByName,
 				UpdatedByName = entity.UpdatedByName,
-				Files = entity.Files
-			};
+				Files = entity.Files,
+				Notes = entity.Notes
+            };
 
 			return View(model);
 		}
 		[HttpPost]
-		public async Task<IActionResult> Edit(ulong id, EditCalibrationDTO model)
+		public async Task<IActionResult> Edit(int id, EditCalibrationDTO model)
 		{
 			Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(model));
 			if (id != model.CalibrationId)

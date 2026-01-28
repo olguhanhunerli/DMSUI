@@ -1,4 +1,4 @@
-﻿﻿@using DMSUI.Entities.DTOs.Calibration
+﻿@using DMSUI.Entities.DTOs.Calibration
 @model CalibrationItemDTO
 
 @{
@@ -36,7 +36,7 @@
 
             <div class="col-md-4">
                 <div class="text-muted small">Lokasyon</div>
-                <div>@Model.Location</div>
+                <div>@Model.InstrumentLocation</div>
             </div>
         </div>
 
@@ -69,7 +69,7 @@
 
             <div class="col-md-2 text-center">
                 <div class="text-muted small">Sonuç</div>
-                <span class="badge rounded-pill @(Model.Result == "PASS" ? "bg-success" : "bg-danger")">
+                <span class="badge rounded-pill @(string.Equals(Model.Result, "PASS", StringComparison.OrdinalIgnoreCase) ? "bg-success" : "bg-danger")">
                     @Model.Result
                 </span>
             </div>
@@ -94,6 +94,14 @@
                 <div class="text-muted small">Şirket</div>
                 <div>@Model.CompanyName</div>
             </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Notlar</label>
+            <textarea class="form-control"
+                      rows="4"
+                      placeholder="Kalibrasyon ile ilgili notlar..."
+                      readonly>@(Model.Notes ?? "")</textarea>
         </div>
 
         <hr />
@@ -122,26 +130,30 @@
                                 <td>
                                     <i class="bi bi-paperclip me-1 text-secondary"></i>
                                     <span class="fw-semibold">@file.FileOriginalName</span>
-
                                 </td>
+
                                 <td>
                                     <span class="fw-semibold">@file.Description</span>
                                 </td>
+
                                 <td class="text-center">
                                     @file.CreatedByName
                                 </td>
+
                                 <td class="text-center">
                                     @file.CreatedAt.ToString("dd.MM.yyyy HH:mm")
                                 </td>
+
                                 <td class="text-center">
-                                    @file.UploadedByName
+                                    @(file.UploadedByName ?? "-")
                                 </td>
+
                                 <td class="text-center">
-                                    @file.UpdatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    @(file.UpdatedAt.ToString("dd.MM.yyyy HH:mm"))
                                 </td>
+
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-
                                         <a asp-action="DownloadOriginal"
                                            asp-route-fileId="@file.FileId"
                                            class="btn btn-outline-primary"
@@ -172,6 +184,7 @@
                 <i class="bi bi-x-circle me-1"></i> Bu kalibrasyona ait dosya bulunmuyor.
             </div>
         }
+
         <hr />
 
         <h6 class="text-muted mb-3">Kayıt Bilgileri</h6>
@@ -189,9 +202,9 @@
 
             <div class="col-md-4">
                 <div class="text-muted small">Güncelleyen</div>
-                <div>@Model.UpdatedByName</div>
+                <div>@(Model.UpdatedByName ?? "-")</div>
                 <div class="text-muted small">
-                    @Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm")
+                    @(Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
                 </div>
             </div>
         </div>

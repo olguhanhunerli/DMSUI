@@ -13,8 +13,8 @@ namespace DMSUI.ViewModels.CreateCalibrationVM
 
 		public string? CalibrationCompany { get; set; }
 		public string? CertificateNo { get; set; }
-
-		public int CompanyId { get; set; }
+        public string? Notes { get; set; }
+        public int CompanyId { get; set; }
 		public string? Location { get; set; }
 		public List<SelectListItem> Instruments
 		{

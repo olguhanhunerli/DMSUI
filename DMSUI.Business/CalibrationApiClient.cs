@@ -74,7 +74,7 @@ namespace DMSUI.Business
 			return response.IsSuccessStatusCode;
 		}
 
-		public async Task<bool> UpdateCalibrationAsync(ulong id, EditCalibrationDTO editCalibrationDTO)
+		public async Task<bool> UpdateCalibrationAsync(int id, EditCalibrationDTO editCalibrationDTO)
 		{
 			AttachToken();
 			var response = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);

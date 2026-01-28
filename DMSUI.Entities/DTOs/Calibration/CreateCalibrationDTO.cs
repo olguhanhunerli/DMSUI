@@ -20,5 +20,6 @@ namespace DMSUI.Entities.DTOs.Calibration
 
         public int CompanyId { get; set; }
         public string? Location { get; set; }
+        public string? Notes { get; set; }
     }
 }

@@ -39,7 +39,7 @@ namespace DMSUI.Services
 			return await _apiClient.GetCalibrationItemsAsync(pageNumber, pageSize);
 		}
 
-		public async Task<bool> UpdateCalibrationAsync(ulong id, EditCalibrationDTO editCalibrationDTO)
+		public async Task<bool> UpdateCalibrationAsync(int id, EditCalibrationDTO editCalibrationDTO)
 		{
 			return await _apiClient.UpdateCalibrationAsync(id, editCalibrationDTO);
 		}

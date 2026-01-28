@@ -116,7 +116,7 @@
                             <td class="fw-semibold">@item.AssetCode</td>
                             <td>@item.InstrumentName</td>
                             <td>@item.SerialNo</td>
-                            <td>@item.Location</td>
+                            <td>@item.InstrumentLocation</td>
 
                             <td>@item.CalibrationDate.ToString("dd.MM.yyyy")</td>
                             <td>@item.DueDate.ToString("dd.MM.yyyy")</td>
@@ -330,14 +330,8 @@
                     </div>
 
                     <div class="row g-2">
-                        <div class="col-6">
-                            <label class="form-label small text-muted">Dosya Tipi</label>
-                            <select name="FileType" class="form-select form-select-sm">
-                                <option value="ORIGINAL" selected>ORIGINAL</option>
-                                <option value="PDF">PDF</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
+                            <input type="hidden" name="FileType" value="ORIGINAL" />
+                        <div class="col-12">
                             <label class="form-label small text-muted">Açıklama</label>
                             <input type="text" name="Description" class="form-control form-control-sm" />
                         </div>
