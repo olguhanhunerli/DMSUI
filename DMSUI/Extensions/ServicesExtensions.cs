@@ -31,6 +31,7 @@ namespace DMSUI.Extensions
             services.AddScoped<IInstrumentManager, InstrumentManager>();
             services.AddScoped<ICalibrationManager, CalibrationManager>();
             services.AddScoped<ICalibrationFileManager, CalibrationFileManager>();
+            services.AddScoped<ICustomerManager, CustomerManager>();
 
             services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -109,7 +110,12 @@ namespace DMSUI.Extensions
 				var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
 				client.BaseAddress = new Uri(apiSettings.BaseUrl);
 			});
-			services.AddTransient<ApiAuthMessageHandler>();
+            services.AddHttpClient<ICustomerApiClient, CustomerApiClient>(client =>
+            {
+                var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+                client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            });
+            services.AddTransient<ApiAuthMessageHandler>();
             return services;
         }
     }

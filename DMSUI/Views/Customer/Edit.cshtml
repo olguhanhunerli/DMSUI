@@ -1,0 +1,86 @@
+﻿@using DMSUI.Entities.DTOs.Customers
+@using DMSUI.ViewModels.NewFolder
+@model EditCustomersVM
+
+<h3>✏️ Müşteri Düzenle</h3>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="id" />
+
+    <div class="row">
+
+        <div class="col-md-6">
+            <label>Müşteri Kodu</label>
+            <input asp-for="customerCode" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label>Durum</label>
+            <input value="@(Model.isDelete ? "Silinmiş" : "Aktif")"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label>Müşteri Adı</label>
+            <input asp-for="name" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Telefon</label>
+            <input asp-for="phone" class="form-control" />
+        </div>
+
+        <div class="col-md-3">
+            <label>Email</label>
+            <input asp-for="email" class="form-control" type="email" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+
+        <div class="col-md-12">
+            <label>Şirket</label>
+            <input asp-for="companyName" class="form-control" />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <label>Oluşturma Tarihi</label>
+            <input value="@Model.createdAt.ToString("dd.MM.yyyy HH:mm")"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-3">
+            <label>Silinme Tarihi</label>
+            <input value="@(Model.isDelete? Model.deleteAt.ToString("dd.MM.yyyy HH:mm") : "-")"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-6">
+            <label>Silen Kullanıcı</label>
+            <input value="@(Model.deletedByName?.ToString() ?? "-")"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <a asp-action="Index" class="btn btn-secondary">
+            ↩️ Vazgeç
+        </a>
+
+        <button type="submit" class="btn btn-primary ms-2">
+            💾 Kaydet
+        </button>
+    </div>
+</form>
