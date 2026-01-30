@@ -13,11 +13,11 @@ namespace DMSUI.Entities.DTOs.Customers
         public string name { get; set; }
         public string phone { get; set; }
         public string email { get; set; }
-        public DateTime createdAt { get; set; }
+        public DateTime? createdAt { get; set; }
         public int companyId { get; set; }
         public string companyName { get; set; }
-        public object deletedByName { get; set; }
-        public DateTime deleteAt { get; set; }
-        public bool isDelete { get; set; }
+        public string? deletedByName { get; set; }
+        public DateTime? deleteAt { get; set; }
+        public bool? isDelete { get; set; }
     }
 }

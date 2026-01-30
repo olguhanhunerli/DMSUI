@@ -8,7 +8,11 @@
     @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="id" />
-
+    <input type="hidden" asp-for="createdAt" />
+    <input type="hidden" asp-for="isDelete" />
+    <input type="hidden" asp-for="deleteAt" />
+    <input type="hidden" asp-for="deletedByName" />
+    <input type="hidden" asp-for="companyName" />
     <div class="row">
 
         <div class="col-md-6">
@@ -63,7 +67,7 @@
 
         <div class="col-md-3">
             <label>Silinme Tarihi</label>
-            <input value="@(Model.isDelete? Model.deleteAt.ToString("dd.MM.yyyy HH:mm") : "-")"
+            <input value="@(Model.isDelete? Model.deleteAt?.ToString("dd.MM.yyyy HH:mm") : "-")"
                    class="form-control" readonly />
         </div>
 

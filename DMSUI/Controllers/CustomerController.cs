@@ -47,48 +47,47 @@ namespace DMSUI.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var customer = await _customerManager.GetCustomerById(id);
-            if (customer == null)
+            var c = await _customerManager.GetCustomerById(id);
+            if (c == null) return NotFound();
+
+            return View(new EditCustomersVM 
             {
-                return NotFound();
-            }
-            var entity = new EditCustomersVM
-            {
-                id = customer.id,
-                customerCode = customer.customerCode,
-                name = customer.name,
-                phone = customer.phone,
-                email = customer.email,
-                createdAt = customer.createdAt,
-                companyId = customer.companyId,
-                companyName = customer.companyName,
-                deletedByName = customer.deletedByName,
-                deleteAt = customer.deleteAt,
-                isDelete = customer.isDelete
-            };
-            return View(entity);
+                id = c.id,
+                customerCode = c.customerCode,
+                name = c.name,
+                phone = c.phone,
+                email = c.email,
+                companyName = c.companyName,
+                createdAt = (DateTime)c.createdAt,
+                isDelete = (bool)c.isDelete,
+                deleteAt = (bool)c.isDelete ? c.deleteAt : null,
+                deletedByName = c.deletedByName?.ToString()
+            });
         }
         [HttpPost]
         public async Task<IActionResult> Edit(EditCustomersVM model)
         {
-            Console.WriteLine("Edit Başladı");
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var updateCustomerDTO = new UpdateCustomerDTO
+                foreach (var kvp in ModelState)
                 {
-                    Id = model.id,
-                    customerCode = model.customerCode,
-                    name = model.name,
-                    phone = model.phone,
-                    email = model.email
-                };
-                var result = await _customerManager.UpdateCustomer(model.id, updateCustomerDTO);
-                if (result)
-                {
-                    return RedirectToAction("Index");
+                    foreach (var err in kvp.Value.Errors)
+                        Console.WriteLine($"{kvp.Key}: {err.ErrorMessage}");
                 }
-                ModelState.AddModelError("", "Failed to update customer.");
+                return View(model);
             }
+
+            var dto = new UpdateCustomerDTO
+            {
+                customerCode = model.customerCode,
+                name = model.name,
+                phone = model.phone,
+                email = model.email
+            };
+            var ok = await _customerManager.UpdateCustomer(model.id, dto);
+            if (ok) return RedirectToAction("Index");
+
+            ModelState.AddModelError("", "Failed to update customer.");
             return View(model);
         }
         [HttpPost]

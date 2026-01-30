@@ -102,19 +102,18 @@
                     {
                         row++;
 
-                        var statusBadge = item.isDelete ? "bg-danger" : "bg-success";
-                        var statusText = item.isDelete ? "Silinmiş" : "Aktif";
+                        var statusBadge = (item.isDelete == true) ? "bg-danger" : "bg-success";
+                        var statusText = (item.isDelete == true) ? "Silinmiş" : "Aktif";
 
-                        <tr class="@(item.isDelete ? "table-secondary" : "")"
+                        <tr class="@(item.isDelete == true ? "table-secondary" : "")"
                             data-q="@($"{item.customerCode} {item.name} {item.phone} {item.email}")"
                             data-companyid="@item.companyId"
-                            data-isdelete="@(item.isDelete ? "true" : "false")">
+                            data-isdelete="@(item.isDelete == true ? "true" : "false")">
 
                             <td class="text-muted">@row</td>
 
                             <td>
                                 <div class="fw-semibold">@item.companyName</div>
-                                <div class="text-muted small">CompanyId: @item.companyId</div>
                             </td>
 
                             <td class="fw-semibold">@item.customerCode</td>
@@ -123,12 +122,12 @@
                             <td>@item.email</td>
 
                             <td>
-                                @(item.createdAt.ToString("dd.MM.yyyy HH:mm"))
-                                @if (item.isDelete)
+                                @(item.createdAt?.ToString("dd.MM.yyyy HH:mm"))
+                                @if (item.isDelete == true)
                                 {
                                     <div class="text-muted small mt-1">
                                         Silen: @(item.deletedByName ?? "-")<br />
-                                        Silme: @(item.deleteAt.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                                        Silme: @(item.deleteAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
                                     </div>
                                 }
                             </td>
@@ -149,13 +148,13 @@
 
                                     <form asp-action="ToggleDelete" method="post" asp-route-id="@item.id" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <input type="hidden" name="isDelete" value="@( !item.isDelete )" />
+                                        <input type="hidden" name="isDelete" value="@( !(item.isDelete == true) )" />
 
                                         <button type="submit"
-                                                class="btn @(item.isDelete ? "btn-outline-success" : "btn-outline-danger")"
-                                                title="@(item.isDelete ? "Geri Al" : "Sil")"
-                                                onclick="return confirm('@(item.isDelete ? "Kayıt geri alınsın mı?" : "Silmek istediğine emin misin?")');">
-                                            <i class="bi @(item.isDelete ? "bi-arrow-counterclockwise" : "bi-trash")"></i>
+                                                class="btn @(item.isDelete == true ? "btn-outline-success" : "btn-outline-danger")"
+                                                title="@(item.isDelete == true ? "Geri Al" : "Sil")"
+                                                onclick="return confirm('@(item.isDelete == true ? "Kayıt geri alınsın mı?" : "Silmek istediğine emin misin?")');">
+                                            <i class="bi @(item.isDelete == true ? "bi-arrow-counterclockwise" : "bi-trash")"></i>
                                         </button>
                                     </form>
                                 </div>

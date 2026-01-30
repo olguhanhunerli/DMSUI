@@ -103,14 +103,15 @@ namespace DMSUI.Business
         public async Task<bool> UpdateCustomer(int id, UpdateCustomerDTO updateCustomerDTO)
         {
             AttachToken();
-            var response = await _httpClient.PutAsJsonAsync(
-                $"api/Customer/{id}",
-                new StringContent(
-                    JsonSerializer.Serialize(updateCustomerDTO),
-                    Encoding.UTF8,
-                    "application/json"
-                )
-            );
+
+            var response = await _httpClient.PutAsJsonAsync($"api/Customer/{id}", updateCustomerDTO);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"UpdateCustomer failed. Status={(int)response.StatusCode} Body={body}");
+            }
+
             return response.IsSuccessStatusCode;
         }
     }
