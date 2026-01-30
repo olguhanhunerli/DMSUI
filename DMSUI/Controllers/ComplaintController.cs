@@ -23,14 +23,14 @@ namespace DMSUI.Controllers
             var entity = await _complaintManager.GetComplaintsPaging(page, pageSize);
             return View(entity);
         }
-        [HttpGet]
-        public async Task<IActionResult> Create()
-        {
-            var vm = new CreateComplaintVM();
-            var companyList = await _customerManager.GetAllCustomersMini(GetCompanyIdSafe);
-            FillStaticLookups(vm);
-            return View(vm);
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> Create()
+        //{
+        //    var vm = new CreateComplaintVM();
+        //    var companyList = await _customerManager.GetAllCustomersMini(GetCompanyIdSafe);
+        //    FillStaticLookups(vm);
+        //    return View(vm);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateComplaintVM vm)
