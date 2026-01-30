@@ -12,6 +12,8 @@ namespace DMSUI.Services.Interfaces
     {
         Task<PagedResultDTO<CustomersItemDTO>> GetCustomersPaging(int page, int pageSize);
         Task<CustomersItemDTO> GetCustomerById(int id);
+        Task<List<CustomerMiniDTO>> GetAllCustomersMini(int id);
+
         Task<bool> UpdateCustomer(int id, UpdateCustomerDTO updateCustomerDTO);
         Task<bool> DeleteCustomer(int id);
         Task<bool> CreateCustomer(CustomerCreateDTO createCustomerDTO);

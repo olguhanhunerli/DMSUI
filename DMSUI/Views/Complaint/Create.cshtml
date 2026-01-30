@@ -1,0 +1,122 @@
+﻿@model DMSUI.ViewModels.CreateComplaintVM
+@{
+    ViewData["Title"] = "Yeni Şikayet";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Yeni Şikayet</h4>
+    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+        <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+    </a>
+</div>
+
+<form asp-action="Create" method="post" class="card shadow-sm">
+    @Html.AntiForgeryToken()
+
+    <div class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+        <div class="row g-2">
+
+            <div class="col-12 col-md-4">
+                <label asp-for="CompanyId" class="form-label small text-muted mb-1"></label>
+                <select asp-for="CompanyId" asp-items="Model.Companies" class="form-select form-select-sm">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="CompanyId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label asp-for="CustomerId" class="form-label small text-muted mb-1"></label>
+                <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select form-select-sm">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="CustomerId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label asp-for="AssignedTo" class="form-label small text-muted mb-1"></label>
+                <select asp-for="AssignedTo" asp-items="Model.Users" class="form-select form-select-sm">
+                    <option value="0">Atanmasın</option>
+                </select>
+                <span asp-validation-for="AssignedTo" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label asp-for="ChannelId" class="form-label small text-muted mb-1"></label>
+                <select asp-for="ChannelId" asp-items="Model.Channels" class="form-select form-select-sm">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="ChannelId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label asp-for="TypeId" class="form-label small text-muted mb-1"></label>
+                <select asp-for="TypeId" asp-items="Model.Types" class="form-select form-select-sm">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="TypeId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label asp-for="SeverityId" class="form-label small text-muted mb-1"></label>
+                <select asp-for="SeverityId" asp-items="Model.Severities" class="form-select form-select-sm">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="SeverityId" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label asp-for="Title" class="form-label small text-muted mb-1"></label>
+                <input asp-for="Title" class="form-control form-control-sm" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Description" class="form-label small text-muted mb-1"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12 col-md-3">
+                <div class="form-check mt-2">
+                    <input asp-for="IsRepeat" class="form-check-input" />
+                    <label asp-for="IsRepeat" class="form-check-label"></label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="form-check mt-2">
+                    <input asp-for="InterimActionRequired" class="form-check-input" id="interimToggle" />
+                    <label asp-for="InterimActionRequired" class="form-check-label"></label>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-5" id="interimNoteWrap">
+                <label asp-for="InterimActionNote" class="form-label small text-muted mb-1"></label>
+                <input asp-for="InterimActionNote" class="form-control form-control-sm" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card-footer bg-white d-flex justify-content-end gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Vazgeç</a>
+        <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-check2-circle me-1"></i> Kaydet
+        </button>
+    </div>
+</form>
+
+<script>
+    (function () {
+      const toggle = document.getElementById('interimToggle');
+      const wrap = document.getElementById('interimNoteWrap');
+      function sync() {
+        if (!toggle || !wrap) return;
+        wrap.style.display = toggle.checked ? '' : 'none';
+      }
+      if (toggle) toggle.addEventListener('change', sync);
+      sync();
+    })();
+</script>

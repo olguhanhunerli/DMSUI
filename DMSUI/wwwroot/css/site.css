@@ -1,4 +1,4 @@
-html {
+﻿html {
     font-size: 14px;
 }
 
@@ -175,3 +175,17 @@ html, body {
     .category-scroll-container::-webkit-scrollbar-track {
         background-color: transparent;
     }
+.dropdown-submenu {
+    position: relative;
+}
+
+    .dropdown-submenu > .dropdown-menu {
+        top: 0;
+        left: 100%;
+        margin-left: .1rem;
+    }
+#sidebar {
+    height: 100vh; 
+    overflow-y: auto; 
+    overflow-x: hidden; 
+}

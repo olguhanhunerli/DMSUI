@@ -110,5 +110,25 @@ namespace DMSUI.Business
 
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<List<CustomerMiniDTO>> GetAllCustomersMini(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync(
+                $"api/Customer/lookup?id={id}"
+            );
+            if(!response.IsSuccessStatusCode)
+            {
+                return new List<CustomerMiniDTO>();
+            }
+            var body = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<CustomerMiniDTO>>(
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            ) ?? new List<CustomerMiniDTO>();
+        }
     }
 }

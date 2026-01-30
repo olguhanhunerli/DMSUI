@@ -1,6 +1,6 @@
 ﻿<div id="sidebar"
      class="bg-white border-end shadow-sm"
-     style="width:0; overflow:hidden; transition: all .25s ease;">
+     style="width:0; transition: all .25s ease;">
 
     <div id="sidebarToggle"
          class="p-3 border-bottom fw-bold text-primary fs-5"
@@ -38,55 +38,114 @@
                 ▸ Doküman Ekle
             </a>
         </li>
-        <li class="nav-item dropdown ps-2">
-            <a class="nav-link dropdown-toggle text-dark fw-medium"
-               href="#"
-               id="instrumentDropdown"
+        <li class="nav-item ps-2">
+            <a class="nav-link text-dark fw-medium d-flex justify-content-between align-items-center"
+               data-bs-toggle="collapse"
+               href="#instrumentCollapse"
                role="button"
-               data-bs-toggle="dropdown"
-               aria-expanded="false">
-                ▸ Cihaz Yönetimi
+               aria-expanded="false"
+               aria-controls="instrumentCollapse">
+                <span>▸ Cihaz Yönetimi</span>
+                <span class="chev">▾</span>
             </a>
 
-            <ul class="dropdown-menu" aria-labelledby="instrumentDropdown">
-                <li>
-                    <a class="dropdown-item"
+            <div class="collapse" id="instrumentCollapse">
+                <div class="ps-3 pe-2 pb-2 instrument-scroll">
+                    <div class="text-uppercase text-muted small px-2 mt-2 fw-semibold">
+                        📦 Cihaz İşlemleri
+                    </div>
+
+                    <a class="nav-link text-dark ps-4"
                        asp-controller="Instrument"
                        asp-action="Index">
                         📋 Tüm Cihazlar
                     </a>
-                </li>
 
-                <li>
-                    <a class="dropdown-item"
+                    <a class="nav-link text-dark ps-4"
                        asp-controller="Instrument"
                        asp-action="Create">
                         ➕ Yeni Cihaz
                     </a>
-                </li>
 
-                <li>
-                    <a class="dropdown-item"
+                    <a class="nav-link text-dark ps-4"
                        asp-controller="Instrument"
                        asp-action="Deleted">
                         🗑️ Silinen Cihazlar
                     </a>
-                </li>
-                <li>
-                    <a class="dropdown-item"
+
+                    <hr class="my-2">
+
+                    <div class="text-uppercase text-muted small px-2 fw-semibold">
+                        🧪 Kalibrasyon
+                    </div>
+
+                    <a class="nav-link text-dark ps-4"
                        asp-controller="Calibration"
                        asp-action="Index">
                         📋 Tüm Kalibrasyonlar
                     </a>
-                </li>
-            </ul>
+                </div>
+            </div>
         </li>
-        <li class="nav-item ps-2">
-            <a asp-controller="Customer" asp-action="Index"
-               class="nav-link text-dark fw-medium">
-                ▸ Müşteriler
-            </a>
-        </li>
-    </ul>
 
+        <!-- Müşteri Şikayetleri ve DÖF -->
+        <li class="nav-item ps-2">
+            <a class="nav-link text-dark fw-medium d-flex justify-content-between align-items-center"
+               data-bs-toggle="collapse"
+               href="#customerCollapse"
+               role="button"
+               aria-expanded="false"
+               aria-controls="customerCollapse">
+                <span>▸ Müşteri Şikayetleri ve DÖF</span>
+                <span class="chev">▾</span>
+            </a>
+
+            <div class="collapse" id="customerCollapse">
+                <div class="ps-3 pe-2 pb-2 customer-scroll">
+                    <a class="nav-link text-dark ps-2"
+                       asp-controller="Customer"
+                       asp-action="Index">
+                        👤 Müşteriler
+                    </a>
+
+                    <hr class="my-2">
+
+                    <div class="text-uppercase text-muted small px-2 fw-semibold">
+                        📢 Müşteri Şikayetleri
+                    </div>
+
+                    <a class="nav-link text-dark ps-4"
+                       asp-controller="Complaint"
+                       asp-action="Index">
+                        📋 Şikayet Listesi
+                    </a>
+
+                    <a class="nav-link text-dark ps-4"
+                       asp-controller="Complaint"
+                       asp-action="Create">
+                        ➕ Yeni Şikayet
+                    </a>
+
+                    <hr class="my-2">
+
+                    <div class="text-uppercase text-muted small px-2 fw-semibold">
+                        🛠️ DÖF
+                    </div>
+
+                    <a class="nav-link text-dark ps-4"
+                       asp-controller="Dof"
+                       asp-action="Index">
+                        📄 DÖF Listesi
+                    </a>
+
+                    <a class="nav-link text-dark ps-4"
+                       asp-controller="Dof"
+                       asp-action="Create">
+                        ➕ Yeni DÖF
+                    </a>
+                </div>
+            </div>
+        </li>
+
+    </ul>
 </div>

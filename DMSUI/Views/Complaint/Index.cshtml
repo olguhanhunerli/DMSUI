@@ -1,0 +1,315 @@
+﻿@using DMSUI.Entities.DTOs.Common
+@using DMSUI.Entities.DTOs.Complaints
+@model PagedResultDTO<ComplaintItemsDTO>
+
+@{
+    ViewData["Title"] = "Şikayet Listesi";
+
+    var q = Context.Request.Query["q"].ToString();
+    var status = Context.Request.Query["status"].ToString();
+    var isRepeat = Context.Request.Query["isRepeat"].ToString();
+    var needsCapa = Context.Request.Query["needsCapa"].ToString();
+
+    var pageSizeStr = Context.Request.Query["pageSize"].ToString();
+    var pageSize = Model?.PageSize ?? 10;
+    if (int.TryParse(pageSizeStr, out var ps) && ps > 0) { pageSize = ps; }
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Şikayetler</h4>
+
+    <a class="btn btn-primary btn-sm" asp-action="Create">
+        <i class="bi bi-plus-circle me-1"></i> Yeni Şikayet
+    </a>
+</div>
+
+<form method="get" class="card shadow-sm mb-3" id="filterForm">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1">Arama</label>
+                <input id="fQ"
+                       type="text"
+                       name="q"
+                       value="@q"
+                       class="form-control form-control-sm"
+                       placeholder="Şikayet No / Firma / Müşteri / Başlık / Atanan" />
+            </div>
+
+            <div class="col-12 col-md-3">
+                <label class="form-label small text-muted mb-1">Durum</label>
+                <select id="fStatus" name="status" class="form-select form-select-sm">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(status))">Tümü</option>
+
+                    <option value="Open" selected="@(status == "Open")">Open</option>
+                    <option value="InProgress" selected="@(status == "InProgress")">InProgress</option>
+                    <option value="Closed" selected="@(status == "Closed")">Closed</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">Tekrar?</label>
+                <select id="fIsRepeat" name="isRepeat" class="form-select form-select-sm">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(isRepeat))">Tümü</option>
+                    <option value="true" selected="@(isRepeat == "true")">Evet</option>
+                    <option value="false" selected="@(isRepeat == "false")">Hayır</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">CAPA</label>
+                <select id="fNeedsCapa" name="needsCapa" class="form-select form-select-sm">
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(needsCapa))">Tümü</option>
+                    <option value="true" selected="@(needsCapa == "true")">Evet</option>
+                    <option value="false" selected="@(needsCapa == "false")">Hayır</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-1">
+                <label class="form-label small text-muted mb-1">Sayfa</label>
+                <select name="pageSize" class="form-select form-select-sm">
+                    <option value="10" selected="@(pageSize == 10)">10</option>
+                    <option value="25" selected="@(pageSize == 25)">25</option>
+                    <option value="50" selected="@(pageSize == 50)">50</option>
+                </select>
+            </div>
+
+            <div class="col-6 col-md-12 col-lg-2 d-grid">
+                <button class="btn btn-primary btn-sm" type="submit">
+                    <i class="bi bi-search me-1"></i> Ara
+                </button>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr class="small">
+                    <th style="width:48px;">#</th>
+                    <th style="width:120px;">Şikayet No</th>
+                    <th>Firma</th>
+                    <th>Müşteri</th>
+                    <th>Başlık</th>
+                    <th style="width:110px;" class="text-center">Durum</th>
+                    <th style="width:90px;" class="text-center">Tekrar?</th>
+                    <th style="width:90px;" class="text-center">CAPA</th>
+                    <th style="width:160px;">Atanan</th>
+                    <th style="width:160px;">Oluşturma</th>
+                    <th style="width:160px;">Güncelleme</th>
+                    <th style="width:120px;" class="text-center">İşlemler</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model?.Items != null && Model.Items.Any())
+                {
+                    var row = (Model.Page - 1) * Model.PageSize;
+
+                    foreach (var item in Model.Items)
+                    {
+                        row++;
+
+                        var st = (item.status ?? "").ToString();
+                        var badge = "bg-secondary";
+
+                        // İstersen kendi status isimlerine göre map et
+                        if (st.Equals("Open", StringComparison.OrdinalIgnoreCase)) badge = "bg-danger";
+                        else if (st.Equals("InProgress", StringComparison.OrdinalIgnoreCase)) badge = "bg-warning";
+                        else if (st.Equals("Closed", StringComparison.OrdinalIgnoreCase)) badge = "bg-success";
+
+                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignedToName} {item.status}";
+
+                        <tr data-q="@qdata"
+                            data-status="@st"
+                            data-isrepeat="@(item.isRepeat ? "true" : "false")"
+                            data-needscapa="@(item.needsCapa ? "true" : "false")">
+
+                            <td class="text-muted">@row</td>
+
+                            <td class="fw-semibold">@item.complaintNo</td>
+
+                            <td>
+                                <div class="fw-semibold">@item.companyName</div>
+                            </td>
+
+                            <td>@item.customerName</td>
+                            <td>@item.title</td>
+
+                            <td class="text-center">
+                                <span class="badge @badge">@item.status</span>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge @(item.isRepeat ? "bg-info" : "bg-light text-dark")">
+                                    @(item.isRepeat ? "Evet" : "Hayır")
+                                </span>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge @(item.needsCapa ? "bg-primary" : "bg-light text-dark")">
+                                    @(item.needsCapa ? "Evet" : "Hayır")
+                                </span>
+                            </td>
+
+                            <td>@(item.assignedToName ?? "-")</td>
+
+                            <td class="text-muted">
+                                @(item.createdAt?.ToString("dd.MM.yyyy HH:mm"))
+                            </td>
+
+                            <td class="text-muted">
+                                @(item.updatedAt?.ToString("dd.MM.yyyy HH:mm"))
+                            </td>
+
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-secondary"
+                                       title="Detay"
+                                       asp-action="Detail"
+                                       asp-route-complaintNo="@item.complaintNo">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a class="btn btn-outline-primary"
+                                       title="Düzenle"
+                                       asp-action="Edit"
+                                       asp-route-complaintNo="@item.complaintNo">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="12" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-footer bg-white d-flex align-items-center justify-content-between">
+        <div class="text-muted small">
+            Toplam: <strong>@Model.TotalCount</strong>
+            • Sayfa: <strong>@Model.Page</strong> / <strong>@Model.TotalPages</strong>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @{
+                        int current = Model.Page;
+                        int total = Model.TotalPages;
+
+                        int start = Math.Max(1, current - 2);
+                        int end = Math.Min(total, current + 2);
+                    }
+
+                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(current - 1)"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-q="@q"
+                           asp-route-status="@status"
+                           asp-route-isRepeat="@isRepeat"
+                           asp-route-needsCapa="@needsCapa">
+                            ‹
+                        </a>
+                    </li>
+
+                    @for (int i = start; i <= end; i++)
+                    {
+                        <li class="page-item @(i == current ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-pageSize="@pageSize"
+                               asp-route-q="@q"
+                               asp-route-status="@status"
+                               asp-route-isRepeat="@isRepeat"
+                               asp-route-needsCapa="@needsCapa">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <li class="page-item @(current == total ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-page="@(current + 1)"
+                           asp-route-pageSize="@pageSize"
+                           asp-route-q="@q"
+                           asp-route-status="@status"
+                           asp-route-isRepeat="@isRepeat"
+                           asp-route-needsCapa="@needsCapa">
+                            ›
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById('filterForm');
+        if (!form) return;
+
+        const q = document.getElementById('fQ');
+        const status = document.getElementById('fStatus');
+        const isRepeat = document.getElementById('fIsRepeat');
+        const needsCapa = document.getElementById('fNeedsCapa');
+
+        function norm(v) {
+            return (v || '').toString().trim().toLowerCase();
+        }
+
+        function apply() {
+            const qv = norm(q?.value);
+            const sv = norm(status?.value);
+            const rv = norm(isRepeat?.value);
+            const cv = norm(needsCapa?.value);
+
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+
+            rows.forEach(tr => {
+                const trQ = norm(tr.dataset.q);
+                const trS = norm(tr.dataset.status);
+                const trR = norm(tr.dataset.isrepeat);
+                const trC = norm(tr.dataset.needscapa);
+
+                const okQ = !qv || trQ.includes(qv);
+                const okS = !sv || trS === sv;
+                const okR = !rv || trR === rv;
+                const okC = !cv || trC === cv;
+
+                tr.style.display = (okQ && okS && okR && okC) ? '' : 'none';
+            });
+        }
+
+        // Ara butonuna basınca sayfayı refresh etmeden filtrele (client-side)
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            apply();
+        });
+
+        [q, status, isRepeat, needsCapa].forEach(el => {
+            if (!el) return;
+            el.addEventListener('input', apply);
+            el.addEventListener('change', apply);
+        });
+
+        apply();
+    })();
+</script>

@@ -29,6 +29,11 @@ namespace DMSUI.Services
            return await _customerApiClient.DeleteCustomer(id);
         }
 
+        public async Task<List<CustomerMiniDTO>> GetAllCustomersMini(int id)
+        {
+           return await _customerApiClient.GetAllCustomersMini(id);
+        }
+
         public async Task<CustomersItemDTO> GetCustomerById(int id)
         {
             return await _customerApiClient.GetCustomerById(id);
