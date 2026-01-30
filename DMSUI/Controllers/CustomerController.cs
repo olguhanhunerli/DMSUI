@@ -1,5 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.Customers;
 using DMSUI.Services.Interfaces;
+using DMSUI.ViewModels.Customer;
 using DMSUI.ViewModels.NewFolder;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -50,7 +51,7 @@ namespace DMSUI.Controllers
             var c = await _customerManager.GetCustomerById(id);
             if (c == null) return NotFound();
 
-            return View(new EditCustomersVM 
+            return View(new EditCustomersVM
             {
                 id = c.id,
                 customerCode = c.customerCode,
@@ -69,11 +70,7 @@ namespace DMSUI.Controllers
         {
             if (!ModelState.IsValid)
             {
-                foreach (var kvp in ModelState)
-                {
-                    foreach (var err in kvp.Value.Errors)
-                        Console.WriteLine($"{kvp.Key}: {err.ErrorMessage}");
-                }
+                TempData["Error"] = "Form hatalı. Lütfen alanları kontrol edin.";
                 return View(model);
             }
 
@@ -84,21 +81,72 @@ namespace DMSUI.Controllers
                 phone = model.phone,
                 email = model.email
             };
-            var ok = await _customerManager.UpdateCustomer(model.id, dto);
-            if (ok) return RedirectToAction("Index");
 
-            ModelState.AddModelError("", "Failed to update customer.");
+            var ok = await _customerManager.UpdateCustomer(model.id, dto);
+            if (ok)
+            {
+                TempData["Success"] = "Müşteri başarıyla güncellendi.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Error"] = "Müşteri güncellenemedi.";
             return View(model);
         }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new CreateCustomerVM());
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateCustomerVM model)
+        {
+            var companyId = User.GetCompanyIdSafe();
+            if (companyId is null)
+            {
+                TempData["Error"] = "CompanyId bulunamadı. Lütfen tekrar giriş yapın.";
+                return View(model);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Form hatalı. Lütfen alanları kontrol edin.";
+                return View(model);
+            }
+
+            var dto = new CustomerCreateDTO
+            {
+                companyId = companyId.Value.ToString(),
+                customerCode = model.customerCode,
+                name = model.name,
+                phone = model.phone,
+                email = model.email
+            };
+
+            var ok = await _customerManager.CreateCustomer(dto);
+            if (ok)
+            {
+                TempData["Success"] = "Müşteri başarıyla oluşturuldu.";
+                return RedirectToAction("Index");
+            }
+
+            TempData["Error"] = "Müşteri oluşturulamadı.";
+            return View(model);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _customerManager.DeleteCustomer(id);
-            if (result)
+            var ok = await _customerManager.DeleteCustomer(id);
+            if (ok)
             {
+                TempData["Success"] = "Müşteri silindi.";
                 return RedirectToAction("Index");
             }
-            return BadRequest("Failed to delete customer.");
+
+            TempData["Error"] = "Müşteri silinemedi.";
+            return RedirectToAction("Index"); 
         }
     }
 }

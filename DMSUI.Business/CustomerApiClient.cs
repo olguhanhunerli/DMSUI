@@ -41,12 +41,8 @@ namespace DMSUI.Business
         {
             AttachToken();
             var response = await _httpClient.PostAsJsonAsync(
-                $"api/Customers/customer",
-                new StringContent(
-                    JsonSerializer.Serialize(createCustomerDTO),
-                    Encoding.UTF8,
-                    "application/json"
-                )
+                "api/Customer",
+                createCustomerDTO
             );
             return response.IsSuccessStatusCode;
         }
@@ -55,7 +51,7 @@ namespace DMSUI.Business
         {
             AttachToken();
             var response = await _httpClient.DeleteAsync(
-                $"api/Customers/customer/{id}"
+                $"api/Customer/{id}"
             );
             return response.IsSuccessStatusCode;
         }
