@@ -1,0 +1,205 @@
+﻿@using DMSUI.Entities.DTOs.Complaints
+@model ComplaintItemsDTO
+
+@{
+    ViewData["Title"] = "Şikayet Detayı";
+
+    string SeverityText(int id) => id switch
+    {
+        1 => "Düşük",
+        2 => "Orta",
+        3 => "Yüksek",
+        4 => "Kritik",
+        _ => "?"
+    };
+
+    string SeverityBadge(int id) => id switch
+    {
+        1 => "bg-light text-dark",
+        2 => "bg-info",
+        3 => "bg-warning",
+        4 => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    string StatusBadge(string? st)
+    {
+        var s = (st ?? "").Trim();
+        if (s.Equals("AÇIK", StringComparison.OrdinalIgnoreCase)) return "bg-danger";
+        if (s.Equals("GÜNCELLENDİ", StringComparison.OrdinalIgnoreCase)) return "bg-warning";
+        if (s.Equals("KAPALI", StringComparison.OrdinalIgnoreCase)) return "bg-success";
+        return "bg-secondary";
+    }
+
+    string Show(string? v) => string.IsNullOrWhiteSpace(v) ? "-" : v;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+        <h4 class="mb-1">Şikayet Detayı</h4>
+        <div class="text-muted small">@Model.complaintNo</div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
+            <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+        </a>
+
+        @if (!string.Equals(Model.status, "KAPALI", StringComparison.OrdinalIgnoreCase))
+        {
+            <a class="btn btn-primary btn-sm"
+               asp-action="Edit"
+               asp-route-id="@Model.id">
+                <i class="bi bi-pencil-square me-1"></i> Düzenle
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row g-3">
+
+    <!-- Özet -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                    <span class="badge @StatusBadge(Model.status)">@Show(Model.status)</span>
+                    <span class="badge @SeverityBadge(Model.severityId)">@SeverityText(Model.severityId)</span>
+                    <span class="badge @(Model.isRepeat ? "bg-info" : "bg-light text-dark")">Tekrar: @(Model.isRepeat ? "Evet" : "Hayır")</span>
+                    <span class="badge @(Model.needsCapa ? "bg-primary" : "bg-light text-dark")">CAPA: @(Model.needsCapa ? "Gerekli" : "Yok")</span>
+                </div>
+
+                <h5 class="mb-1">@Show(Model.title)</h5>
+                <div class="text-muted small">
+                    Firma: <strong>@Show(Model.companyName)</strong>
+                    • Müşteri: <strong>@Show(Model.customerName)</strong>
+                </div>
+
+                <hr />
+
+                <div class="row g-2 small">
+                    <div class="col-12 col-md-4">
+                        <div class="text-muted">Oluşturan</div>
+                        <div>@Show(Model.createdByName)</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-muted">Atanan</div>
+                        <div>@Show(Model.assignedToName)</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-muted">Bildirim Tarihi</div>
+                        <div>@Model.reportedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Açıklama -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <strong>Açıklama</strong>
+            </div>
+            <div class="card-body">
+                <div style="white-space: pre-wrap;">@Show(Model.description)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ürün / İzlenebilirlik -->
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <strong>Ürün / İzlenebilirlik</strong>
+            </div>
+            <div class="card-body small">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="text-muted">Parça No</div>
+                        <div>@Show(Model.partNumber)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Revizyon</div>
+                        <div>@Show(Model.partRevision)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Lot No</div>
+                        <div>@Show(Model.lotNumber)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Seri No</div>
+                        <div>@Show(Model.serialNumber)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Üretim Tarihi</div>
+                        <div>@(Model.productionDate?.ToString("dd.MM.yyyy") ?? "-")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Üretim Hattı</div>
+                        <div>@Show(Model.productionLine)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Müşteri / Sevkiyat -->
+    <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <strong>Müşteri / Sevkiyat</strong>
+            </div>
+            <div class="card-body small">
+                <div class="row g-2">
+                    <div class="col-12">
+                        <div class="text-muted">Müşteri Şikayet No</div>
+                        <div>@Show(Model.customerComplaintNo)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Müşteri PO</div>
+                        <div>@Show(Model.customerPO)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">İrsaliye / Sevkiyat No</div>
+                        <div>@Show(Model.deliveryNoteNo)</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted">Etkilenen Adet</div>
+                        <div>@(Model.quantityAffected?.ToString() ?? "-")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <strong>Aksiyonlar</strong>
+            </div>
+            <div class="card-body small">
+                <div class="row g-2">
+                    <div class="col-12 col-lg-6">
+                        <div class="text-muted">Containment Aksiyonu</div>
+                        <div style="white-space: pre-wrap;">@Show(Model.containmentAction)</div>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <div class="text-muted">Ara Aksiyon</div>
+                        <div>
+                            @(Model.interimActionRequired == true ? "Gerekli" : "Gerekli Değil")
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.interimActionNote))
+                        {
+                            <div class="text-muted mt-2">Ara Aksiyon Notu</div>
+                            <div style="white-space: pre-wrap;">@Model.interimActionNote</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

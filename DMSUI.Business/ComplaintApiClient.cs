@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Business
 {
-    public class ComplaintApiClient : IComplaintApiClient
+	public class ComplaintApiClient : IComplaintApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -66,5 +66,51 @@ namespace DMSUI.Business
             );
             return response.IsSuccessStatusCode;
         }
-    }
+
+		public async Task<ComplaintItemsDTO> GetComplaintById(string complaintNo)
+		{
+            AttachToken();
+            var  response = await _httpClient.GetAsync(
+				$"api/Complaint/{complaintNo}"
+			);
+			if (!response.IsSuccessStatusCode)
+			{
+				return null;
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<ComplaintItemsDTO>(
+				body,
+				new JsonSerializerOptions
+				{
+					PropertyNameCaseInsensitive = true
+				}
+			);
+		}
+
+		public async Task<bool> UpdateComplaint(string complaintNo, UpdateComplaintDTO dto)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync(
+				$"api/Complaint/{complaintNo}",
+				dto
+			);
+			if (!response.IsSuccessStatusCode)
+			{
+				return false;
+			}
+			var body = await response.Content.ReadAsStringAsync();
+            return response.IsSuccessStatusCode;
+		}
+
+		public async Task<bool> ClosedComplaint(string complaintNo)
+		{
+            AttachToken();
+            var response = await _httpClient.PostAsync($"api/Complaint/close?complaintNo={complaintNo}", null);
+            if (!response.IsSuccessStatusCode)
+			{
+				return false;
+			}
+			return response.IsSuccessStatusCode;
+		}
+	}
 }

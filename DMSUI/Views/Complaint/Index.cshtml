@@ -13,6 +13,33 @@
     var pageSizeStr = Context.Request.Query["pageSize"].ToString();
     var pageSize = Model?.PageSize ?? 10;
     if (int.TryParse(pageSizeStr, out var ps) && ps > 0) { pageSize = ps; }
+
+    string SeverityText(int id) => id switch
+    {
+        1 => "Düşük",
+        2 => "Orta",
+        3 => "Yüksek",
+        4 => "Kritik",
+        _ => "?"
+    };
+
+    string SeverityBadge(int id) => id switch
+    {
+        1 => "bg-light text-dark",
+        2 => "bg-info",
+        3 => "bg-warning",
+        4 => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    string StatusBadge(string? st)
+    {
+        var s = (st ?? "").Trim();
+        if (s.Equals("AÇIK", StringComparison.OrdinalIgnoreCase)) return "bg-danger";
+        if (s.Equals("GÜNCELLENDİ", StringComparison.OrdinalIgnoreCase)) return "bg-warning";
+        if (s.Equals("KAPALI", StringComparison.OrdinalIgnoreCase)) return "bg-success";
+        return "bg-secondary";
+    }
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -27,24 +54,23 @@
     <div class="card-body">
         <div class="row g-2 align-items-end">
 
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-5">
                 <label class="form-label small text-muted mb-1">Arama</label>
                 <input id="fQ"
-                       type="text"
-                       name="q"
-                       value="@q"
-                       class="form-control form-control-sm"
-                       placeholder="Şikayet No / Firma / Müşteri / Başlık / Atanan" />
+                type="text"
+                name="q"
+                value="@q"
+                class="form-control form-control-sm"
+                placeholder="Şikayet No / Firma / Müşteri / Başlık / Parça / Lot / Atanan" />
             </div>
 
             <div class="col-12 col-md-3">
                 <label class="form-label small text-muted mb-1">Durum</label>
                 <select id="fStatus" name="status" class="form-select form-select-sm">
                     <option value="" selected="@(string.IsNullOrWhiteSpace(status))">Tümü</option>
-
-                    <option value="Open" selected="@(status == "Open")">Open</option>
-                    <option value="InProgress" selected="@(status == "InProgress")">InProgress</option>
-                    <option value="Closed" selected="@(status == "Closed")">Closed</option>
+                    <option value="AÇIK" selected="@(status == "AÇIK")">AÇIK</option>
+                    <option value="GÜNCELLENDİ" selected="@(status == "GÜNCELLENDİ")">GÜNCELLENDİ</option>
+                    <option value="KAPALI" selected="@(status == "KAPALI")">KAPALI</option>
                 </select>
             </div>
 
@@ -58,7 +84,7 @@
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">CAPA</label>
+                <label class="form-label small text-muted mb-1">DÖF Kaydı </label>
                 <select id="fNeedsCapa" name="needsCapa" class="form-select form-select-sm">
                     <option value="" selected="@(string.IsNullOrWhiteSpace(needsCapa))">Tümü</option>
                     <option value="true" selected="@(needsCapa == "true")">Evet</option>
@@ -91,16 +117,15 @@
             <thead class="table-light">
                 <tr class="small">
                     <th style="width:48px;">#</th>
-                    <th style="width:120px;">Şikayet No</th>
-                    <th>Firma</th>
-                    <th>Müşteri</th>
+                    <th style="width:140px;">Şikayet No</th>
+                    <th style="width:160px;">Müşteri</th>
                     <th>Başlık</th>
-                    <th style="width:110px;" class="text-center">Durum</th>
+                    <th style="width:110px;" class="text-center">Önem</th>
+                    <th style="width:120px;" class="text-center">Durum</th>
                     <th style="width:90px;" class="text-center">Tekrar?</th>
-                    <th style="width:90px;" class="text-center">CAPA</th>
+                    <th style="width:90px;" class="text-center">DÖF Oluşturulsun Mu?</th>
                     <th style="width:160px;">Atanan</th>
-                    <th style="width:160px;">Oluşturma</th>
-                    <th style="width:160px;">Güncelleme</th>
+                    <th style="width:150px;">Tarih</th>
                     <th style="width:120px;" class="text-center">İşlemler</th>
                 </tr>
             </thead>
@@ -115,33 +140,45 @@
                         row++;
 
                         var st = (item.status ?? "").ToString();
-                        var badge = "bg-secondary";
+                        var stBadge = StatusBadge(st);
 
-                        // İstersen kendi status isimlerine göre map et
-                        if (st.Equals("Open", StringComparison.OrdinalIgnoreCase)) badge = "bg-danger";
-                        else if (st.Equals("InProgress", StringComparison.OrdinalIgnoreCase)) badge = "bg-warning";
-                        else if (st.Equals("Closed", StringComparison.OrdinalIgnoreCase)) badge = "bg-success";
+                        var sevText = SeverityText(item.severityId);
+                        var sevBadge = SeverityBadge(item.severityId);
 
-                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignedToName} {item.status}";
+                        var metaParts = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(item.partNumber)) metaParts.Add($"Parça: {item.partNumber}");
+                        if (!string.IsNullOrWhiteSpace(item.lotNumber)) metaParts.Add($"Lot: {item.lotNumber}");
+                        if (!string.IsNullOrWhiteSpace(item.customerComplaintNo)) metaParts.Add($"Müşteri Ref: {item.customerComplaintNo}");
+                        if (item.quantityAffected.HasValue) metaParts.Add($"Adet: {item.quantityAffected.Value}");
+
+                        var meta = string.Join(" • ", metaParts);
+
+                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignedToName} {item.status} {item.partNumber} {item.lotNumber} {item.customerComplaintNo}";
 
                         <tr data-q="@qdata"
-                            data-status="@st"
-                            data-isrepeat="@(item.isRepeat ? "true" : "false")"
-                            data-needscapa="@(item.needsCapa ? "true" : "false")">
+                        data-status="@st"
+                        data-isrepeat="@(item.isRepeat ? "true" : "false")"
+                        data-needscapa="@(item.needsCapa ? "true" : "false")">
 
                             <td class="text-muted">@row</td>
 
-                            <td class="fw-semibold">@item.complaintNo</td>
-
                             <td>
-                                <div class="fw-semibold">@item.companyName</div>
+                                <div class="fw-semibold">@item.complaintNo</div>
                             </td>
 
-                            <td>@item.customerName</td>
-                            <td>@item.title</td>
+                            <td class="fw-semibold">@item.customerName</td>
+
+                            <td>
+                                <div class="fw-semibold">@item.title</div>
+
+                            </td>
 
                             <td class="text-center">
-                                <span class="badge @badge">@item.status</span>
+                                <span class="badge @sevBadge">@sevText</span>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge @stBadge">@item.status</span>
                             </td>
 
                             <td class="text-center">
@@ -159,28 +196,41 @@
                             <td>@(item.assignedToName ?? "-")</td>
 
                             <td class="text-muted">
-                                @(item.createdAt?.ToString("dd.MM.yyyy HH:mm"))
+                                @((item.reportedAt != default ? item.reportedAt : (item.createdAt ?? DateTime.MinValue)).ToString("dd.MM.yyyy HH:mm"))
                             </td>
-
-                            <td class="text-muted">
-                                @(item.updatedAt?.ToString("dd.MM.yyyy HH:mm"))
-                            </td>
-
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a class="btn btn-outline-secondary"
                                        title="Detay"
-                                       asp-action="Detail"
+                                       asp-action="Details"
                                        asp-route-complaintNo="@item.complaintNo">
-                                        <i class="bi bi-eye"></i>
+                                        <i class="bi bi-eye">İncele</i>
                                     </a>
 
-                                    <a class="btn btn-outline-primary"
-                                       title="Düzenle"
-                                       asp-action="Edit"
-                                       asp-route-complaintNo="@item.complaintNo">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                    @if (item.isClosed != true)
+                                    {
+                                        <form asp-action="Close"
+                                              asp-route-complaintNo="@item.complaintNo"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Şikayeti kapatmak istediğine emin misin?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    title="Şikayeti Kapat">
+                                                <i class="bi bi-lock-fill me-1"></i> Kapat
+                                            </button>
+                                        </form>
+                                       
+                                        <a class="btn btn-outline-primary"
+                                           title="Düzenle"
+                                           asp-action="Edit"
+                                           asp-route-complaintNo="@item.complaintNo">
+                                            <i class="bi bi-pencil-square">Düzenle</i>
+                                        </a>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -189,7 +239,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="12" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
+                        <td colspan="11" class="text-center text-muted py-4">Kayıt bulunamadı.</td>
                     </tr>
                 }
             </tbody>
@@ -298,7 +348,6 @@
             });
         }
 
-        // Ara butonuna basınca sayfayı refresh etmeden filtrele (client-side)
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             apply();

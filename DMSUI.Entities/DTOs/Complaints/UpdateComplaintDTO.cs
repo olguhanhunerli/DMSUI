@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Entities.DTOs.Complaints
 {
-    public class CreateComplaintDTO
+    public class UpdateComplaintDTO
     {
 		public int companyId { get; set; }
 		public int customerId { get; set; }

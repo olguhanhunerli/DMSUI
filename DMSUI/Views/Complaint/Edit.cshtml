@@ -1,22 +1,30 @@
-﻿@model DMSUI.ViewModels.Complaint.CreateComplaintVM
+﻿@model DMSUI.ViewModels.Complaint.EditComplaintVM
 @{
-    ViewData["Title"] = "Yeni Şikayet";
+    ViewData["Title"] = "Şikayet Düzenle";
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Yeni Şikayet</h4>
-    <a class="btn btn-outline-secondary btn-sm" asp-action="Index">
-        <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+    <div>
+        <h4 class="mb-0">Şikayet Düzenle</h4>
+        <div class="text-muted small">@Model.ComplaintNo</div>
+    </div>
+
+    <a class="btn btn-outline-secondary btn-sm"
+       asp-action="Detail"
+       asp-route-complaintNo="@Model.ComplaintNo">
+        <i class="bi bi-arrow-left me-1"></i> Detaya Dön
     </a>
 </div>
 
-<form asp-action="Create" method="post" class="card shadow-sm">
+<form asp-action="Edit" method="post" class="card shadow-sm">
     @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.ComplaintNo)
 
     <div class="card-body">
         <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
         <div class="row g-2">
+
 
             <div class="col-12 col-md-4">
                 <label asp-for="CustomerId" class="form-label small text-muted mb-1"></label>
@@ -52,7 +60,10 @@
 
             <div class="col-12 col-md-4">
                 <label asp-for="SeverityId" class="form-label small text-muted mb-1"></label>
-                <select asp-for="SeverityId" asp-items="Model.Severities" class="form-select form-select-sm" id="severitySelect">
+                <select asp-for="SeverityId"
+                        asp-items="Model.Severities"
+                        class="form-select form-select-sm"
+                        id="severitySelect">
                     <option value="">Seçiniz</option>
                 </select>
                 <span asp-validation-for="SeverityId" class="text-danger small"></span>
@@ -79,14 +90,14 @@
 
             <hr class="my-3" />
 
+
             <div class="col-12">
-                <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <h6 class="mb-1">Ürün / İzlenebilirlik</h6>
                     <span id="traceHint" class="small text-danger d-none">
-                        Yüksek/Kritik veya Tekrar şikayetlerde Parça No ve Containment zorunludur.
+                        Yüksek/Kritik veya tekrar şikayetlerde Parça No ve Containment zorunludur.
                     </span>
                 </div>
-                <div class="text-muted small">Parça/Lot bilgisi denetim ve analiz için önerilir.</div>
             </div>
 
             <div class="col-12 col-md-4">
@@ -122,9 +133,9 @@
 
             <hr class="my-3" />
 
+
             <div class="col-12">
                 <h6 class="mb-1">Müşteri / Sevkiyat</h6>
-                <div class="text-muted small">Varsa müşteri referansı ve sevkiyat bilgilerini gir.</div>
             </div>
 
             <div class="col-12 col-md-4">
@@ -150,9 +161,11 @@
             <div class="col-12 col-md-9">
                 <label asp-for="ContainmentAction" class="form-label small text-muted mb-1"></label>
                 <input asp-for="ContainmentAction" class="form-control form-control-sm" id="containmentInput" />
+                <span asp-validation-for="ContainmentAction" class="text-danger small"></span>
             </div>
 
             <hr class="my-3" />
+
 
             <div class="col-12 col-md-4">
                 <div class="form-check mt-2">
@@ -170,7 +183,11 @@
     </div>
 
     <div class="card-footer bg-white d-flex justify-content-end gap-2">
-        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Vazgeç</a>
+        <a asp-action="Detail"
+           asp-route-complaintNo="@Model.ComplaintNo"
+           class="btn btn-outline-secondary btn-sm">
+            Vazgeç
+        </a>
         <button type="submit" class="btn btn-primary btn-sm">
             <i class="bi bi-check2-circle me-1"></i> Kaydet
         </button>
@@ -179,8 +196,10 @@
 
 <script>
     (function () {
+
         const interimToggle = document.getElementById('interimToggle');
         const interimWrap = document.getElementById('interimNoteWrap');
+
         function syncInterim() {
             if (!interimToggle || !interimWrap) return;
             interimWrap.style.display = interimToggle.checked ? '' : 'none';
@@ -195,7 +214,7 @@
         const hint = document.getElementById('traceHint');
 
         function isHighSeverity() {
-            const v = parseInt((severity && severity.value) ? severity.value : "0", 10);
+            const v = parseInt(severity?.value || "0", 10);
             return v >= 3;
         }
 

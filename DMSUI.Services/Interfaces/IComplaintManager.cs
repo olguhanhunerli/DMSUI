@@ -13,6 +13,9 @@ namespace DMSUI.Services.Interfaces
     {
         Task<PagedResultDTO<ComplaintItemsDTO>> GetComplaintsPaging(int page, int pageSize);
         Task<bool> CreateComplaint(CreateComplaintDTO complaint);
+		Task<ComplaintItemsDTO> GetComplaintById(string complaintNo);
+		Task<bool> UpdateComplaint(string complaintNo, UpdateComplaintDTO dto);
+        Task<bool> ClosedComplaint(string complaintNo);
 
-    }
+	}
 }

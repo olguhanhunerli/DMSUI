@@ -115,7 +115,7 @@ namespace DMSUI.Business
         {
             AttachToken();
             var response = await _httpClient.GetAsync(
-                $"api/Customer/lookup?id={id}"
+                $"api/Customer/lookup{id}"
             );
             if(!response.IsSuccessStatusCode)
             {
