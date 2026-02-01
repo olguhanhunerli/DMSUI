@@ -54,7 +54,6 @@ namespace DMSUI.Entities.DTOs.Complaints
 		public DateTime? updatedAt { get; set; }
 		public DateTime? deletedAt { get; set; }
 
-		// ✅ NEW - IATF / traceability fields
 		public string? partNumber { get; set; }
 		public string? partRevision { get; set; }
 		public string? lotNumber { get; set; }

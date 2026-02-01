@@ -48,6 +48,7 @@
     <a class="btn btn-primary btn-sm" asp-action="Create">
         <i class="bi bi-plus-circle me-1"></i> Yeni Şikayet
     </a>
+
 </div>
 
 <form method="get" class="card shadow-sm mb-3" id="filterForm">
@@ -105,12 +106,22 @@
                 <button class="btn btn-primary btn-sm" type="submit">
                     <i class="bi bi-search me-1"></i> Ara
                 </button>
-            </div>
 
+            </div>
+            
         </div>
     </div>
 </form>
-
+<a class="btn btn-success btn-sm"
+   asp-action="ExportExcel"
+   asp-route-page="@Model.Page"
+   asp-route-pageSize="@pageSize"
+   asp-route-q="@q"
+   asp-route-status="@status"
+   asp-route-isRepeat="@isRepeat"
+   asp-route-needsCapa="@needsCapa">
+    <i class="bi bi-file-earmark-excel me-1"></i> Excel Aktar
+</a>
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -206,7 +217,11 @@
                                        asp-route-complaintNo="@item.complaintNo">
                                         <i class="bi bi-eye">İncele</i>
                                     </a>
-
+                                    <a class="btn btn-outline-dark btn-sm"
+                                       asp-action="Pdf"
+                                       asp-route-complaintNo="@item.complaintNo">
+                                        <i class="bi bi-filetype-pdf me-1"></i> PDF
+                                    </a>
                                     @if (item.isClosed != true)
                                     {
                                         <form asp-action="Close"

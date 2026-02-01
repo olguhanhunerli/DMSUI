@@ -66,7 +66,16 @@
         </div>
     </div>
 </form>
-
+<a class="btn btn-success btn-sm mb-2"
+   asp-action="ExportExcel"
+   asp-route-page="@Model.Page"
+   asp-route-pageSize="@pageSize"
+   asp-route-q="@q"
+   asp-route-result="@result"
+   asp-route-companyId="@companyId"
+   asp-route-location="@location">
+    <i class="bi bi-file-earmark-excel me-1"></i> Excel
+</a>
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -161,7 +170,11 @@
                                        asp-route-id="@item.CalibrationId">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-
+                                    <a class="btn btn-outline-dark btn-sm"
+                                       asp-action="Pdf"
+                                       asp-route-id="@item.CalibrationId">
+                                        <i class="bi bi-filetype-pdf me-1"></i> PDF
+                                    </a>
                                     <button type="button"
                                             class="btn btn-outline-success"
                                             title="Doküman Ekle"

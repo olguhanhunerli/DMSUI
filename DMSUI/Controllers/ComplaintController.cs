@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DMSUI.ViewModels.Complaint;
 using System.Text.Json;
 using System.Net.WebSockets;
+using ClosedXML.Excel;
 
 namespace DMSUI.Controllers
 {
@@ -354,6 +355,116 @@ namespace DMSUI.Controllers
 			}
 			return RedirectToAction("Edit", new { complaintNo = complaintNo });
 		}
+		[HttpGet]
+		public async Task<IActionResult> Pdf(string complaintNo)
+		{
+			var entity = await _complaintManager.GetComplaintById(complaintNo);
+			if(entity == null)
+				return NotFound();
+			var files = await _complaintManager.GetComplaintAttachment(complaintNo);
+			entity.Attachments = files;
+			var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo.png");
+			byte[]? logoBytes = System.IO.File.Exists(logoPath) ? await System.IO.File.ReadAllBytesAsync(logoPath) : null;
+			var pdfBytes = ComplaintPdfBuilder.Build(entity, logoBytes);
+
+			return File(pdfBytes, "application/pdf", $"{complaintNo}.pdf");
+		}
+		[HttpGet]
+		public async Task<IActionResult> ExportExcel(
+			int page = 1,
+			int pageSize = 1000,
+
+			string? q = null,
+			string? status = null,
+			string? isRepeat = null,
+			string? needsCapa = null
+		)
+		{
+			var result = await _complaintManager.GetComplaintsPaging(page, pageSize);
+
+			var items = (result.Items ?? Enumerable.Empty<ComplaintItemsDTO>()).AsEnumerable();
+
+			if (!string.IsNullOrWhiteSpace(status))
+			{
+				var s = status.Trim();
+				items = items.Where(x => string.Equals((x.status ?? "").Trim(), s, StringComparison.OrdinalIgnoreCase));
+			}
+
+			if (!string.IsNullOrWhiteSpace(isRepeat) && bool.TryParse(isRepeat, out var r))
+			{
+				items = items.Where(x => x.isRepeat == r);
+			}
+			if (!string.IsNullOrWhiteSpace(needsCapa) && bool.TryParse(needsCapa, out var c))
+			{
+				items = items.Where(x => x.needsCapa == c);
+			}
+
+			if (!string.IsNullOrWhiteSpace(q))
+			{
+				var needle = q.Trim();
+
+				items = items.Where(x =>
+				{
+					var haystack =
+						$"{x.complaintNo} {x.companyName} {x.customerName} {x.title} {x.assignedToName} {x.status} {x.partNumber} {x.lotNumber} {x.customerComplaintNo}";
+					return haystack.Contains(needle, StringComparison.OrdinalIgnoreCase);
+				});
+			}
+
+			var filtered = items.ToList();
+
+			using var wb = new XLWorkbook();
+			var ws = wb.Worksheets.Add("Şikayetler");
+
+			ws.Cell(1, 1).Value = "Şikayet No";
+			ws.Cell(1, 2).Value = "Firma";
+			ws.Cell(1, 3).Value = "Müşteri";
+			ws.Cell(1, 4).Value = "Başlık";
+			ws.Cell(1, 5).Value = "Önem Seviyesi";
+			ws.Cell(1, 6).Value = "Durum";
+			ws.Cell(1, 7).Value = "Tekrar Şikayet";
+			ws.Cell(1, 8).Value = "DÖF Gerekli";
+			ws.Cell(1, 9).Value = "Atanan Kişi";
+			ws.Cell(1, 10).Value = "Parça No";
+			ws.Cell(1, 11).Value = "Lot No";
+			ws.Cell(1, 12).Value = "Müşteri Şikayet No";
+			ws.Cell(1, 13).Value = "Şikayet Tarihi";
+
+
+			ws.Row(1).Style.Font.Bold = true;
+			ws.SheetView.FreezeRows(1);
+
+			var row = 2;
+			foreach (var x in filtered)
+			{
+				ws.Cell(row, 1).Value = x.complaintNo ?? "";
+				ws.Cell(row, 2).Value = x.companyName ?? "";
+				ws.Cell(row, 3).Value = x.customerName ?? "";
+				ws.Cell(row, 4).Value = x.title ?? "";
+				ws.Cell(row, 5).Value = x.severityId;
+				ws.Cell(row, 6).Value = x.status ?? "";
+				ws.Cell(row, 7).Value = x.isRepeat ? "true" : "false";
+				ws.Cell(row, 8).Value = x.needsCapa ? "true" : "false";
+				ws.Cell(row, 9).Value = x.assignedToName ?? "";
+				ws.Cell(row, 10).Value = x.partNumber ?? "";
+				ws.Cell(row, 11).Value = x.lotNumber ?? "";
+				ws.Cell(row, 12).Value = x.customerComplaintNo ?? "";
+				ws.Cell(row, 13).Value = x.reportedAt.ToString("dd.MM.yyyy HH:mm");
+				row++;
+			}
+
+			ws.Columns().AdjustToContents();
+
+			using var ms = new MemoryStream();
+			wb.SaveAs(ms);
+
+			return File(
+				ms.ToArray(),
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+				$"complaints_{DateTime.Now:yyyyMMdd_HHmm}.xlsx"
+			);
+		}
+
 		private void FillStaticLookups(CreateComplaintVM vm)
 		{
 			vm.Channels = new List<SelectListItem>
