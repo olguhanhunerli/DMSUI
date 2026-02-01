@@ -18,6 +18,16 @@ namespace DMSUI.Services
 			_calibrationFileApiClient = calibrationFileApiClient;
 		}
 
+		public async Task<bool> DeleteFiles(int fileId)
+		{
+			return await _calibrationFileApiClient.DeleteFiles(fileId);
+		}
+
+		public async Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadCalibrationFilesAsync(int fileId, bool asPdf)
+		{
+			return await _calibrationFileApiClient.DownloadCalibrationFilesAsync(fileId, asPdf);
+		}
+
 		public async Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto)
 		{
 			return await _calibrationFileApiClient.UploadCalibrationFilesAsync(dto);

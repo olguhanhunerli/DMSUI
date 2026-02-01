@@ -10,6 +10,7 @@ namespace DMSUI.Services.Interfaces
     public interface ICalibrationFileManager
     {
 		Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto);
-
+		Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadCalibrationFilesAsync(int fileId, bool asPdf);
+		Task<bool> DeleteFiles(int fileId);
 	}
 }

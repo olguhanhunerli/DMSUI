@@ -77,7 +77,6 @@
             <div class="col-md-3">
                 <label class="form-label small text-muted mb-1">Geçerlilik Tarihi (Hesaplanır)</label>
                 <input value="@Model.DueDate.ToString("yyyy-MM-dd")" type="date" class="form-control form-control-sm" readonly />
-                @* readonly => POST'a dahil olur. disabled yapma *@
             </div>
 
             <div class="col-md-3">
@@ -176,7 +175,9 @@
 
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-                                        <a asp-action="DownloadOriginal"
+
+                                        <a asp-controller="CalibrationFile"
+                                           asp-action="DownloadOriginal"
                                            asp-route-fileId="@file.FileId"
                                            class="btn btn-outline-primary"
                                            title="Dosyayı indir">
@@ -185,13 +186,32 @@
 
                                         @if (!string.IsNullOrWhiteSpace(file.PdfFilePath))
                                         {
-                                            <a asp-action="DownloadPdf"
+                                            <a asp-controller="CalibrationFile"
+                                               asp-action="DownloadPdf"
                                                asp-route-fileId="@file.FileId"
                                                class="btn btn-outline-danger"
                                                title="PDF indir">
                                                 <i class="bi bi-filetype-pdf"></i>
                                             </a>
                                         }
+                                        <form asp-controller="CalibrationFile"
+                                              asp-action="DeleteFile"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Bu dosyayı silmek istediğine emin misin?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="fileId" value="@file.FileId" />
+                                            <input type="hidden" name="calibrationId" value="@Model.CalibrationId" />
+
+
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    title="Dosyayı sil">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>

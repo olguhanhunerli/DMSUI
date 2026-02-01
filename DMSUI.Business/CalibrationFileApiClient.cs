@@ -53,5 +53,38 @@ namespace DMSUI.Business
 			var response = await _httpClient.PostAsync("api/CalibrationFile/upload", form);
 			return response.IsSuccessStatusCode;
 		}
+
+		public async Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadCalibrationFilesAsync(int fileId, bool asPdf)
+		{
+			AttachToken();
+			var response = await _httpClient.GetAsync($"api/CalibrationFile/download/{fileId}?asPdf={asPdf}");
+			if (!response.IsSuccessStatusCode)
+			{
+				var body = await response.Content.ReadAsStringAsync();
+				throw new Exception($"Dosya indirilemedi. Status={(int)response.StatusCode} {response.ReasonPhrase}. Body={body}");
+			}
+			var fileBytes = await response.Content.ReadAsByteArrayAsync();
+			var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+			var fileName =
+			response.Content.Headers.ContentDisposition?.FileNameStar
+			?? response.Content.Headers.ContentDisposition?.FileName
+			?? "download";
+
+			fileName = fileName.Replace("\"", "");
+
+			return (fileBytes, contentType, fileName);
+		}
+
+		public async Task<bool> DeleteFiles(int fileId)
+		{
+			AttachToken();
+			var response = await _httpClient.DeleteAsync($"api/CalibrationFile/delete/{fileId}");
+			if (!response.IsSuccessStatusCode)
+			{
+				var body = await response.Content.ReadAsStringAsync();
+				throw new Exception($"Dosya silinemedi. Status={(int)response.StatusCode} {response.ReasonPhrase}. Body={body}");
+			}
+			return true;
+		}
 	}
 }

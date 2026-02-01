@@ -40,14 +40,14 @@
                        class="form-control form-control-sm"
                        placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
             </div>
-
+@* 
             <div class="col-6 col-md-2">
                 <select id="fResult" name="result" class="form-select form-select-sm">
                     <option value="" selected="@(string.IsNullOrWhiteSpace(result))">Tümü</option>
                     <option value="PASS" selected="@(result == "PASS")">PASS</option>
                     <option value="FAIL" selected="@(result == "FAIL")">FAIL</option>
                 </select>
-            </div>
+            </div> *@
 
             <div class="col-12 col-md-2">
                 <input id="fLocation"
@@ -82,8 +82,7 @@
                     <th style="width:90px;" class="text-center">Kalan</th>
                     <th style="width: 90px" class="text-center">Firma</th>
                     <th>Sertifika No</th>
-                    <th>Dosya No</th>
-                    <th style="width:110px;" class="text-center">Sonuç</th>
+                    <th style="width:110px;" class="text-center">Dosya Yüklü Mü?</th>
                     <th style="width:120px;" class="text-center">İşlemler</th>
                 </tr>
             </thead>
@@ -131,11 +130,6 @@
                             <td>@item.CalibrationCompany</td>
                             <td class="text-nowrap">@item.CertificateNo</td>
 
-                            <td class="text-center">
-                                <span class="badge rounded-pill @(item.Result == "PASS" ? "bg-success" : "bg-danger")">
-                                    @item.Result
-                                </span>
-                            </td>
 
                             <td>
                                 @if (item.Files?.Any() == true)
