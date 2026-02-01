@@ -10,7 +10,7 @@
     </a>
 </div>
 
-<form asp-action="Create" method="post" class="card shadow-sm">
+<form asp-action="Create" method="post" class="card shadow-sm" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div class="card-body">
@@ -166,6 +166,10 @@
                 <input asp-for="InterimActionNote" class="form-control form-control-sm" />
             </div>
 
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small text-muted mb-1">Ek Dosya</label>
+            <input type="file" name="AttachmentFile" multiple class="form-control form-control-sm" />
         </div>
     </div>
 

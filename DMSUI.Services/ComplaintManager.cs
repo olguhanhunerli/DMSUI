@@ -3,6 +3,7 @@ using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Complaints;
 using DMSUI.Entities.DTOs.Customers;
 using DMSUI.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,10 +26,31 @@ namespace DMSUI.Services
 			return await _complaintApiClient.ClosedComplaint(complaintNo);
 		}
 
-		public async Task<bool> CreateComplaint(CreateComplaintDTO complaint)
-        {
-            return await _complaintApiClient.CreateComplaint(complaint);
+		public async Task<string?> CreateComplaint(CreateComplaintDTO complaint)
+		{
+			var created = await _complaintApiClient.CreateComplaint(complaint);
+			return created?.complaintNo;
         }
+
+		public async Task<ComplaintAttachmentMiniDTO> CreateComplaintAttachment(string complaintNo, IFormFile file)
+		{
+			return await _complaintApiClient.CreateComplaintAttachment(complaintNo, file);
+		}
+
+		public async Task<bool> DeleteComplaintAttachment(int fileId)
+		{
+			return await _complaintApiClient.DeleteComplaintAttachment(fileId);
+		}
+
+		public async Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadComplaintFilesAsync(int fileId)
+		{
+			return await _complaintApiClient.DownloadComplaintFilesAsync(fileId);
+		}
+
+		public async Task<List<ComplaintAttachmentMiniDTO>> GetComplaintAttachment(string complaintNo)
+		{
+			return await _complaintApiClient.GetComplaintAttachment(complaintNo);
+		}
 
 		public async Task<ComplaintItemsDTO> GetComplaintById(string complaintNo)
 		{
@@ -40,9 +62,10 @@ namespace DMSUI.Services
            return await _complaintApiClient.GetComplaintsPaging(page, pageSize);
         }
 
-		public async Task<bool> UpdateComplaint(string complaintNo, UpdateComplaintDTO dto)
+		public async Task<string> UpdateComplaint(string complaintNo, UpdateComplaintDTO dto)
 		{
-			return await _complaintApiClient.UpdateComplaint(complaintNo, dto);
+			var updated = await _complaintApiClient.UpdateComplaint(complaintNo, dto);
+			return updated?.complaintNo;
 		}
 	}
 }

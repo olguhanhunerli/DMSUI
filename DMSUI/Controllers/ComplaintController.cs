@@ -7,6 +7,7 @@ using DMSUI.Extensions;
 using System.Threading.Tasks;
 using DMSUI.ViewModels.Complaint;
 using System.Text.Json;
+using System.Net.WebSockets;
 
 namespace DMSUI.Controllers
 {
@@ -61,21 +62,36 @@ namespace DMSUI.Controllers
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(CreateComplaintVM vm)
 		{
+			Console.WriteLine("Create Post HIT");
 			var companyId = User.GetCompanyIdSafe();
-			if (companyId is null)
-				return Unauthorized();
+			if (companyId is null) return Unauthorized();
 			vm.CompanyId = companyId.Value;
 
-			if (!ModelState.IsValid)
+			async Task FillLookupsAsync()
 			{
 				var customers = await _customerManager.GetAllCustomersMini(companyId.Value);
 				vm.Customers = customers.Select(c => new SelectListItem(c.Name, c.Id.ToString())).ToList();
+
 				var users = await _userManager.GetAllUsersAsync();
 				vm.Users = users.Select(u => new SelectListItem(u.FullName, u.Id.ToString())).ToList();
 
 				FillStaticLookups(vm);
+			}
+
+			if (!ModelState.IsValid)
+			{
+				foreach (var kv in ModelState)
+				{
+					foreach (var err in kv.Value.Errors)
+					{
+						Console.WriteLine($"ModelState ERROR - Key={kv.Key} - Error={err.ErrorMessage}");
+					}
+				}
+
+				await FillLookupsAsync();
 				return View(vm);
 			}
+
 
 			var dto = new CreateComplaintDTO
 			{
@@ -106,17 +122,31 @@ namespace DMSUI.Controllers
 				containmentAction = vm.ContainmentAction
 			};
 
-			var ok = await _complaintManager.CreateComplaint(dto);
+			var complaintNo = await _complaintManager.CreateComplaint(dto);
 
-			if (ok) return RedirectToAction("Index");
+			if (string.IsNullOrWhiteSpace(complaintNo))
+			{
+				ModelState.AddModelError("", "Create complaint failed");
+				await FillLookupsAsync();
+				return View(vm);
+			}
 
-			ModelState.AddModelError("", "Create complaint failed");
+			if (vm.AttachmentFile != null && vm.AttachmentFile.Length > 0)
+			{
+				try
+				{
+					var uploaded = await _complaintManager.CreateComplaintAttachment(complaintNo, vm.AttachmentFile);
+					if (uploaded == null)
+						TempData["Error"] = "Şikayet oluşturuldu ama dosya yüklenemedi.";
+				}
+				catch (Exception ex)
+				{
+					TempData["Error"] = $"Şikayet oluşturuldu ama dosya yüklenemedi: {ex.Message}";
+				}
+			}
 
-			var customers2 = await _customerManager.GetAllCustomersMini(companyId.Value);
-			vm.Customers = customers2.Select(c => new SelectListItem(c.Name, c.Id.ToString())).ToList();
-			FillStaticLookups(vm);
-
-			return View(vm);
+			TempData["Success"] = "Şikayet başarıyla oluşturuldu.";
+			return RedirectToAction("Details", new { complaintNo });
 		}
 		[HttpGet]
 		public async Task<IActionResult> Details(string complaintNo)
@@ -126,6 +156,8 @@ namespace DMSUI.Controllers
 			{
 				return NotFound();
 			}
+			var files = await _complaintManager.GetComplaintAttachment(complaintNo);
+			entity.Attachments = files;
 			return View(entity);
 		}
 		[HttpGet]
@@ -184,7 +216,8 @@ namespace DMSUI.Controllers
 
 			var users = await _userManager.GetAllUsersAsync();
 			vm.Users = users.Select(u => new SelectListItem(u.FullName, u.Id.ToString())).ToList();
-
+			var files = await _complaintManager.GetComplaintAttachment(complaintNo);
+			vm.Attachments = files;
 			FillStaticLookups(vm);
 
 			return View(vm);
@@ -260,16 +293,24 @@ namespace DMSUI.Controllers
 			});
 			Console.WriteLine("UPDATE DTO JSON =>\n" + dtoJson);
 
-			var ok = await _complaintManager.UpdateComplaint(vm.ComplaintNo, dto);
+			var complaintNo = await _complaintManager.UpdateComplaint(vm.ComplaintNo, dto);
 
-			if (ok)
+			if (string.IsNullOrWhiteSpace(complaintNo))
 			{
-				return RedirectToAction("Details", new { complaintNo = vm.ComplaintNo });
+				ModelState.AddModelError("", "Güncelleme başarısız");
+				await FillLookupsAsync();
+				return View(vm);
 			}
 
-			ModelState.AddModelError("", "Güncelleme başarısız");
-			await FillLookupsAsync();
-			return View(vm);
+			if (vm.Attachment != null && vm.Attachment.Length > 0)
+			{
+				var uploaded = await _complaintManager.CreateComplaintAttachment(complaintNo, vm.Attachment);
+				if (uploaded == null)
+					TempData["Error"] = "Şikayet güncellendi ama dosya yüklenemedi.";
+			}
+
+			TempData["Success"] = "Şikayet başarıyla güncellendi.";
+			return RedirectToAction("Details", new { complaintNo });
 		}
 		[HttpPost]
 		[ValidateAntiForgeryToken]
@@ -287,6 +328,31 @@ namespace DMSUI.Controllers
 				return NotFound();
 			}
 			return View("Details", entity);
+		}
+		[HttpGet]
+		public async Task<IActionResult> DownloadAttachment(int id)
+		{
+			var (fileBytes, contentType, fileName) = await _complaintManager.DownloadComplaintFilesAsync(id);
+
+			if (fileBytes == null || fileBytes.Length == 0)
+				return NotFound();
+
+			return File(fileBytes, contentType ?? "application/octet-stream", fileName ?? "download");
+		}
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> DeleteAttachment(int id, string complaintNo)
+		{
+			var ok = await _complaintManager.DeleteComplaintAttachment(id);
+			if (!ok)
+			{
+				TempData["Error"] = "Dosya silme işlemi başarısız.";
+			}
+			else
+			{
+				TempData["Success"] = "Dosya başarıyla silindi.";
+			}
+			return RedirectToAction("Edit", new { complaintNo = complaintNo });
 		}
 		private void FillStaticLookups(CreateComplaintVM vm)
 		{

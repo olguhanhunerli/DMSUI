@@ -76,6 +76,7 @@ namespace DMSUI.ViewModels.Complaint
 
 		[Display(Name = "Containment Aksiyonu")]
 		public string? ContainmentAction { get; set; }
+		public IFormFile? AttachmentFile { get; set; }
 
 		public List<SelectListItem> Companies { get; set; } = new();
 		public List<SelectListItem> Customers { get; set; } = new();
@@ -83,5 +84,6 @@ namespace DMSUI.ViewModels.Complaint
 		public List<SelectListItem> Types { get; set; } = new();
 		public List<SelectListItem> Severities { get; set; } = new();
 		public List<SelectListItem> Users { get; set; } = new();
+		public List<IFormFile?> AttachmentFiles { get; set; } = new();
 	}
 }

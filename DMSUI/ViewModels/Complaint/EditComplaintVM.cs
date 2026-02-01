@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using DMSUI.Entities.DTOs.Complaints;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace DMSUI.ViewModels.Complaint
@@ -73,12 +74,13 @@ namespace DMSUI.ViewModels.Complaint
 
 		[Display(Name = "Containment Aksiyonu")]
 		public string? ContainmentAction { get; set; }
-
+		public IFormFile? Attachment { get; set; }
 		public List<SelectListItem> Customers { get; set; } = new();
 		public List<SelectListItem> Channels { get; set; } = new();
 		public List<SelectListItem> Types { get; set; } = new();
 		public List<SelectListItem> Severities { get; set; } = new();
 		public List<SelectListItem> Users { get; set; } = new();
+		public List<ComplaintAttachmentMiniDTO> Attachments { get; set; } = new();
 
 		public string? Status { get; set; }
 		public bool? IsClosed { get; set; }

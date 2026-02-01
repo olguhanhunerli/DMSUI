@@ -9,7 +9,7 @@ namespace DMSUI.Entities.DTOs.Complaints
     public class ComplaintItemsDTO
     {
 		public long id { get; set; }
-		public string? complaintNo { get; set; }
+		public string complaintNo { get; set; }
 
 		public string? companyName { get; set; }
 
@@ -68,5 +68,6 @@ namespace DMSUI.Entities.DTOs.Complaints
 
 		public int? quantityAffected { get; set; }
 		public string? containmentAction { get; set; }
+		public List<ComplaintAttachmentMiniDTO> Attachments { get; set; }
 	}
 }
