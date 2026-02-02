@@ -22,11 +22,9 @@
                         <small class="text-danger d-none" id="complaintSelectError"></small>
                     </div>
 
-                    <!-- VM alanları -->
                     <input type="hidden" name="SelectedComplaintId" id="SelectedComplaintId" />
                     <input type="hidden" name="SelectedComplaintNo" id="SelectedComplaintNo" />
 
-                    <!-- Detay Alanları -->
                     <div id="complaintDetailArea" class="d-none">
                         <hr />
 
@@ -98,8 +96,8 @@
     function formatDateTR(isoDate) {
         if (!isoDate) return '';
         const d = new Date(isoDate);
-        if (isNaN(d.getTime())) return isoDate; // parse edemezse raw bas
-        return d.toLocaleString('tr-TR'); // tarih + saat
+        if (isNaN(d.getTime())) return isoDate; 
+        return d.toLocaleString('tr-TR');
     }
 
     async function loadComplaints() {
@@ -124,7 +122,6 @@
                 return;
             }
 
-            // option'a tüm alanları data-* olarak göm
             selectEl.innerHTML = `<option value="">Seçiniz...</option>` +
                 data.map(x => `
                     <option
@@ -145,13 +142,11 @@
         }
     }
 
-    // Modal açılınca listeyi çek + temizle
     modalEl.addEventListener('shown.bs.modal', () => {
         clearDetails();
         loadComplaints();
     });
 
-    // Seçim yapılınca hidden alanları + detay alanlarını doldur
     selectEl.addEventListener('change', () => {
         const opt = selectEl.options[selectEl.selectedIndex];
 
