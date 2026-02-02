@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Business
 {
-	public class ComplaintApiClient : IComplaintApiClient
+    public class ComplaintApiClient : IComplaintApiClient
 	{
 		private readonly HttpClient _httpClient;
 		private readonly IHttpContextAccessor _httpContextAccessor;
@@ -205,5 +205,23 @@ namespace DMSUI.Business
 			}
 			return true;
 		}
-	}
+
+        public async Task<List<ComplaintForCapaSelectDTO>> GetComplaintForCapaSelect(string? search, int take)
+        {
+			AttachToken();
+			var response = await _httpClient.GetAsync($"api/Complaint/for-capa-select?search={search}&take={take}");
+			if (!response.IsSuccessStatusCode) 
+			{
+				return null;
+			}
+			var body = await response.Content.ReadAsStringAsync();
+			return JsonSerializer.Deserialize<List<ComplaintForCapaSelectDTO>>(
+                body,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+        }
+    }
 }

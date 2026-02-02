@@ -1,0 +1,173 @@
+﻿<button type="button" class="btn btn-primary" id="btnNewCapa" data-bs-toggle="modal" data-bs-target="#newCapaModal">
+    Yeni CAPA
+</button>
+
+<div class="modal fade" id="newCapaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" asp-action="Create" asp-controller="CAPA">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yeni CAPA</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label class="form-label">Şikayet Seç</label>
+
+                        <select class="form-select" id="complaintSelect">
+                            <option value="">Yükleniyor...</option>
+                        </select>
+
+                        <small class="text-danger d-none" id="complaintSelectError"></small>
+                    </div>
+
+                    <!-- VM alanları -->
+                    <input type="hidden" name="SelectedComplaintId" id="SelectedComplaintId" />
+                    <input type="hidden" name="SelectedComplaintNo" id="SelectedComplaintNo" />
+
+                    <!-- Detay Alanları -->
+                    <div id="complaintDetailArea" class="d-none">
+                        <hr />
+
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Complaint No</label>
+                                <input type="text" class="form-control" id="detailComplaintNo" readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Reported At</label>
+                                <input type="text" class="form-control" id="detailReportedAt" readonly />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Title</label>
+                                <input type="text" class="form-control" id="detailTitle" readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Customer</label>
+                                <input type="text" class="form-control" id="detailCustomer" readonly />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Severity</label>
+                                <input type="text" class="form-control" id="detailSeverity" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="submit" class="btn btn-success">Oluştur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modalEl = document.getElementById('newCapaModal');
+    const selectEl = document.getElementById('complaintSelect');
+    const errEl = document.getElementById('complaintSelectError');
+
+    const hiddenId = document.getElementById('SelectedComplaintId');
+    const hiddenNo = document.getElementById('SelectedComplaintNo');
+
+    const detailArea = document.getElementById('complaintDetailArea');
+    const detailComplaintNo = document.getElementById('detailComplaintNo');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailCustomer = document.getElementById('detailCustomer');
+    const detailSeverity = document.getElementById('detailSeverity');
+    const detailReportedAt = document.getElementById('detailReportedAt');
+
+    function clearDetails() {
+        hiddenId.value = '';
+        hiddenNo.value = '';
+
+        detailArea.classList.add('d-none');
+        detailComplaintNo.value = '';
+        detailTitle.value = '';
+        detailCustomer.value = '';
+        detailSeverity.value = '';
+        detailReportedAt.value = '';
+    }
+
+    function formatDateTR(isoDate) {
+        if (!isoDate) return '';
+        const d = new Date(isoDate);
+        if (isNaN(d.getTime())) return isoDate; // parse edemezse raw bas
+        return d.toLocaleString('tr-TR'); // tarih + saat
+    }
+
+    async function loadComplaints() {
+        errEl.classList.add('d-none');
+        errEl.textContent = '';
+        selectEl.innerHTML = `<option value="">Yükleniyor...</option>`;
+
+        try {
+            const resp = await fetch(`/CAPA/GetComplaintSelectItems?search=&take=50`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!resp.ok) {
+                throw new Error(`Liste çekilemedi. Status: ${resp.status}`);
+            }
+
+            const data = await resp.json();
+
+            if (!data || data.length === 0) {
+                selectEl.innerHTML = `<option value="">Kayıt bulunamadı</option>`;
+                return;
+            }
+
+            // option'a tüm alanları data-* olarak göm
+            selectEl.innerHTML = `<option value="">Seçiniz...</option>` +
+                data.map(x => `
+                    <option
+                        value="${x.id}"
+                        data-complaintno="${(x.complaintNo ?? '').replaceAll('"','&quot;')}"
+                        data-title="${(x.title ?? '').replaceAll('"','&quot;')}"
+                        data-customer="${(x.customerName ?? '').replaceAll('"','&quot;')}"
+                        data-severity="${x.severityId}"
+                        data-reportedat="${x.reportedAt}">
+                        ${x.complaintNo} - ${x.customerName}
+                    </option>
+                `).join('');
+
+        } catch (e) {
+            selectEl.innerHTML = `<option value="">Hata</option>`;
+            errEl.textContent = e.message || 'Bilinmeyen hata';
+            errEl.classList.remove('d-none');
+        }
+    }
+
+    // Modal açılınca listeyi çek + temizle
+    modalEl.addEventListener('shown.bs.modal', () => {
+        clearDetails();
+        loadComplaints();
+    });
+
+    // Seçim yapılınca hidden alanları + detay alanlarını doldur
+    selectEl.addEventListener('change', () => {
+        const opt = selectEl.options[selectEl.selectedIndex];
+
+        if (!opt || !opt.value) {
+            clearDetails();
+            return;
+        }
+
+        hiddenId.value = opt.value;
+        hiddenNo.value = opt.dataset.complaintno || '';
+
+        detailArea.classList.remove('d-none');
+        detailComplaintNo.value = opt.dataset.complaintno || '';
+        detailTitle.value = opt.dataset.title || '';
+        detailCustomer.value = opt.dataset.customer || '';
+        detailSeverity.value = opt.dataset.severity || '';
+        detailReportedAt.value = formatDateTR(opt.dataset.reportedat);
+    });
+</script>

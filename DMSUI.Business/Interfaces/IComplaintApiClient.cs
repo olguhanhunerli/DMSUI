@@ -20,5 +20,6 @@ namespace DMSUI.Business.Interfaces
         Task<List<ComplaintAttachmentMiniDTO>> GetComplaintAttachment(string complaintNo);
 		Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadComplaintFilesAsync(int fileId);
         Task<bool> DeleteComplaintAttachment(int fileId);
+        Task<List<ComplaintForCapaSelectDTO>> GetComplaintForCapaSelect(string? search, int take);
 	}
 }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Services
 {
-	public class ComplaintManager : IComplaintManager
+    public class ComplaintManager : IComplaintManager
     {
         private readonly IComplaintApiClient _complaintApiClient;
 
@@ -57,7 +57,12 @@ namespace DMSUI.Services
 			return await _complaintApiClient.GetComplaintById(complaintNo);
 		}
 
-		public async Task<PagedResultDTO<ComplaintItemsDTO>> GetComplaintsPaging(int page, int pageSize)
+        public async Task<List<ComplaintForCapaSelectDTO>> GetComplaintForCapaSelect(string? search, int take)
+        {
+           return await _complaintApiClient.GetComplaintForCapaSelect(search, take);
+        }
+
+        public async Task<PagedResultDTO<ComplaintItemsDTO>> GetComplaintsPaging(int page, int pageSize)
         {
            return await _complaintApiClient.GetComplaintsPaging(page, pageSize);
         }
