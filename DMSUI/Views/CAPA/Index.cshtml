@@ -1,13 +1,163 @@
-﻿<button type="button" class="btn btn-primary" id="btnNewCapa" data-bs-toggle="modal" data-bs-target="#newCapaModal">
-    Yeni CAPA
-</button>
+﻿@using DMSUI.Entities.DTOs.CAPA
+@using DMSUI.Entities.DTOs.Common
+@model PagedResultDTO<CAPADTO>
 
+@{
+    ViewData["Title"] = "CAPA";
+}
+
+<div class="container-fluid px-3 pb-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-clipboard2-check me-2 text-primary"></i>
+            DÖF Listesi
+        </h4>
+
+        <button type="button" class="btn btn-primary btn-sm shadow-sm"
+                id="btnNewCapa"
+                data-bs-toggle="modal"
+                data-bs-target="#newCapaModal">
+            <i class="bi bi-plus-circle me-1"></i>
+            Yeni CAPA
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-2">
+
+            <div class="table-scroll-x">
+                <table class="table table-hover align-middle mb-0 small w-100">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th>#</th>
+                            <th>CAPA No</th>
+                            <th>Sahip</th>
+                            <th>Durum</th>
+                            <th>Kalan Gün</th>
+                            <th>Bitiş Tarihi</th>
+                            <th>Açılış</th>
+                            <th class="text-end">İşlemler</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="text-nowrap">
+
+                        @if (Model == null || Model.Items == null || !Model.Items.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-muted">
+                                    Kayıt bulunamadı
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            int rowNo = (Model.Page - 1) * Model.PageSize + 1;
+
+                            foreach (var capa in Model.Items)
+                            {
+                                string statusClass = capa.Status switch
+                                {
+                                    "OPEN" => "bg-primary",
+                                    "CLOSED" => "bg-success",
+                                    "PENDING" => "bg-warning text-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                string remainingClass =
+                                capa.RemainingDays < 0 ? "text-danger fw-semibold" :
+                                capa.RemainingDays <= 3 ? "text-warning fw-semibold" :
+                                "text-success fw-semibold";
+                                <tr>
+                                    <td>@rowNo</td>
+
+                                    <td class="fw-semibold">
+                                        @capa.CapaNo
+                                        <div class="small text-muted">
+                                            @capa.ComplaintNo
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        @capa.OwnerByName
+                                    </td>
+
+                                    <td>
+                                        <span class="badge @statusClass">
+                                            @capa.Status
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="@remainingClass">
+                                            @capa.RemainingDays
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @capa.DueDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+                                    <td>
+                                        @capa.OpenedAt.ToString("dd.MM.yyyy HH:mm")
+                                    </td>
+
+                                    <td class="text-end">
+                                        <div class="btn-group btn-group-sm shadow-sm">
+                                            <a asp-action="Details"
+                                               asp-route-id="@capa.Id"
+                                               class="btn btn-light border"
+                                               title="Detay">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <a asp-action="Edit"
+                                               asp-route-id="@capa.Id"
+                                               class="btn btn-light border"
+                                               title="Düzenle">
+                                                <i class="bi bi-pencil-square text-primary"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                rowNo++;
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination pagination-sm justify-content-end mb-0">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.Page ? "active" : "")">
+                        <a class="page-link"
+                           asp-route-page="@i"
+                           asp-route-pageSize="@Model.PageSize">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+
+</div>
 <div class="modal fade" id="newCapaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="post" asp-action="Create" asp-controller="CAPA">
+            <form method="get" asp-action="Create" asp-controller="CAPA">
+                <input type="hidden" name="complaintNo" id="SelectedComplaintNo" />
                 <div class="modal-header">
-                    <h5 class="modal-title">Yeni CAPA</h5>
+                    <h5 class="modal-title">Yeni DÖF</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
@@ -15,7 +165,7 @@
                     <div class="mb-2">
                         <label class="form-label">Şikayet Seç</label>
 
-                        <select class="form-select" id="complaintSelect">
+                        <select class="form-select" id="complaintSelect" name="ComplaintSelectUi">
                             <option value="">Yükleniyor...</option>
                         </select>
 
@@ -59,13 +209,12 @@
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
-                    <button type="submit" class="btn btn-success">Oluştur</button>
+                    <button type="submit" class="btn btn-success">Devam Et</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 <script>
     const modalEl = document.getElementById('newCapaModal');
     const selectEl = document.getElementById('complaintSelect');
@@ -96,7 +245,7 @@
     function formatDateTR(isoDate) {
         if (!isoDate) return '';
         const d = new Date(isoDate);
-        if (isNaN(d.getTime())) return isoDate; 
+        if (isNaN(d.getTime())) return isoDate;
         return d.toLocaleString('tr-TR');
     }
 

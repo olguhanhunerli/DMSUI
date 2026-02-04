@@ -35,6 +35,7 @@ namespace DMSUI.Extensions
 
             services.AddScoped<IComplaintManager, ComplaintManager>();
 
+            services.AddScoped<ICAPAManager, CAPAManager>();
 
             services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -119,6 +120,11 @@ namespace DMSUI.Extensions
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
             });
             services.AddHttpClient<IComplaintApiClient, ComplaintApiClient>(client =>
+            {
+                var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+                client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            });
+            services.AddHttpClient<ICAPAApiClient, CAPAApiClient>(client =>
             {
                 var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);

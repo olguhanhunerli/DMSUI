@@ -1,1 +1,161 @@
-﻿
+﻿@model DMSUI.Entities.DTOs.CAPA.CAPACreateFormDTO
+
+@{
+    ViewData["Title"] = "Yeni CAPA";
+}
+
+<div class="container-fluid px-3 pb-4">
+
+    <div class="mb-4">
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-plus-circle me-2 text-primary"></i>
+            Yeni CAPA Oluştur
+        </h4>
+    </div>
+
+    <form asp-action="Create" asp-controller="CAPA" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="ComplaintNo" value="@Model.Defaults?.ComplaintNo" />
+        <input type="hidden" name="CompanyId" value="@Model.Defaults?.CompanyId" />
+        <input type="hidden" name="Status" value="@Model.Defaults?.Status" />
+
+        <div class="row g-3">
+
+            <div class="col-lg-5">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-light fw-semibold">
+                        Şikayet Bilgileri
+                    </div>
+
+                    <div class="card-body small">
+
+                        <div class="mb-2">
+                            <label class="form-label">Complaint No</label>
+                            <input class="form-control" value="@Model.Complaint?.ComplaintNo" readonly />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Firma</label>
+                            <input class="form-control" value="@Model.Complaint?.CompanyName" readonly />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Müşteri</label>
+                            <input class="form-control" value="@Model.Complaint?.CustomerName" readonly />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Başlık</label>
+                            <input class="form-control" value="@Model.Complaint?.Title" readonly />
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Açıklama</label>
+                            <textarea class="form-control" rows="3" readonly>@Model.Complaint?.Description</textarea>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">Reported At</label>
+                            <input class="form-control"
+                                   value="@Model.Complaint?.ReportedAt.ToString("dd.MM.yyyy HH:mm")"
+                                   readonly />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-light fw-semibold">
+                        CAPA Bilgileri
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label">Sorumlu</label>
+                                <input class="form-control"
+                                       value="@Model.Defaults?.OwnerName"
+                                       readonly />
+                                <input type="hidden" name="OwnerId" value="@Model.Defaults?.OwnerId" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Bitiş Tarihi</label>
+                                <input type="date"
+                                       name="DueDate"
+                                       class="form-control"
+                                       value="@Model.Defaults?.DueDate.ToString("yyyy-MM-dd")"
+                                       required />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Uygunsuzluk (Non-Conformity)</label>
+                                <textarea name="NonConformity"
+                                          class="form-control"
+                                          rows="2"
+                                          required></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Kök Neden Metodu</label>
+                                <select name="RootCauseMethodId"
+                                        class="form-select"
+                                        required>
+                                    <option value="">Seçiniz...</option>
+                                    @foreach (var m in Model.Lookups?.RootCauseMethods ?? new())
+                                    {
+                                        <option value="@m.Id">@m.Text</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Durum</label>
+                                <input class="form-control"
+                                       value="@Model.Defaults?.Status"
+                                       readonly />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Kök Neden Açıklaması</label>
+                                <textarea name="RootCause"
+                                          class="form-control"
+                                          rows="2"
+                                          required></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Düzeltici Faaliyet</label>
+                                <textarea name="CorrectiveAction"
+                                          class="form-control"
+                                          rows="2"
+                                          required></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-light">
+                Vazgeç
+            </a>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-1"></i>
+                CAPA Oluştur
+            </button>
+        </div>
+
+    </form>
+
+</div>
