@@ -135,7 +135,6 @@
                     <th style="width:120px;" class="text-center">Durum</th>
                     <th style="width:90px;" class="text-center">Tekrar?</th>
                     <th style="width:90px;" class="text-center">DÖF Oluşturulsun Mu?</th>
-                    <th style="width:160px;">Atanan</th>
                     <th style="width:150px;">Tarih</th>
                     <th style="width:120px;" class="text-center">İşlemler</th>
                 </tr>
@@ -164,7 +163,7 @@
 
                         var meta = string.Join(" • ", metaParts);
 
-                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignedToName} {item.status} {item.partNumber} {item.lotNumber} {item.customerComplaintNo}";
+                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignees} {item.status} {item.partNumber} {item.lotNumber} {item.customerComplaintNo}";
 
                         <tr data-q="@qdata"
                         data-status="@st"
@@ -204,8 +203,6 @@
                                 </span>
                             </td>
 
-                            <td>@(item.assignedToName ?? "-")</td>
-
                             <td class="text-muted">
                                 @((item.reportedAt != default ? item.reportedAt : (item.createdAt ?? DateTime.MinValue)).ToString("dd.MM.yyyy HH:mm"))
                             </td>
@@ -215,12 +212,12 @@
                                        title="Detay"
                                        asp-action="Details"
                                        asp-route-complaintNo="@item.complaintNo">
-                                        <i class="bi bi-eye">İncele</i>
+                                        <i class="bi bi-eye"></i>
                                     </a>
                                     <a class="btn btn-outline-dark btn-sm"
                                        asp-action="Pdf"
                                        asp-route-complaintNo="@item.complaintNo">
-                                        <i class="bi bi-filetype-pdf me-1"></i> PDF
+                                        <i class="bi bi-filetype-pdf me-1"></i> 
                                     </a>
                                     @if (item.isClosed != true)
                                     {
@@ -235,7 +232,7 @@
                                             <button type="submit"
                                                     class="btn btn-outline-danger btn-sm"
                                                     title="Şikayeti Kapat">
-                                                <i class="bi bi-lock-fill me-1"></i> Kapat
+                                                <i class="bi bi-lock-fill me-1"></i> 
                                             </button>
                                         </form>
                                        
@@ -243,7 +240,7 @@
                                            title="Düzenle"
                                            asp-action="Edit"
                                            asp-route-complaintNo="@item.complaintNo">
-                                            <i class="bi bi-pencil-square">Düzenle</i>
+                                            <i class="bi bi-pencil-square"></i>
                                         </a>
                                     }
                                 </div>

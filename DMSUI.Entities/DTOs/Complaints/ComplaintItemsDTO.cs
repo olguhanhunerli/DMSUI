@@ -40,10 +40,7 @@ namespace DMSUI.Entities.DTOs.Complaints
 
 		public string? closedByName { get; set; }
 
-		public int? assignedTo { get; set; }
-		public string? assignedToName { get; set; }
-
-		public int? deletedBy { get; set; }
+        public int? deletedBy { get; set; }
 		public string? deletedByName { get; set; }
 
 		public int? updateBy { get; set; }
@@ -68,5 +65,6 @@ namespace DMSUI.Entities.DTOs.Complaints
 		public int? quantityAffected { get; set; }
 		public string? containmentAction { get; set; }
 		public List<ComplaintAttachmentMiniDTO> Attachments { get; set; }
-	}
+        public List<DMSUI.Entities.DTOs.Assignees.AssigneeDTO> assignees { get; set; } = new();
+    }
 }

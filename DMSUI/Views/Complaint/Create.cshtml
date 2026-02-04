@@ -27,11 +27,24 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <label asp-for="AssignedTo" class="form-label small text-muted mb-1"></label>
-                <select asp-for="AssignedTo" asp-items="Model.Users" class="form-select form-select-sm">
-                    <option value="0">Atanmasın</option>
+                <label class="form-label small text-muted mb-1">Atananlar</label>
+                <select asp-for="AssigneeUserIds"
+                        asp-items="Model.Users"
+                        class="form-select form-select-sm"
+                        multiple
+                        size="6"
+                        id="assigneesSelect">
                 </select>
-                <span asp-validation-for="AssignedTo" class="text-danger small"></span>
+                <span asp-validation-for="AssigneeUserIds" class="text-danger small"></span>
+                <div class="form-text">Ctrl/Command ile çoklu seçebilirsin.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1">Primary Atanan</label>
+                <select asp-for="PrimaryAssigneeUserId" class="form-select form-select-sm" id="primarySelect">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="PrimaryAssigneeUserId" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-md-4">
@@ -166,10 +179,11 @@
                 <input asp-for="InterimActionNote" class="form-control form-control-sm" />
             </div>
 
-        </div>
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-muted mb-1">Ek Dosya</label>
-            <input type="file" name="AttachmentFile" multiple class="form-control form-control-sm" />
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1">Ek Dosya</label>
+                <input type="file" name="AttachmentFile" multiple class="form-control form-control-sm" />
+            </div>
+
         </div>
     </div>
 
@@ -185,6 +199,7 @@
     (function () {
         const interimToggle = document.getElementById('interimToggle');
         const interimWrap = document.getElementById('interimNoteWrap');
+
         function syncInterim() {
             if (!interimToggle || !interimWrap) return;
             interimWrap.style.display = interimToggle.checked ? '' : 'none';
@@ -226,5 +241,40 @@
         });
 
         syncTraceRules();
+    })();
+
+    (function () {
+        const assignees = document.getElementById('assigneesSelect');
+        const primary = document.getElementById('primarySelect');
+
+        function rebuildPrimary() {
+            if (!assignees || !primary) return;
+
+            const selected = Array.from(assignees.selectedOptions).map(o => ({
+                value: o.value,
+                text: o.text
+            }));
+
+            const current = primary.value;
+            primary.innerHTML = '<option value="">Seçiniz</option>';
+
+            selected.forEach(x => {
+                const opt = document.createElement('option');
+                opt.value = x.value;
+                opt.text = x.text;
+                primary.appendChild(opt);
+            });
+
+            if (selected.some(x => x.value === current)) {
+                primary.value = current;
+            } else if (selected.length === 1) {
+                primary.value = selected[0].value;
+            }
+        }
+
+        if (assignees) {
+            assignees.addEventListener('change', rebuildPrimary);
+            rebuildPrimary();
+        }
     })();
 </script>

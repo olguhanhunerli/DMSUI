@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DMSUI.Entities.DTOs.Assignees;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,8 +22,6 @@ namespace DMSUI.Entities.DTOs.Complaints
 		public bool interimActionRequired { get; set; }
 		public string? interimActionNote { get; set; }
 
-		public int assignedTo { get; set; }
-
 		public string? partNumber { get; set; }
 		public string? partRevision { get; set; }
 		public string? lotNumber { get; set; }
@@ -36,5 +35,6 @@ namespace DMSUI.Entities.DTOs.Complaints
 
 		public int? quantityAffected { get; set; }
 		public string? containmentAction { get; set; }
-	}
+        public List<AssigneeDTO> assignees { get; set; } = new();
+    }
 }

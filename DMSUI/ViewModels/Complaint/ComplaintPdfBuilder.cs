@@ -142,7 +142,14 @@ namespace DMSUI.ViewModels.Complaint
 								}
 
 								Row("Müşteri", Show(m.customerName), "Tekrar", m.isRepeat ? "Evet" : "Hayır");
-								Row("Atanan", Show(m.assignedToName), "CAPA", m.needsCapa ? "Gerekli" : "Yok");
+                                Row(
+                                    "Atanan",
+                                    Show(m.assignees != null && m.assignees.Any()
+                                        ? string.Join(", ", m.assignees.Where(a => !string.IsNullOrWhiteSpace(a.userName)).Select(a => a.userName))
+                                        : null),
+                                    "CAPA",
+                                    m.needsCapa ? "Gerekli" : "Yok"
+                                );
 								Row("Oluşturan", Show(m.createdByName), "Ara Aksiyon", m.interimActionRequired == true ? "Gerekli" : "Gerekli Değil");
 
 								if (!string.IsNullOrWhiteSpace(m.interimActionNote))
@@ -273,7 +280,6 @@ namespace DMSUI.ViewModels.Complaint
 							 }
 
 							 SignBox("Hazırlayan", m.createdByName, m.createdAt);
-							 SignBox("Kontrol", m.assignedToName, m.updatedAt);
 							 SignBox("Onay", m.closedByName, m.closedAt);
 						 });
 					});

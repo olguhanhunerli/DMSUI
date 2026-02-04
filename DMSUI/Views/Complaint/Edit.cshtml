@@ -25,7 +25,6 @@
 
         <div class="row g-2">
 
-
             <div class="col-12 col-md-4">
                 <label asp-for="CustomerId" class="form-label small text-muted mb-1"></label>
                 <select asp-for="CustomerId" asp-items="Model.Customers" class="form-select form-select-sm">
@@ -35,11 +34,26 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <label asp-for="AssignedTo" class="form-label small text-muted mb-1"></label>
-                <select asp-for="AssignedTo" asp-items="Model.Users" class="form-select form-select-sm">
-                    <option value="0">Atanmasın</option>
+                <label class="form-label small text-muted mb-1">Atananlar</label>
+                <select asp-for="AssigneeUserIds"
+                        asp-items="Model.Users"
+                        class="form-select form-select-sm"
+                        multiple
+                        size="6"
+                        id="assigneesSelect">
                 </select>
-                <span asp-validation-for="AssignedTo" class="text-danger small"></span>
+                <span asp-validation-for="AssigneeUserIds" class="text-danger small"></span>
+                <div class="form-text">Ctrl/Command ile çoklu seçebilirsin.</div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label class="form-label small text-muted mb-1">Primary Atanan</label>
+                <select asp-for="PrimaryAssigneeUserId"
+                        class="form-select form-select-sm"
+                        id="primarySelect">
+                    <option value="">Seçiniz</option>
+                </select>
+                <span asp-validation-for="PrimaryAssigneeUserId" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-md-4">
@@ -90,7 +104,6 @@
 
             <hr class="my-3" />
 
-
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <h6 class="mb-1">Ürün / İzlenebilirlik</h6>
@@ -133,7 +146,6 @@
 
             <hr class="my-3" />
 
-
             <div class="col-12">
                 <h6 class="mb-1">Müşteri / Sevkiyat</h6>
             </div>
@@ -166,7 +178,6 @@
 
             <hr class="my-3" />
 
-
             <div class="col-12 col-md-4">
                 <div class="form-check mt-2">
                     <input asp-for="InterimActionRequired" class="form-check-input" id="interimToggle" />
@@ -179,13 +190,15 @@
                 <input asp-for="InterimActionNote" class="form-control form-control-sm" />
             </div>
 
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1">Ek Dosya</label>
+                <input type="file" name="Attachment" multiple class="form-control form-control-sm" />
+            </div>
+
         </div>
     </div>
+
     <div class="card-body">
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-muted mb-1">Ek Dosya</label>
-            <input type="file" name="Attachment" multiple class="form-control form-control-sm" />
-        </div>
         @if (Model.Attachments != null && Model.Attachments.Any())
         {
             <div class="table-responsive">
@@ -222,7 +235,6 @@
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@a.Id" />
                                             <input type="hidden" name="complaintNo" value="@Model.ComplaintNo" />
-
                                             <button type="submit" class="btn btn-outline-danger">
                                                 <i class="bi bi-trash"></i>
                                             </button>
@@ -241,9 +253,10 @@
                 <i class="bi bi-x-circle me-1"></i> Dosya yok.
             </div>
         }
+    </div>
 
     <div class="card-footer bg-white d-flex justify-content-end gap-2">
-        <a asp-action="Detail"
+        <a asp-action="Details"
            asp-route-complaintNo="@Model.ComplaintNo"
            class="btn btn-outline-secondary btn-sm">
             Vazgeç
@@ -256,7 +269,6 @@
 
 <script>
     (function () {
-
         const interimToggle = document.getElementById('interimToggle');
         const interimWrap = document.getElementById('interimNoteWrap');
 
@@ -301,5 +313,40 @@
         });
 
         syncTraceRules();
+    })();
+
+    (function () {
+        const assignees = document.getElementById('assigneesSelect');
+        const primary = document.getElementById('primarySelect');
+
+        function rebuildPrimary() {
+            if (!assignees || !primary) return;
+
+            const selected = Array.from(assignees.selectedOptions).map(o => ({
+                value: o.value,
+                text: o.text
+            }));
+
+            const current = primary.value;
+            primary.innerHTML = '<option value="">Seçiniz</option>';
+
+            selected.forEach(x => {
+                const opt = document.createElement('option');
+                opt.value = x.value;
+                opt.text = x.text;
+                primary.appendChild(opt);
+            });
+
+            if (selected.some(x => x.value === current)) {
+                primary.value = current;
+            } else if (selected.length === 1) {
+                primary.value = selected[0].value;
+            }
+        }
+
+        if (assignees) {
+            assignees.addEventListener('change', rebuildPrimary);
+            rebuildPrimary();
+        }
     })();
 </script>

@@ -42,9 +42,6 @@ namespace DMSUI.ViewModels.Complaint
 		[Display(Name = "Ara Aksiyon Notu")]
 		public string? InterimActionNote { get; set; }
 
-		[Display(Name = "Atanan Kişi")]
-		public int AssignedTo { get; set; }
-
 		[Display(Name = "Parça No")]
 		public string? PartNumber { get; set; }
 
@@ -85,5 +82,7 @@ namespace DMSUI.ViewModels.Complaint
 		public List<SelectListItem> Severities { get; set; } = new();
 		public List<SelectListItem> Users { get; set; } = new();
 		public List<IFormFile?> AttachmentFiles { get; set; } = new();
-	}
+        public List<int> AssigneeUserIds { get; set; } = new();   
+        public int? PrimaryAssigneeUserId { get; set; }          
+    }
 }

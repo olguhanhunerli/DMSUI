@@ -106,7 +106,14 @@ namespace DMSUI.Controllers
 				isRepeat = vm.IsRepeat,
 				interimActionRequired = vm.InterimActionRequired,
 				interimActionNote = vm.InterimActionNote,
-				assignedTo = vm.AssignedTo,
+				assignees = (vm.AssigneeUserIds ?? new List<int>())
+				.Distinct()
+				.Select(id => new DMSUI.Entities.DTOs.Assignees.AssigneeDTO
+				{
+					userId = id,
+					isPrimary = (vm.PrimaryAssigneeUserId.HasValue && vm.PrimaryAssigneeUserId.Value == id)
+				})
+				.ToList(),
 
 				partNumber = vm.PartNumber,
 				partRevision = vm.PartRevision,
@@ -122,8 +129,9 @@ namespace DMSUI.Controllers
 				quantityAffected = vm.QuantityAffected,
 				containmentAction = vm.ContainmentAction
 			};
-
-			var complaintNo = await _complaintManager.CreateComplaint(dto);
+            if (dto.assignees.Count > 0 && !dto.assignees.Any(x => x.isPrimary))
+                dto.assignees[0].isPrimary = true;
+            var complaintNo = await _complaintManager.CreateComplaint(dto);
 
 			if (string.IsNullOrWhiteSpace(complaintNo))
 			{
@@ -193,9 +201,10 @@ namespace DMSUI.Controllers
 				IsRepeat = item.isRepeat,
 				InterimActionRequired = item.interimActionRequired == true,
 				InterimActionNote = item.interimActionNote,
-				AssignedTo = item.assignedTo ?? 0,
+                AssigneeUserIds = item.assignees?.Select(a => a.userId).ToList() ?? new List<int>(),
+                PrimaryAssigneeUserId = item.assignees?.FirstOrDefault(a => a.isPrimary)?.userId,
 
-				PartNumber = item.partNumber,
+                PartNumber = item.partNumber,
 				PartRevision = item.partRevision,
 				LotNumber = item.lotNumber,
 				SerialNumber = item.serialNumber,
@@ -272,9 +281,16 @@ namespace DMSUI.Controllers
 				isRepeat = vm.IsRepeat,
 				interimActionRequired = vm.InterimActionRequired,
 				interimActionNote = vm.InterimActionNote,
-				assignedTo = vm.AssignedTo,
+                assignees = (vm.AssigneeUserIds ?? new List<int>())
+				.Distinct()
+				.Select(id => new DMSUI.Entities.DTOs.Assignees.AssigneeDTO
+				{
+					userId = id,
+					isPrimary = (vm.PrimaryAssigneeUserId.HasValue && vm.PrimaryAssigneeUserId.Value == id)
+				}).ToList(),
 
-				partNumber = vm.PartNumber,
+
+                partNumber = vm.PartNumber,
 				partRevision = vm.PartRevision,
 				lotNumber = vm.LotNumber,
 				serialNumber = vm.SerialNumber,
@@ -406,7 +422,7 @@ namespace DMSUI.Controllers
 				items = items.Where(x =>
 				{
 					var haystack =
-						$"{x.complaintNo} {x.companyName} {x.customerName} {x.title} {x.assignedToName} {x.status} {x.partNumber} {x.lotNumber} {x.customerComplaintNo}";
+						$"{x.complaintNo} {x.companyName} {x.customerName} {x.title} {x.assignees} {x.status} {x.partNumber} {x.lotNumber} {x.customerComplaintNo}";
 					return haystack.Contains(needle, StringComparison.OrdinalIgnoreCase);
 				});
 			}
@@ -445,8 +461,11 @@ namespace DMSUI.Controllers
 				ws.Cell(row, 6).Value = x.status ?? "";
 				ws.Cell(row, 7).Value = x.isRepeat ? "true" : "false";
 				ws.Cell(row, 8).Value = x.needsCapa ? "true" : "false";
-				ws.Cell(row, 9).Value = x.assignedToName ?? "";
-				ws.Cell(row, 10).Value = x.partNumber ?? "";
+                var assigneeText = (x.assignees == null || !x.assignees.Any())
+					? ""
+					: string.Join(", ", x.assignees.Select(a => a.userName ?? a.userId.ToString()));
+                ws.Cell(row, 9).Value = assigneeText;
+                ws.Cell(row, 10).Value = x.partNumber ?? "";
 				ws.Cell(row, 11).Value = x.lotNumber ?? "";
 				ws.Cell(row, 12).Value = x.customerComplaintNo ?? "";
 				ws.Cell(row, 13).Value = x.reportedAt.ToString("dd.MM.yyyy HH:mm");
