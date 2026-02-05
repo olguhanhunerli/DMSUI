@@ -38,44 +38,44 @@ namespace DMSUI.Business
 					new AuthenticationHeaderValue("Bearer", token);
 			}
 		}
-        public async Task<PagedResultDTO<CalibrationItemDTO>> GetCalibrationItemsAsync(int pageNumber, int pageSize)
-        {
-            AttachToken();
-            var response = await _httpClient.GetAsync($"api/InstrumentCalibrations?page={pageNumber}&pageSize={pageSize}");
-            return (await response.ReadAsAsync<PagedResultDTO<CalibrationItemDTO>>()) ?? new PagedResultDTO<CalibrationItemDTO>();
-        }
+		public async Task<PagedResultDTO<CalibrationItemDTO>> GetCalibrationItemsAsync(int pageNumber, int pageSize)
+		{
+			AttachToken();
+			var response = await _httpClient.GetAsync($"api/InstrumentCalibrations?page={pageNumber}&pageSize={pageSize}");
+			return (await response.ReadAsAsync<PagedResultDTO<CalibrationItemDTO>>()) ?? new PagedResultDTO<CalibrationItemDTO>();
+		}
 
-        public async Task<CalibrationItemDTO?> GetCalibrationItemByIdAsync(int calibrationId)
-        {
-            AttachToken();
-            var response = await _httpClient.GetAsync($"api/InstrumentCalibrations/{calibrationId}");
-            return await response.ReadAsAsync<CalibrationItemDTO>();
-        }
+		public async Task<CalibrationItemDTO?> GetCalibrationItemByIdAsync(int calibrationId)
+		{
+			AttachToken();
+			var response = await _httpClient.GetAsync($"api/InstrumentCalibrations/{calibrationId}");
+			return await response.ReadAsAsync<CalibrationItemDTO>();
+		}
 
-        public async Task<bool> DeleteByIdAsync(int calibrationId)
-        {
-            AttachToken();
-            var response = await _httpClient.DeleteAsync($"api/InstrumentCalibrations/{calibrationId}");
-            return await response.EnsureSuccessOrThrowAsync();
-        }
+		public async Task<bool> DeleteByIdAsync(int calibrationId)
+		{
+			AttachToken();
+			var response = await _httpClient.DeleteAsync($"api/InstrumentCalibrations/{calibrationId}");
+			return await response.EnsureSuccessOrThrowAsync();
+		}
 
-        public async Task<bool> UpdateCalibrationAsync(int id, EditCalibrationDTO editCalibrationDTO)
-        {
-            AttachToken();
-            var response = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);
-            return await response.EnsureSuccessOrThrowAsync();
-        }
+		public async Task<bool> UpdateCalibrationAsync(int id, EditCalibrationDTO editCalibrationDTO)
+		{
+			AttachToken();
+			var response = await _httpClient.PutAsJsonAsync($"api/InstrumentCalibrations/{id}", editCalibrationDTO);
+			return await response.EnsureSuccessOrThrowAsync();
+		}
 
-        public async Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO)
-        {
-            AttachToken();
-            var response = await _httpClient.PostAsJsonAsync("api/InstrumentCalibrations", createCalibrationDTO);
+		public async Task<ulong?> CreateCalibrationAsync(CreateCalibrationDTO createCalibrationDTO)
+		{
+			AttachToken();
+			var response = await _httpClient.PostAsJsonAsync("api/InstrumentCalibrations", createCalibrationDTO);
 
-            response.ThrowIfUnauthorizedOrForbidden();
-            if (!response.IsSuccessStatusCode) return null;
+			response.ThrowIfUnauthorizedOrForbidden();
+			if (!response.IsSuccessStatusCode) return null;
 
-            var created = await response.Content.ReadFromJsonAsync<CalibrationItemDTO>();
-            return (ulong?)(created?.CalibrationId);
-        }
-    }
+			var created = await response.Content.ReadFromJsonAsync<CalibrationItemDTO>();
+			return (ulong?)(created?.CalibrationId);
+		}
+	}
 }

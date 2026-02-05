@@ -5,31 +5,45 @@ namespace DMSUI.Controllers
 {
     public class ErrorController : Controller
     {
-        [Route("Error")]
-        public IActionResult Index()
-        {
-            var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+		[Route("Error")]
+		public IActionResult Index()
+		{
+			var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
 
-            ViewBag.Path = feature?.Path;
-            ViewBag.ErrorMessage = feature?.Error?.Message;
+			ViewBag.Path = feature?.Path;
+			ViewBag.TraceId = HttpContext.TraceIdentifier;
 
-            return View("Error");
-        }
+			ViewBag.ErrorMessage = TempData["ErrorMessage"]?.ToString() ?? feature?.Error?.Message;
+			ViewBag.ErrorDetail = TempData["ErrorDetail"]?.ToString();
 
-        [Route("Error/403")]
-        public IActionResult AccessDenied()
-        {
-            return View("AccessDenied");
-        }
+			if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+				ViewBag.StackTrace = feature?.Error?.StackTrace;
 
-        [Route("Error/{statusCode:int}")]
-        public IActionResult StatusCodePage(int statusCode)
-        {
-            if (statusCode == 403)
-                return RedirectToAction(nameof(AccessDenied));
+			return View("Error");
+		}
 
-            ViewBag.StatusCode = statusCode;
-            return View("Error");
-        }
-    }
+		[Route("Error/403")]
+		public IActionResult AccessDenied()
+		{
+			ViewBag.StatusCode = 403;
+			ViewBag.TraceId = HttpContext.TraceIdentifier;
+
+			ViewBag.ErrorMessage = TempData["ErrorMessage"]?.ToString() ?? "Erişim izniniz yok";
+			ViewBag.ErrorDetail = TempData["ErrorDetail"]?.ToString();
+
+			return View("Error");
+		}
+
+		[Route("Error/{statusCode:int}")]
+		public IActionResult StatusCodePage(int statusCode)
+		{
+			ViewBag.StatusCode = statusCode;
+			ViewBag.TraceId = HttpContext.TraceIdentifier;
+
+			ViewBag.ErrorMessage = TempData["ErrorMessage"]?.ToString();
+			ViewBag.ErrorDetail = TempData["ErrorDetail"]?.ToString();
+
+			return View("Error");
+		}
+	}
 }

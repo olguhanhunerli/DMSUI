@@ -17,29 +17,29 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Business
 {
-	public class DepartmentApiClient : IDepartmentApiClient
-	{
-		private readonly HttpClient _httpClient;
-		private readonly IHttpContextAccessor _httpContextAccessor;
+    public class DepartmentApiClient : IDepartmentApiClient
+    {
+        private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public DepartmentApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
-		{
-			_httpClient = httpClient;
-			_httpContextAccessor = httpContextAccessor;
-		}
-		private void AttachToken()
-		{
-			var token = _httpContextAccessor.HttpContext?
-				.Request.Cookies["access_token"];
+        public DepartmentApiClient(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
+        {
+            _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
+        }
+        private void AttachToken()
+        {
+            var token = _httpContextAccessor.HttpContext?
+                .Request.Cookies["access_token"];
 
-			_httpClient.DefaultRequestHeaders.Remove("Authorization");
+            _httpClient.DefaultRequestHeaders.Remove("Authorization");
 
-			if (!string.IsNullOrWhiteSpace(token))
-			{
-				_httpClient.DefaultRequestHeaders.Authorization =
-					new AuthenticationHeaderValue("Bearer", token);
-			}
-		}
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
         public async Task<List<DepartmentListDTO>> GetAllDepartmentsAsync()
         {
             AttachToken();
@@ -82,3 +82,4 @@ namespace DMSUI.Business
             return (await response.ReadAsAsync<PagedResultDTO<DepartmentListDTO>>()) ?? new PagedResultDTO<DepartmentListDTO>();
         }
     }
+}
