@@ -1,4 +1,5 @@
-﻿using DMSUI.Entities.DTOs.Complaints;
+﻿using DMSUI.Entities.DTOs.CAPA;
+using DMSUI.Entities.DTOs.Complaints;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.CAPA;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +49,29 @@ namespace DMSUI.Controllers
 
             return View(form);
         }
+        [HttpPost]
+        public async Task<IActionResult> Create(CAPACreateReqDTO dto)
+        {
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
 
+            try
+            {
+                var created = await _capaManager.CreateCAPAAsync(dto);
 
+                TempData["Success"] = $"CAPA oluşturuldu: {created.CapaNo}";
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+
+                return RedirectToAction(nameof(Index));
+
+            }
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace DMSUI.Entities.DTOs.CAPA
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         public string? CompanyName { get; set; }
 

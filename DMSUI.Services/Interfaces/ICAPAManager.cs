@@ -13,6 +13,7 @@ namespace DMSUI.Services.Interfaces
         Task<PagedResultDTO<CAPADTO>> GetAllCAPAS(int page, int pageSize);
         Task<CAPADetailDTO> GetCAPASByCapaNo(string capaNo);
         Task<CAPACreateFormDTO> CreateFormCAPAS(string complaintNo);
+        Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto);
 
     }
 }

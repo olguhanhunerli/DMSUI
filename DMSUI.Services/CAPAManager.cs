@@ -19,6 +19,11 @@ namespace DMSUI.Services
             _apiClient = apiClient;
         }
 
+        public async Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto)
+        {
+            return await _apiClient.CreateCAPAAsync(dto);
+        }
+
         public async Task<CAPACreateFormDTO> CreateFormCAPAS(string complaintNo)
         {
             return await _apiClient.CreateFormCAPAS(complaintNo);

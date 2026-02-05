@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Yeni CAPA";
+
 }
 
 <div class="container-fluid px-3 pb-4">
@@ -28,7 +29,6 @@
                     <div class="card-header bg-light fw-semibold">
                         Şikayet Bilgileri
                     </div>
-
                     <div class="card-body small">
 
                         <div class="mb-2">
@@ -76,21 +76,21 @@
                     <div class="card-body">
 
                         <div class="row g-3">
-
                             <div class="col-md-6">
                                 <label class="form-label">Sorumlu</label>
+
                                 <input class="form-control"
                                        value="@Model.Defaults?.OwnerName"
                                        readonly />
+
                                 <input type="hidden" name="OwnerId" value="@Model.Defaults?.OwnerId" />
                             </div>
-
                             <div class="col-md-6">
                                 <label class="form-label">Bitiş Tarihi</label>
                                 <input type="date"
                                        name="DueDate"
                                        class="form-control"
-                                       value="@Model.Defaults?.DueDate.ToString("yyyy-MM-dd")"
+                                       value="@(Model.Defaults?.DueDate.ToString("yyyy-MM-dd"))"
                                        required />
                             </div>
 
@@ -124,10 +124,7 @@
 
                             <div class="col-12">
                                 <label class="form-label">Kök Neden Açıklaması</label>
-                                <textarea name="RootCause"
-                                          class="form-control"
-                                          rows="2"
-                                          required></textarea>
+                                <textarea name="Nonconformity" class="form-control" rows="2" required></textarea>
                             </div>
 
                             <div class="col-12">

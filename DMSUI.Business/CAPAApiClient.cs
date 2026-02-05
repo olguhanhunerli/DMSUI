@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -77,6 +78,33 @@ namespace DMSUI.Business
             var body = await result.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<CAPACreateFormDTO>(
                 body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        public async Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto)
+        {
+            AttachToken();
+
+            using var response = await _httpClient.PostAsJsonAsync("api/CAPA", dto);
+
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"CAPA create failed: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
+
+            if (string.IsNullOrWhiteSpace(body))
+                throw new Exception("CAPA create succeeded but response body was empty.");
+
+            var created = System.Text.Json.JsonSerializer.Deserialize<CAPADTO>(
+                body,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            );
+
+            if (created == null)
+            {
+                throw new Exception($"CAPA create response could not be parsed. Body: {body}");
+            }
+
+            return created;
         }
     }
 }

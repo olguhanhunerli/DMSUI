@@ -11,7 +11,7 @@ namespace DMSUI.Entities.DTOs.CAPA
     {
         public int Id { get; set; }
 
-        public string? CapaNo { get; set; }
+        public string CapaNo { get; set; }
 
         public string? ComplaintNo { get; set; }
 
@@ -45,7 +45,7 @@ namespace DMSUI.Entities.DTOs.CAPA
 
         public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         public string? CompanyName { get; set; }
 

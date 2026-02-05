@@ -1,11 +1,13 @@
 ﻿using DMSUI.Entities.DTOs.Company;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Company;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class CompanyController : Controller
     {
         private readonly ICompanyManager _companyManager;

@@ -3,6 +3,7 @@ using DMSUI.Entities.DTOs.Role;
 using DMSUI.Services;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Position;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class PositionController : Controller
     {
         private readonly IPositionManager _positionManager;

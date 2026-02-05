@@ -1,6 +1,7 @@
 ﻿using DMSUI.Entities.DTOs.User;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Immutable;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class UserController : Controller
     {
         private readonly IUserManager _userManager;

@@ -2,6 +2,7 @@
 using DMSUI.Services;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.Role;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StackExchange.Redis;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
+    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class RoleController : Controller
     {
         private readonly IRoleManager _roleManager;
