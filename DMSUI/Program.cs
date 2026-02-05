@@ -1,5 +1,7 @@
-﻿using DMSUI.Extensions;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Extensions;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,7 +13,7 @@ builder.Services
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
     {
         options.LoginPath = "/Auth/Login";
-        options.AccessDeniedPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Error/403";
 
         options.Events = new CookieAuthenticationEvents
         {
@@ -26,7 +28,6 @@ builder.Services
 
                 var claims = jwt.Claims.ToList();
 
-                // 🔥 KRİTİK: NameIdentifier ekle
                 var userId =
                     claims.FirstOrDefault(x => x.Type == "userId")?.Value ??
                     claims.FirstOrDefault(x => x.Type == "sub")?.Value;
@@ -47,21 +48,56 @@ builder.Services
         };
     });
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDmsServices(builder.Configuration);
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+app.UseExceptionHandler(errorApp =>
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+    errorApp.Run(async context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = feature?.Error;
 
+        if (ex is ForbiddenException)
+        {
+            context.Response.Redirect("/Error/403");
+            return;
+        }
+
+        if (ex is UnauthorizedException)
+        {
+            context.Response.Redirect("/Auth/Login");
+            return;
+        }
+
+        context.Response.Redirect("/Error");
+    });
+});
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(context =>
+    {
+        var feature = context.Features.Get<IExceptionHandlerPathFeature>();
+        var ex = feature?.Error;
+
+        if (ex is ForbiddenException)
+        {
+            context.Response.Redirect("/Error/403");
+            return Task.CompletedTask;
+        }
+
+        if (ex is UnauthorizedException)
+        {
+            context.Response.Redirect("/Auth/Login");
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect("/Error");
+        return Task.CompletedTask;
+    });
+});
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

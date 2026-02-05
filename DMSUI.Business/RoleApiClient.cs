@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Company;
 using DMSUI.Entities.DTOs.Departments;
@@ -41,71 +42,47 @@ namespace DMSUI.Business
 					new AuthenticationHeaderValue("Bearer", token);
 			}
 		}
-		public async Task<RoleListDTO> GetRoleByIdAsync(int id)
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync($"/api/Role/get-by-id/{id}");
-			if (!response.IsSuccessStatusCode)
-			{
-				return null;
-			}
-			var body = await response.Content.ReadAsStringAsync();
-			return JsonSerializer.Deserialize<RoleListDTO>(
-				body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			);
-		}
+        public async Task<RoleListDTO> GetRoleByIdAsync(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"/api/Role/get-by-id/{id}");
+            return await response.ReadAsAsync<RoleListDTO>();
+        }
 
-		public async Task<List<RoleListDTO>> GetRoleListsAsync()
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync("api/Role/get-all");
-			if (!response.IsSuccessStatusCode)
-			{
-				return new List<RoleListDTO>();
-			}
-			var body = await response.Content.ReadAsStringAsync();
-			return System.Text.Json.JsonSerializer.Deserialize<List<RoleListDTO>>(
-				body,
-				new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			) ?? new List<RoleListDTO>();
-		}
+        public async Task<List<RoleListDTO>> GetRoleListsAsync()
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/Role/get-all");
+            return await response.ReadAsAsync<List<RoleListDTO>>() ?? new List<RoleListDTO>();
+        }
 
-		public async Task<bool> UpdateRoleAsync(int id, RoleUpdateDTO roleUpdateDTO)
-		{
-			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync($"api/Role/update/{id}", roleUpdateDTO);
-			return response.IsSuccessStatusCode;
-		}
+        public async Task<bool> UpdateRoleAsync(int id, RoleUpdateDTO roleUpdateDTO)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync($"api/Role/update/{id}", roleUpdateDTO);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> CreateRoleAsync(RoleCreateDTO roleCreateDTO)
-		{
-			AttachToken();
-			var response = await _httpClient.PostAsJsonAsync("api/Role/create", roleCreateDTO);
-			return response.IsSuccessStatusCode;
-		}
+        public async Task<bool> CreateRoleAsync(RoleCreateDTO roleCreateDTO)
+        {
+            AttachToken();
+            var response = await _httpClient.PostAsJsonAsync("api/Role/create", roleCreateDTO);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> DeleteRoleAsync(int id)
-		{
-			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/Role/delete/{id}");
-			return response.IsSuccessStatusCode;
-		}
+        public async Task<bool> DeleteRoleAsync(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.DeleteAsync($"api/Role/delete/{id}");
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
         public async Task<PagedResultDTO<RoleListDTO>> GetPagedAsync(int page, int pageSize)
         {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/Role/get-paged?page={page}&pageSize={pageSize}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return new PagedResultDTO<RoleListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PagedResultDTO<RoleListDTO>>(
-                body,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new PagedResultDTO<RoleListDTO>();
+            return await response.ReadAsAsync<PagedResultDTO<RoleListDTO>>() ?? new PagedResultDTO<RoleListDTO>();
         }
+
     }
 }

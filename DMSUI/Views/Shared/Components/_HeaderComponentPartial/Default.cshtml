@@ -69,9 +69,6 @@
                             <li><a class="dropdown-item" asp-controller="Category" asp-action="Index">Kategoriler</a></li>
                         </ul>
                     </li>
-
-                    @if (role == "SUPER_ADMIN" || role == "Admin")
-                    {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle fw-semibold text-warning" href="#" role="button" data-bs-toggle="dropdown">
                                 Sistem
@@ -86,7 +83,6 @@
                                 <li><a class="dropdown-item" asp-controller="Audit" asp-action="Index">AccessLog</a></li>
                             </ul>
                         </li>
-                    }
                 </ul>
 
                 <form asp-controller="Search"

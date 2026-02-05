@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Audit;
 using DMSUI.Entities.DTOs.Common;
 using Microsoft.AspNetCore.Http;
@@ -38,25 +39,24 @@ namespace DMSUI.Business
         public async Task<PagedResultDTO<DocumentAccessLogDTO>> GetDocumentAccessLogsAsync(int page, int pageSize)
         {
             AttachToken();
-            AttachToken();
 
             var response = await _httpClient.GetAsync(
                 $"api/Audit/document-access-logs?page={page}&pageSize={pageSize}"
             );
 
-            if (!response.IsSuccessStatusCode)
-            {
-                return new PagedResultDTO<DocumentAccessLogDTO>();
-            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                throw new ForbiddenException();   
+
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new UnauthorizedException();
+
+            response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadAsStringAsync();
 
             return JsonSerializer.Deserialize<PagedResultDTO<DocumentAccessLogDTO>>(
                 body,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
             ) ?? new PagedResultDTO<DocumentAccessLogDTO>();
         }
     }

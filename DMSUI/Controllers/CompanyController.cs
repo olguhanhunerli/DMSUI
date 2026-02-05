@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class CompanyController : Controller
     {
         private readonly ICompanyManager _companyManager;

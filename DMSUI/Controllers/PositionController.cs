@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class PositionController : Controller
     {
         private readonly IPositionManager _positionManager;

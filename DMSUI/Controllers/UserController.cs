@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
+    
     public class UserController : Controller
     {
         private readonly IUserManager _userManager;

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
 {
-    [Authorize(Roles = "Admin,SUPER_ADMIN")]
     public class RoleController : Controller
     {
         private readonly IRoleManager _roleManager;

@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Position;
 using DMSUI.Entities.DTOs.User;
@@ -40,93 +41,51 @@ namespace DMSUI.Business
         }
         public async Task<bool> CreateUserAsync(UserRegisterDTO userRegisterDTO)
         {
-
-          AttachToken();
+            AttachToken();
             var response = await _httpClient.PostAsJsonAsync("api/Auth/register", userRegisterDTO);
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("API ERROR BODY: " + error);
-                return false;
-            }
-            return response.IsSuccessStatusCode;
-
+            return await response.EnsureSuccessOrThrowAsync();
         }
 
         public async Task<List<UserListDTO>> GetAllUsersAsync()
         {
-			AttachToken();
-
-			var response = await _httpClient.GetAsync("api/User/get-all");
-
-			if (!response.IsSuccessStatusCode)
-				return new List<UserListDTO>();
-
-			var body = await response.Content.ReadAsStringAsync();
-
-			if (string.IsNullOrWhiteSpace(body))
-				return new List<UserListDTO>();
-
-			return JsonSerializer.Deserialize<List<UserListDTO>>(
-				body,
-				new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			) ?? new List<UserListDTO>();
-
-		}
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/User/get-all");
+            return await response.ReadAsAsync<List<UserListDTO>>() ?? new List<UserListDTO>();
+        }
 
         public async Task<UserListDTO?> GetUserByIdAsync(int userId)
         {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/User/get-by-id/{userId}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<UserListDTO>(
-                body,new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            );
+            return await response.ReadAsAsync<UserListDTO>();
         }
 
-		public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
-		{
+        public async Task<bool> SetActiveStatusAsync(int id, bool activeStatus)
+        {
             AttachToken();
-            var body = new
-            {
-                id = id,
-                activeStatus = activeStatus
-            };
-            var response = await _httpClient.PostAsJsonAsync("api/User/active-status",body);
-            return response.IsSuccessStatusCode;
-		}
+            var body = new { id, activeStatus };
+            var response = await _httpClient.PostAsJsonAsync("api/User/active-status", body);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
-		{
+        public async Task<bool> UpdateUserAsync(UserUpdateDTO userUpdateDTO)
+        {
             AttachToken();
-            var response = await _httpClient.PutAsJsonAsync("api/User/update",userUpdateDTO);
-			return response.IsSuccessStatusCode;
-		}
-
+            var response = await _httpClient.PutAsJsonAsync("api/User/update", userUpdateDTO);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
         public async Task<PagedResultDTO<UserListDTO>> SearchUserAsync(UserSearchDTO userSearchDTO)
         {
             AttachToken();
             var response = await _httpClient.PostAsJsonAsync("api/User/search", userSearchDTO);
-            if (!response.IsSuccessStatusCode)
-            {
-                return new PagedResultDTO<UserListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PagedResultDTO<UserListDTO>>(
-                body,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            ) ?? new PagedResultDTO<UserListDTO>();
+            return await response.ReadAsAsync<PagedResultDTO<UserListDTO>>() ?? new PagedResultDTO<UserListDTO>();
         }
 
         public async Task<bool> SoftDeleteUserIdAsync(int id)
         {
-			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/User/delete/{id}");
-            return response.IsSuccessStatusCode;
+            AttachToken();
+            var response = await _httpClient.DeleteAsync($"api/User/delete/{id}");
+            return await response.EnsureSuccessOrThrowAsync();
         }
 
         public async Task<bool> UpdatePasswordByUserAsync(PasswordUpdateByUserDTO dto)
@@ -147,18 +106,11 @@ namespace DMSUI.Business
             return response.IsSuccessStatusCode;
         }
 
-		public async Task<List<ApproverUserDTO>> GetAllApprovers()
-		{
+        public async Task<List<ApproverUserDTO>> GetAllApprovers()
+        {
             AttachToken();
             var response = await _httpClient.GetAsync("/api/User/approvers");
-            if(!response.IsSuccessStatusCode)
-            {
-				return new List<ApproverUserDTO>();
-
-			}
-			var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<ApproverUserDTO>>(
-               body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<ApproverUserDTO>();
-		}
-	}
+            return await response.ReadAsAsync<List<ApproverUserDTO>>() ?? new List<ApproverUserDTO>();
+        }
+    }
 }

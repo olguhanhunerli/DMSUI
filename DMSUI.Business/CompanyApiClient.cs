@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Company;
 using DMSUI.Entities.DTOs.Role;
 using DMSUI.Entities.DTOs.User;
@@ -38,41 +39,25 @@ namespace DMSUI.Business
 			}
 		}
 
-		public async Task<CompanyListDTO> GetCompanyListById(int id)
-		{
+        public async Task<CompanyListDTO?> GetCompanyListById(int id)
+        {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/Company/get-by-id/{id}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-			var body = await response.Content.ReadAsStringAsync();
-			return JsonSerializer.Deserialize<CompanyListDTO>(
-				body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			);
-		}
+            return await response.ReadAsAsync<CompanyListDTO>();
+        }
 
-		public async Task<List<CompanyListDTO>> GetCompanyListsAsync()
+        public async Task<List<CompanyListDTO>> GetCompanyListsAsync()
         {
             AttachToken();
             var response = await _httpClient.GetAsync("api/Company/get-all");
-			if (response == null)
-            {
-                return new List<CompanyListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<List<CompanyListDTO>>(
-                body,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-            ) ?? new List<CompanyListDTO>();
+            return (await response.ReadAsAsync<List<CompanyListDTO>>()) ?? new List<CompanyListDTO>();
         }
 
-		public async Task<bool> UpdateCompanyAsync(int id, CompanyUpdateDTO company)
-		{
-			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync($"api/Company/update/{id}", company);
-			return response.IsSuccessStatusCode;
-
-		}
-	}
+        public async Task<bool> UpdateCompanyAsync(int id, CompanyUpdateDTO company)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync($"api/Company/update/{id}", company);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
+    }
 }

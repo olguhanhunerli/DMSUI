@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.CalibrationFile;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -34,57 +35,55 @@ namespace DMSUI.Business
 					new AuthenticationHeaderValue("Bearer", token);
 			}
 		}
-		public async Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto)
-		{
-			AttachToken();
-			using var form = new MultipartFormDataContent();
-			form.Add(new StringContent(dto.CalibrationId.ToString()), "CalibrationId");
-			form.Add(new StringContent(dto.InstrumentName ?? ""), "InstrumentName");
-			form.Add(new StringContent(dto.FileType ?? ""), "FileType");
-			form.Add(new StringContent(dto.Description ?? ""), "Description");
+        public async Task<bool> UploadCalibrationFilesAsync(UploadCalibrationFileDTO dto)
+        {
+            AttachToken();
 
-			using var stream = dto.File.OpenReadStream();
-			var fileContent = new StreamContent(stream);
-			fileContent.Headers.ContentType =
-				new MediaTypeHeaderValue(dto.File.ContentType);
+            using var form = new MultipartFormDataContent();
+            form.Add(new StringContent(dto.CalibrationId.ToString()), "CalibrationId");
+            form.Add(new StringContent(dto.InstrumentName ?? ""), "InstrumentName");
+            form.Add(new StringContent(dto.FileType ?? ""), "FileType");
+            form.Add(new StringContent(dto.Description ?? ""), "Description");
 
-			form.Add(fileContent, "File", dto.File.FileName);
+            using var stream = dto.File.OpenReadStream();
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(dto.File.ContentType);
+            form.Add(fileContent, "File", dto.File.FileName);
 
-			var response = await _httpClient.PostAsync("api/CalibrationFile/upload", form);
-			return response.IsSuccessStatusCode;
-		}
+            var response = await _httpClient.PostAsync("api/CalibrationFile/upload", form);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadCalibrationFilesAsync(int fileId, bool asPdf)
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync($"api/CalibrationFile/download/{fileId}?asPdf={asPdf}");
-			if (!response.IsSuccessStatusCode)
-			{
-				var body = await response.Content.ReadAsStringAsync();
-				throw new Exception($"Dosya indirilemedi. Status={(int)response.StatusCode} {response.ReasonPhrase}. Body={body}");
-			}
-			var fileBytes = await response.Content.ReadAsByteArrayAsync();
-			var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
-			var fileName =
-			response.Content.Headers.ContentDisposition?.FileNameStar
-			?? response.Content.Headers.ContentDisposition?.FileName
-			?? "download";
+        public async Task<(byte[] FileBytes, string ContentType, string FileName)> DownloadCalibrationFilesAsync(int fileId, bool asPdf)
+        {
+            AttachToken();
 
-			fileName = fileName.Replace("\"", "");
+            var response = await _httpClient.GetAsync($"api/CalibrationFile/download/{fileId}?asPdf={asPdf}");
 
-			return (fileBytes, contentType, fileName);
-		}
+            response.ThrowIfUnauthorizedOrForbidden();
+            response.EnsureSuccessStatusCode();
 
-		public async Task<bool> DeleteFiles(int fileId)
-		{
-			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/CalibrationFile/delete/{fileId}");
-			if (!response.IsSuccessStatusCode)
-			{
-				var body = await response.Content.ReadAsStringAsync();
-				throw new Exception($"Dosya silinemedi. Status={(int)response.StatusCode} {response.ReasonPhrase}. Body={body}");
-			}
-			return true;
-		}
-	}
+            var fileBytes = await response.Content.ReadAsByteArrayAsync();
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+            var fileName =
+                response.Content.Headers.ContentDisposition?.FileNameStar
+                ?? response.Content.Headers.ContentDisposition?.FileName
+                ?? "download";
+
+            fileName = fileName.Replace("\"", "");
+            return (fileBytes, contentType, fileName);
+        }
+
+        public async Task<bool> DeleteFiles(int fileId)
+        {
+            AttachToken();
+
+            var response = await _httpClient.DeleteAsync($"api/CalibrationFile/delete/{fileId}");
+
+            response.ThrowIfUnauthorizedOrForbidden();
+            response.EnsureSuccessStatusCode();
+
+            return true;
+        }
+    }
 }

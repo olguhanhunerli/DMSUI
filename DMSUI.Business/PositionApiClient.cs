@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
 using DMSUI.Entities.DTOs.Position;
@@ -38,80 +39,47 @@ namespace DMSUI.Business
 			}
 		}
 
-		public async Task<List<PositionListDTO>> GetAllPositionsAsync()
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync("api/Position/get-all");
-			if (!response.IsSuccessStatusCode)
-			{
-				return new List<PositionListDTO>();
-			}
-			var body = await response.Content.ReadAsStringAsync();
-			return System.Text.Json.JsonSerializer.Deserialize<List<PositionListDTO>>(
-				body,
-				new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			) ?? new List<PositionListDTO>();
+        public async Task<List<PositionListDTO>> GetAllPositionsAsync()
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/Position/get-all");
+            return await response.ReadAsAsync<List<PositionListDTO>>() ?? new List<PositionListDTO>();
+        }
 
-		}
+        public async Task<bool> AddPositionAsync(PositionCreateDTO positionCreateDTO)
+        {
+            AttachToken();
+            var response = await _httpClient.PostAsJsonAsync("api/Position/create", positionCreateDTO);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> AddPositionAsync(PositionCreateDTO positionCreateDTO)
-		{
-			AttachToken();
-			var response = await _httpClient.PostAsJsonAsync("api/Position/create", positionCreateDTO);
-			return response.IsSuccessStatusCode;
-		}
-
-		public async Task<PositionDetailDTO> GetPositionByIdAsync(int id)
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync($"api/Position/get-by-id/{id}");
-			if (!response.IsSuccessStatusCode)
-			{
-				return null;
-			}
-			var body = await response.Content.ReadAsStringAsync();
-			return JsonSerializer.Deserialize<PositionDetailDTO>(
-				body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			);
-		}
+        public async Task<PositionDetailDTO> GetPositionByIdAsync(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Position/get-by-id/{id}");
+            return await response.ReadAsAsync<PositionDetailDTO>();
+        }
 
         public async Task<bool> DeletePositionAsync(int id)
         {
             AttachToken();
-
             var response = await _httpClient.DeleteAsync($"api/Position/delete/{id}");
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                return false;
-            }
-
-            return true;
+            return await response.EnsureSuccessOrThrowAsync();
         }
 
         public async Task<bool> UpdatePositionAsync(PositionUpdateDTO positionUpdateDTO, int id)
         {
-			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync("api/Position/update", positionUpdateDTO);
-			return response.IsSuccessStatusCode;
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync("api/Position/update", positionUpdateDTO);
+            return await response.EnsureSuccessOrThrowAsync();
         }
 
         public async Task<PagedResultDTO<PositionListDTO>> GetPagedAsync(int page, int pageSize)
         {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/Position/get-paged?page={page}&pageSize={pageSize}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return new PagedResultDTO<PositionListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PagedResultDTO<PositionListDTO>>(
-                body,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new PagedResultDTO<PositionListDTO>();
+            return await response.ReadAsAsync<PagedResultDTO<PositionListDTO>>() ?? new PagedResultDTO<PositionListDTO>();
         }
+
     }
 }

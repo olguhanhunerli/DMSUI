@@ -1,4 +1,5 @@
-﻿using DMSUI.Business.Interfaces;
+﻿using DMSUI.Business.Exceptions;
+using DMSUI.Business.Interfaces;
 using DMSUI.Entities.DTOs.Category;
 using DMSUI.Entities.DTOs.Common;
 using DMSUI.Entities.DTOs.Departments;
@@ -39,71 +40,45 @@ namespace DMSUI.Business
 					new AuthenticationHeaderValue("Bearer", token);
 			}
 		}
-		public async Task<List<DepartmentListDTO>> GetAllDepartmentsAsync()
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync("api/Department/get-all");
-			if (!response.IsSuccessStatusCode)
-			{
-				return new List<DepartmentListDTO>();
-			}
-			var body = await response.Content.ReadAsStringAsync();
-			return System.Text.Json.JsonSerializer.Deserialize<List<DepartmentListDTO>>(
-				body,
-				new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			) ?? new List<DepartmentListDTO>();
-		}
+        public async Task<List<DepartmentListDTO>> GetAllDepartmentsAsync()
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync("api/Department/get-all");
+            return (await response.ReadAsAsync<List<DepartmentListDTO>>()) ?? new List<DepartmentListDTO>();
+        }
 
-		public async Task<DepartmentDetailDTO> GetDepartmentsByIdAsync(int id)
-		{
-			AttachToken();
-			var response = await _httpClient.GetAsync($"api/Department/get-by-id/{id}");
-			if (!response.IsSuccessStatusCode)
-			{
-				return null;
-			}
-			var body = await response.Content.ReadAsStringAsync() ;
-			return JsonSerializer.Deserialize<DepartmentDetailDTO>(
-				body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-			);
-		}
+        public async Task<DepartmentDetailDTO?> GetDepartmentsByIdAsync(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.GetAsync($"api/Department/get-by-id/{id}");
+            return await response.ReadAsAsync<DepartmentDetailDTO>();
+        }
 
-		public async Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department)
-		{
-			AttachToken();
-			var response = await _httpClient.PutAsJsonAsync("api/Department/update", department);
-			return response.IsSuccessStatusCode;
-		}
+        public async Task<bool> UpdateDepartmentAsync(DepartmentUpdateDTO department)
+        {
+            AttachToken();
+            var response = await _httpClient.PutAsJsonAsync("api/Department/update", department);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> CreateDepartmentAsync(DepartmentCreateDTO department)
-		{
-			AttachToken();
-			var response = await _httpClient.PostAsJsonAsync("api/Department/create", department);
-			return response.IsSuccessStatusCode;	
-		}
+        public async Task<bool> CreateDepartmentAsync(DepartmentCreateDTO department)
+        {
+            AttachToken();
+            var response = await _httpClient.PostAsJsonAsync("api/Department/create", department);
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
-		public async Task<bool> DeleteDepartmentAsync(int id)
-		{
-			AttachToken();
-			var response = await _httpClient.DeleteAsync($"api/Department/delete/{id}");
-			return response.IsSuccessStatusCode;	
-		}
+        public async Task<bool> DeleteDepartmentAsync(int id)
+        {
+            AttachToken();
+            var response = await _httpClient.DeleteAsync($"api/Department/delete/{id}");
+            return await response.EnsureSuccessOrThrowAsync();
+        }
 
         public async Task<PagedResultDTO<DepartmentListDTO>> GetPagedAsync(int page, int pageSize)
         {
             AttachToken();
             var response = await _httpClient.GetAsync($"api/Department/get-paged?page={page}&pageSize={pageSize}");
-            if (!response.IsSuccessStatusCode)
-            {
-                return new PagedResultDTO<DepartmentListDTO>();
-            }
-            var body = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<PagedResultDTO<DepartmentListDTO>>(
-                body,
-                new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }) ?? new PagedResultDTO<DepartmentListDTO>();
+            return (await response.ReadAsAsync<PagedResultDTO<DepartmentListDTO>>()) ?? new PagedResultDTO<DepartmentListDTO>();
         }
     }
-}
