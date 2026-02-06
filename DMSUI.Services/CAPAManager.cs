@@ -5,6 +5,7 @@ using DMSUI.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,6 +38,11 @@ namespace DMSUI.Services
         public async Task<CAPADetailDTO> GetCAPASByCapaNo(string capaNo)
         {
             return await _apiClient.GetCAPASByCapaNo(capaNo);
+        }
+
+        public async Task<bool> UpdateCAPAAsync(string capaNo, CAPAUpdateReqDTO dto)
+        {
+            return await _apiClient.UpdateCAPAAsync(capaNo, dto);
         }
     }
 }

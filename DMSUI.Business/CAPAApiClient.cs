@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DMSUI.Business
@@ -107,5 +108,28 @@ namespace DMSUI.Business
             return created;
         }
 
+        public async Task<bool> UpdateCAPAAsync(string capaNo, CAPAUpdateReqDTO dto)
+        {
+            AttachToken();
+            var json = JsonSerializer.Serialize(dto, new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            });
+
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"),
+                $"/api/CAPA/{Uri.EscapeDataString(capaNo)}")
+            {
+                Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+            };
+            Console.WriteLine("PATCH JSON => " + json);
+            var response = await _httpClient.SendAsync(request);
+
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("PATCH STATUS: " + (int)response.StatusCode);
+            Console.WriteLine("PATCH BODY: " + body);
+
+            return response.IsSuccessStatusCode;
+
+        }
     }
 }

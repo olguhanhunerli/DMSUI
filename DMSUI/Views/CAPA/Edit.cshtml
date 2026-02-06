@@ -68,8 +68,10 @@
 
         <div class="col-lg-8">
             <form id="capaForm" asp-action="Edit" method="post">
-                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="OwnerId" />
                 <input type="hidden" asp-for="CapaNo" />
+                <input type="hidden" asp-for="Status" />
+                <input type="hidden" asp-for="RootCauseMethodId" />
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">Genel</div>
@@ -78,23 +80,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Durum</label>
-
-                                @if (locked)
-                                {
-                                    <select asp-for="Status" class="form-select" disabled>
-                                        <option value="BEKLIYOR">BEKLIYOR</option>
-                                        <option value="AÇIK">AÇIK</option>
-                                        <option value="KAPALI">KAPALI</option>
-                                    </select>
-                                }
-                                else
-                                {
-                                    <select asp-for="Status" class="form-select">
-                                        <option value="BEKLIYOR">BEKLIYOR</option>
-                                        <option value="AÇIK">AÇIK</option>
-                                        <option value="KAPALI">KAPALI</option>
-                                    </select>
-                                }
+                                <input type="text" value="@Model.Status" class="form-control" readonly />
                             </div>
 
                             <div class="col-md-6">
@@ -127,15 +113,7 @@
 
                             <div class="col-md-12">
                                 <label class="form-label">Kök Neden Metodu</label>
-
-                                @if (locked)
-                                {
-                                    <input asp-for="RootCauseMethodName" class="form-control" disabled />
-                                }
-                                else
-                                {
-                                    <input asp-for="RootCauseMethodName" class="form-control" />
-                                }
+                                <input type="text" value="@Model.RootCauseMethodName" class="form-control" readonly />
                             </div>
 
                         </div>
@@ -201,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- Bottom Save -->
                 <div class="d-flex justify-content-end gap-2">
                     <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
 
@@ -218,49 +195,50 @@
         </div>
 
         <div class="col-lg-4">
-                <div class="card shadow-sm mb-3">
-                    <div class="card-header fw-semibold">
-                        Şikayet Bilgileri
-                    </div>
-
-                    <div class="card-body">
-                        <dl class="row mb-0">
-
-                            <dt class="col-5 text-muted">Firma</dt>
-                            <dd class="col-7 fw-semibold">
-                                @(Model.ComplaintCompanyName ?? "-")
-                            </dd>
-
-                            <dt class="col-5 text-muted">Müşteri</dt>
-                            <dd class="col-7">
-                                @(Model.CustomerName ?? "-")
-                            </dd>
-
-                            <dt class="col-5 text-muted">Şikayet No</dt>
-                            <dd class="col-7">
-                                @(Model.ComplaintNo ?? "-")
-                            </dd>
-
-                            <dt class="col-5 text-muted">Müşteri Şikayet No</dt>
-                            <dd class="col-7">
-                                @(Model.CustomerComplaintNo ?? "-")
-                            </dd>
-
-                            <dt class="col-5 text-muted">Müşteri PO</dt>
-                            <dd class="col-7">
-                                @(Model.CustomerPO ?? "-")
-                            </dd>
-
-                            @if (!string.IsNullOrWhiteSpace(Model.ComplaintTitle))
-                            {
-                                <dt class="col-5 text-muted">Konu</dt>
-                                <dd class="col-7">
-                                    @Model.ComplaintTitle
-                                </dd>
-                            }
-                        </dl>
-                    </div>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">
+                    Şikayet Bilgileri
                 </div>
+
+                <div class="card-body">
+                    <dl class="row mb-0">
+
+                        <dt class="col-5 text-muted">Firma</dt>
+                        <dd class="col-7 fw-semibold">
+                            @(Model.ComplaintCompanyName ?? "-")
+                        </dd>
+
+                        <dt class="col-5 text-muted">Müşteri</dt>
+                        <dd class="col-7">
+                            @(Model.CustomerName ?? "-")
+                        </dd>
+
+                        <dt class="col-5 text-muted">Şikayet No</dt>
+                        <dd class="col-7">
+                            @(Model.ComplaintNo ?? "-")
+                        </dd>
+
+                        <dt class="col-5 text-muted">Müşteri Şikayet No</dt>
+                        <dd class="col-7">
+                            @(Model.CustomerComplaintNo ?? "-")
+                        </dd>
+
+                        <dt class="col-5 text-muted">Müşteri PO</dt>
+                        <dd class="col-7">
+                            @(Model.CustomerPO ?? "-")
+                        </dd>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ComplaintTitle))
+                        {
+                            <dt class="col-5 text-muted">Konu</dt>
+                            <dd class="col-7">
+                                @Model.ComplaintTitle
+                            </dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold">Özet</div>
                 <div class="card-body">
@@ -318,6 +296,84 @@
                                 </tr>
                             </thead>
                             <tbody>
+
+                                @* --- TABLE İÇİNDEN AÇILAN: AKSİYON EKLE --- *@
+                                @if (!locked)
+                                {
+                                    <tr class="table-light">
+                                        <td colspan="8" class="p-0">
+                                            <button class="btn btn-link w-100 text-start px-3 py-2"
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#addActionRow"
+                                                    aria-expanded="false">
+                                                ➕ Yeni Aksiyon Ekle
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <tr id="addActionRow" class="collapse">
+                                        <td colspan="8" class="bg-light">
+                                            <form asp-action="AddAction"
+                                                  asp-controller="CAPA"
+                                                  method="post"
+                                                  class="row g-2 p-3">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="capaNo" value="@Model.CapaNo" />
+
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Tip</label>
+                                                    <select name="ActionType" class="form-select" required>
+                                                        <option value="">Seç</option>
+                                                        <option value="TEST">TEST</option>
+                                                        <option value="CORRECTIVE">Düzeltici</option>
+                                                        <option value="PREVENTIVE">Önleyici</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label class="form-label">Açıklama</label>
+                                                    <input name="Description" class="form-control" required />
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Sahip (OwnerId)</label>
+                                                    <input name="OwnerId" type="number" class="form-control" required />
+                                                </div>
+
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Termin</label>
+                                                    <input name="DueDate" type="datetime-local" class="form-control" required />
+                                                </div>
+
+                                                <div class="col-md-1 d-flex align-items-center">
+                                                    <div class="form-check mt-4">
+                                                        <input name="EvidenceRequired"
+                                                               class="form-check-input"
+                                                               type="checkbox"
+                                                               value="true" />
+                                                        <label class="form-check-label">Kanıt</label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-1 d-flex align-items-end justify-content-end gap-2">
+                                                    <button type="button"
+                                                            class="btn btn-outline-secondary"
+                                                            data-bs-toggle="collapse"
+                                                            data-bs-target="#addActionRow">
+                                                        İptal
+                                                    </button>
+
+                                                    <button type="submit" class="btn btn-success">
+                                                        Ekle
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+
+                                @* --- MEVCUT AKSİYONLAR --- *@
                                 @if (Model.Actions == null || !Model.Actions.Any())
                                 {
                                     <tr>
@@ -332,7 +388,7 @@
                                             <td>@a.Id</td>
                                             <td>@a.ActionType</td>
                                             <td>@a.Description</td>
-                                            <td>@a.OwnerName</td>
+                                            <td>@(a.OwnerName ?? "-")</td>
                                             <td>@fmtDateTime(a.DueDate)</td>
                                             <td><span class="badge bg-@badge(a.Status)">@a.Status</span></td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>

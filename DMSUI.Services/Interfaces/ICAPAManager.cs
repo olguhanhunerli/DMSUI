@@ -14,5 +14,7 @@ namespace DMSUI.Services.Interfaces
         Task<CAPADetailDTO> GetCAPASByCapaNo(string capaNo);
         Task<CAPACreateFormDTO> CreateFormCAPAS(string complaintNo);
         Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto);
+        Task<bool> UpdateCAPAAsync(string capaNo, CAPAUpdateReqDTO dto);
+
     }
 }

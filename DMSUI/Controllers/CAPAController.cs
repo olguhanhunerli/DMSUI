@@ -1,9 +1,12 @@
 ﻿using DMSUI.Entities.DTOs.CAPA;
+using DMSUI.Entities.DTOs.CapaActions;
 using DMSUI.Entities.DTOs.Complaints;
 using DMSUI.Entities.DTOs.Lookups;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.CAPA;
+using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace DMSUI.Controllers
@@ -12,11 +15,13 @@ namespace DMSUI.Controllers
     {
         private readonly IComplaintManager _complaintManager;
         private readonly ICAPAManager _capaManager;
+        private readonly ICapaActionsManager _capaActionsManager;
 
-        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager)
+        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager)
         {
             _complaintManager = complaintManager;
             _capaManager = capaManager;
+            _capaActionsManager = capaActionsManager;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -188,5 +193,88 @@ namespace DMSUI.Controllers
 
             return View(model);
         }
+        [HttpPost]
+        public async Task<IActionResult> Edit(CAPADetailDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.CapaNo))
+                return BadRequest("capaNo zorunlu.");
+
+
+            var model = new CAPAUpdateReqDTO
+            {
+                NonConformity = dto.NonConformity,
+                RootCauseMethodId = dto.RootCauseMethodId,
+                RootCause = dto.RootCause,
+                CorrectiveAction = dto.CorrectiveAction,
+                DueDate = dto.DueDate,
+                OwnerId = dto.OwnerId,
+                Status = "BEKLIYOR",
+                EffectivenessCheck = dto.EffectivenessCheck,
+                EffectivenessCheckedBy = dto.EffectivenessCheckedBy,
+                EffectivenessCheckedAt = dto.EffectivenessCheckedAt,
+                EffectivenessResult = dto.EffectivenessResult
+            };
+
+            try
+            {
+                var ok = await _capaManager.UpdateCAPAAsync(dto.CapaNo, model);
+
+                if (ok)
+                {
+                    TempData["Success"] = "CAPA güncellendi.";
+                    return RedirectToAction(nameof(Detail), new { capaNo = dto.CapaNo });
+                }
+
+                TempData["Error"] = "Güncelleme başarısız (API).";
+                return RedirectToAction(nameof(Edit), new { capaNo = dto.CapaNo });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Edit), new { capaNo = dto.CapaNo });
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddAction(string capaNo, CreateCapaActionDTO dto)
+        {
+            try
+            {
+                Console.WriteLine("=== CreateCapaAction ===");
+                Console.WriteLine($"CAPA: {capaNo}");
+                Console.WriteLine($"Type: {dto.ActionType}");
+                Console.WriteLine($"OwnerId: {dto.OwnerId}");
+                Console.WriteLine($"DueDate: {dto.DueDate:o}");
+                Console.WriteLine($"Evidence: {dto.EvidenceRequired}");
+                if (string.IsNullOrWhiteSpace(capaNo))
+                {
+                    TempData["Error"] = "CAPA No boş olamaz.";
+                    return RedirectToAction(nameof(Edit), new { capaNo });
+                }
+
+                if (string.IsNullOrWhiteSpace(dto.ActionType) || string.IsNullOrWhiteSpace(dto.Description))
+                {
+                    TempData["Error"] = "Aksiyon tipi ve açıklama zorunludur.";
+                    return RedirectToAction(nameof(Edit), new { capaNo });
+                }
+
+                var created = await _capaActionsManager.CreateCapaActionAsync(capaNo, dto);
+
+                if (created != null)
+                {
+                    TempData["Success"] = "Aksiyon eklendi.";
+                    return RedirectToAction(nameof(Detail), new { capaNo });
+                }
+
+                TempData["Error"] = "Aksiyon ekleme başarısız (API).";
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
+        }
+
     }
 }
