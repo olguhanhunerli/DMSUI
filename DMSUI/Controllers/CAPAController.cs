@@ -240,39 +240,23 @@ namespace DMSUI.Controllers
         {
             try
             {
-                Console.WriteLine("=== CreateCapaAction ===");
-                Console.WriteLine($"CAPA: {capaNo}");
-                Console.WriteLine($"Type: {dto.ActionType}");
-                Console.WriteLine($"OwnerId: {dto.OwnerId}");
-                Console.WriteLine($"DueDate: {dto.DueDate:o}");
-                Console.WriteLine($"Evidence: {dto.EvidenceRequired}");
                 if (string.IsNullOrWhiteSpace(capaNo))
-                {
-                    TempData["Error"] = "CAPA No boş olamaz.";
-                    return RedirectToAction(nameof(Edit), new { capaNo });
-                }
+                    return BadRequest(new { ok = false, message = "CAPA No boş olamaz." });
 
                 if (string.IsNullOrWhiteSpace(dto.ActionType) || string.IsNullOrWhiteSpace(dto.Description))
-                {
-                    TempData["Error"] = "Aksiyon tipi ve açıklama zorunludur.";
-                    return RedirectToAction(nameof(Edit), new { capaNo });
-                }
+                    return BadRequest(new { ok = false, message = "Aksiyon tipi ve açıklama zorunludur." });
 
                 var created = await _capaActionsManager.CreateCapaActionAsync(capaNo, dto);
 
-                if (created != null)
-                {
-                    TempData["Success"] = "Aksiyon eklendi.";
-                    return RedirectToAction(nameof(Detail), new { capaNo });
-                }
+                if (created == null)
+                    return StatusCode(500, new { ok = false, message = "Aksiyon ekleme başarısız (API)." });
 
-                TempData["Error"] = "Aksiyon ekleme başarısız (API).";
-                return RedirectToAction(nameof(Edit), new { capaNo });
+                // UI tabloya ekleyebilsin diye created'ı geri dön
+                return Ok(new { ok = true, message = "Aksiyon eklendi.", data = created });
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message;
-                return RedirectToAction(nameof(Edit), new { capaNo });
+                return StatusCode(500, new { ok = false, message = ex.Message });
             }
         }
 
