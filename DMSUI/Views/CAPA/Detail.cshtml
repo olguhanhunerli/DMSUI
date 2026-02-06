@@ -1,0 +1,224 @@
+﻿@using DMSUI.Entities.DTOs.CAPA
+@model CAPADetailDTO
+
+@{
+    ViewData["Title"] = "CAPA Detay";
+
+    string fmtDate(DateTime d) => d.ToString("dd.MM.yyyy");
+    string fmtDateTime(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
+    string fmtDateTimeN(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+
+    string badge(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return "secondary";
+        status = status.Trim().ToUpperInvariant();
+
+        return status switch
+        {
+            "BEKLIYOR" => "warning",
+            "AÇIK" or "ACIK" => "info",
+            "KAPALI" => "success",
+            _ => "secondary"
+        };
+    }
+
+    var actionsCount = Model.Actions?.Count ?? 0;
+}
+
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <div class="text-muted small">CAPA No</div>
+            <h3 class="mb-1">@Model.CapaNo</h3>
+            <div class="text-muted">
+                Şikayet No:
+                <span class="fw-semibold">@Model.ComplaintNo</span>
+            </div>
+        </div>
+
+        <div class="text-end">
+            <span class="badge bg-@badge(Model.Status) fs-6">@Model.Status</span>
+            <div class="mt-2">
+                <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">Genel Bilgiler</div>
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <label class="form-label">Durum</label>
+                            <input class="form-control" value="@Model.Status" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Termin</label>
+                            <input class="form-control" value="@fmtDate(Model.DueDate)" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Kalan Gün</label>
+                            <input class="form-control" value="@Model.RemainingDays" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Sorumlu</label>
+                            <input class="form-control" value="@Model.OwnerByName" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Firma (Sistem)</label>
+                            <input class="form-control" value="@Model.CompanyName" readonly />
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Kök Neden Metodu</label>
+                            <input class="form-control" value="@Model.RootCauseMethodName" readonly />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">İçerik</div>
+                <div class="card-body">
+
+                    <div class="mb-3">
+                        <label class="form-label">Uygunsuzluk</label>
+                        <textarea class="form-control" rows="3" readonly>@Model.NonConformity</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Kök Neden</label>
+                        <textarea class="form-control" rows="3" readonly>@Model.RootCause</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Düzeltici Faaliyet</label>
+                        <textarea class="form-control" rows="3" readonly>@Model.CorrectiveAction</textarea>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Etkinlik Kontrolü</label>
+                        <textarea class="form-control" rows="2" readonly>@Model.EffectivenessCheck</textarea>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">Şikayet Bilgileri</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5 text-muted">Firma</dt>
+                        <dd class="col-7 fw-semibold">@Model.ComplaintCompanyName</dd>
+
+                        <dt class="col-5 text-muted">Müşteri</dt>
+                        <dd class="col-7">@Model.CustomerName</dd>
+
+                        <dt class="col-5 text-muted">Müşteri Şikayet No</dt>
+                        <dd class="col-7">@Model.CustomerComplaintNo</dd>
+
+                        <dt class="col-5 text-muted">Müşteri PO</dt>
+                        <dd class="col-7">@Model.CustomerPO</dd>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ComplaintTitle))
+                        {
+                            <dt class="col-5 text-muted">Konu</dt>
+                            <dd class="col-7">@Model.ComplaintTitle</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold">Özet</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-6 text-muted">Açılış</dt>
+                        <dd class="col-6">@fmtDateTime(Model.OpenedAt)</dd>
+
+                        <dt class="col-6 text-muted">Kapanış</dt>
+                        <dd class="col-6">@fmtDateTimeN(Model.CloseAt)</dd>
+
+                        <dt class="col-6 text-muted">Oluşturma</dt>
+                        <dd class="col-6">@fmtDateTime(Model.CreatedAt)</dd>
+
+                        <dt class="col-6 text-muted">Güncelleme</dt>
+                        <dd class="col-6">@fmtDateTimeN(Model.UpdatedAt)</dd>
+
+                        <dt class="col-6 text-muted">Kontrol Tarihi</dt>
+                        <dd class="col-6">@fmtDateTimeN(Model.EffectivenessCheckedAt)</dd>
+
+                        <dt class="col-6 text-muted">Kontrol Eden</dt>
+                        <dd class="col-6">@Model.EffectivenessCheckedByName</dd>
+                    </dl>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold">
+                    Aksiyonlar <span class="text-muted small">(Toplam: @actionsCount)</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Tip</th>
+                                <th>Açıklama</th>
+                                <th>Sahip</th>
+                                <th>Termin</th>
+                                <th>Durum</th>
+                                <th>Kanıt</th>
+                                <th>Oluşturma</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Actions.Any())
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">Aksiyon yok</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var a in Model.Actions)
+                                {
+                                    <tr>
+                                        <td>@a.Id</td>
+                                        <td>@a.ActionType</td>
+                                        <td>@a.Description</td>
+                                        <td>@a.OwnerName</td>
+                                        <td>@fmtDateTime(a.DueDate)</td>
+                                        <td><span class="badge bg-@badge(a.Status)">@a.Status</span></td>
+                                        <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
+                                        <td>@fmtDateTime(a.CreatedAt)</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

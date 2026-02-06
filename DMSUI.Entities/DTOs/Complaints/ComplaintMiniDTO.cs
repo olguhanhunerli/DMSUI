@@ -35,5 +35,7 @@ namespace DMSUI.Entities.DTOs.Complaints
         public string? InterimActionNote { get; set; }
         public string? Status { get; set; }
         public bool IsClosed { get; set; }
+        public string? CustomerComplaintNo { get; set; }
+        public string? CustomerPO { get; set; }
     }
 }

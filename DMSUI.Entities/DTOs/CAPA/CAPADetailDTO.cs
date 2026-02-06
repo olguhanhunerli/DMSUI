@@ -53,5 +53,11 @@ namespace DMSUI.Entities.DTOs.CAPA
         public string? OwnerByName { get; set; }
 
         public string? EffectivenessCheckedByName { get; set; }
+        public string? ComplaintCompanyName { get; set; }  
+        public string? CustomerName { get; set; }         
+        public string? CustomerComplaintNo { get; set; }  
+        public string? CustomerPO { get; set; }           
+        public string? ComplaintTitle { get; set; }
+        public List<CapaActionListDTO> Actions { get; set; }
     }
 }

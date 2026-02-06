@@ -110,8 +110,8 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm shadow-sm">
-                                            <a asp-action="Details"
-                                               asp-route-id="@capa.Id"
+                                            <a asp-action="Detail"
+                                               asp-route-capaNo="@capa.CapaNo"
                                                class="btn btn-light border"
                                                title="Detay">
                                                 <i class="bi bi-eye"></i>
@@ -120,7 +120,7 @@
                                             @if (isAdmin || capa.OwnerId == currentUserId)
                                             {
                                                 <a asp-action="Edit"
-                                                   asp-route-id="@capa.Id"
+                                                   asp-route-capaNo="@capa.CapaNo"
                                                    class="btn btn-light border"
                                                    title="Düzenle">
                                                     <i class="bi bi-pencil-square text-primary"></i>

@@ -1,5 +1,6 @@
 ﻿using DMSUI.Entities.DTOs.CAPA;
 using DMSUI.Entities.DTOs.Complaints;
+using DMSUI.Entities.DTOs.Lookups;
 using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.CAPA;
 using Microsoft.AspNetCore.Mvc;
@@ -72,6 +73,120 @@ namespace DMSUI.Controllers
                 return RedirectToAction(nameof(Index));
 
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Detail(string capaNo)
+        {
+
+            if (string.IsNullOrWhiteSpace(capaNo))
+                return BadRequest("capaNo zorunlu.");
+
+            var entity = await _capaManager.GetCAPASByCapaNo(capaNo);
+            if (entity == null)
+                return NotFound();
+
+            var model = new CAPADetailDTO
+            {
+                Id = entity.Id,
+                CapaNo = entity.CapaNo,
+                ComplaintNo = entity.ComplaintNo,
+                NonConformity = entity.NonConformity,
+                RootCauseMethodName = entity.RootCauseMethodName,
+                RootCause = entity.RootCause,
+                CorrectiveAction = entity.CorrectiveAction,
+                Status = entity.Status,
+                OwnerId = entity.OwnerId,
+                OwnerByName = entity.OwnerByName,
+                CompanyId = entity.CompanyId,
+                CompanyName = entity.CompanyName,
+                EffectivenessCheck = entity.EffectivenessCheck,
+                EffectivenessCheckedBy = entity.EffectivenessCheckedBy,
+                EffectivenessCheckedByName = entity.EffectivenessCheckedByName,
+                RemainingDays = entity.RemainingDays,
+                DueDate = entity.DueDate,
+                EffectivenessCheckedAt = entity.EffectivenessCheckedAt,
+                OpenedAt = entity.OpenedAt,
+                CloseAt = entity.CloseAt,
+                CreatedAt = entity.CreatedAt,
+                UpdatedAt = entity.UpdatedAt,
+                Actions = entity.Actions ?? new List<CapaActionListDTO>()
+            };
+
+            if (!string.IsNullOrWhiteSpace(model.ComplaintNo))
+            {
+                var form = await _capaManager.CreateFormCAPAS(model.ComplaintNo);
+
+                if (form?.Complaint != null)
+                {
+                    model.ComplaintCompanyName = form.Complaint.CompanyName;
+                    model.CustomerName = form.Complaint.CustomerName ?? form.Customer?.Name;
+                    model.CustomerComplaintNo = form.Complaint.CustomerComplaintNo;
+                    model.CustomerPO = form.Complaint.CustomerPO;
+                    model.ComplaintTitle = form.Complaint.Title;
+
+                    ViewBag.RootCauseMethods =
+                    form.Lookups?.RootCauseMethods ?? new List<LookupItemDTO>();
+                }
+            }
+
+            return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(string capaNo)
+        {
+
+            if (string.IsNullOrWhiteSpace(capaNo))
+                return BadRequest("capaNo zorunlu.");
+
+            var entity = await _capaManager.GetCAPASByCapaNo(capaNo);
+            if (entity == null)
+                return NotFound();
+
+            var model = new CAPADetailDTO
+            {
+                Id = entity.Id,
+                CapaNo = entity.CapaNo,
+                ComplaintNo = entity.ComplaintNo,
+                NonConformity = entity.NonConformity,
+                RootCauseMethodName = entity.RootCauseMethodName,
+                RootCause = entity.RootCause,
+                CorrectiveAction = entity.CorrectiveAction,
+                Status = entity.Status,
+                OwnerId = entity.OwnerId,
+                OwnerByName = entity.OwnerByName,
+                CompanyId = entity.CompanyId,
+                CompanyName = entity.CompanyName,
+                EffectivenessCheck = entity.EffectivenessCheck,
+                EffectivenessCheckedBy = entity.EffectivenessCheckedBy,
+                EffectivenessCheckedByName = entity.EffectivenessCheckedByName,
+                RemainingDays = entity.RemainingDays,
+                DueDate = entity.DueDate,
+                EffectivenessCheckedAt = entity.EffectivenessCheckedAt,
+                OpenedAt = entity.OpenedAt,
+                CloseAt = entity.CloseAt,
+                CreatedAt = entity.CreatedAt,
+                UpdatedAt = entity.UpdatedAt,
+                Actions = entity.Actions ?? new List<CapaActionListDTO>()
+            };
+
+            if (!string.IsNullOrWhiteSpace(model.ComplaintNo))
+            {
+                var form = await _capaManager.CreateFormCAPAS(model.ComplaintNo);
+
+                if (form?.Complaint != null)
+                {
+                    model.ComplaintCompanyName = form.Complaint.CompanyName;
+                    model.CustomerName = form.Complaint.CustomerName ?? form.Customer?.Name;
+                    model.CustomerComplaintNo = form.Complaint.CustomerComplaintNo;
+                    model.CustomerPO = form.Complaint.CustomerPO;
+                    model.ComplaintTitle = form.Complaint.Title;
+
+                    ViewBag.RootCauseMethods =
+                    form.Lookups?.RootCauseMethods ?? new List<LookupItemDTO>();
+                }
+            }
+
+            return View(model);
         }
     }
 }
