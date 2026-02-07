@@ -9,11 +9,8 @@
 }
 
 <div class="container-fluid px-4 mt-4">
-
-    <!-- HEADER -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
-
             <div class="d-flex align-items-center gap-3">
                 <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center"
                      style="width:48px;height:48px;">
@@ -28,22 +25,17 @@
 
             <span class="badge rounded-pill px-3 py-2 fs-6
                 @(Model.StatusId == 1 ? "bg-warning text-dark" :
-                                    Model.StatusId == 2 ? "bg-success" :
-                                    Model.StatusId == 3 ? "bg-danger" :
-                                    "bg-secondary")">
+                  Model.StatusId == 2 ? "bg-success" :
+                  Model.StatusId == 3 ? "bg-danger" :
+                  "bg-secondary")">
                 @Model.Status
             </span>
-
         </div>
     </div>
 
-    <!-- MAIN CARD -->
     <div class="card border-0 shadow-sm">
-
-        <!-- TABS -->
         <div class="card-header bg-white border-bottom-0">
             <ul class="nav nav-tabs card-header-tabs">
-
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-info">
                         <i class="bi bi-info-circle"></i> Bilgiler
@@ -83,18 +75,13 @@
                         <i class="bi bi-clock-history"></i> Geçmiş
                     </button>
                 </li>
-
             </ul>
         </div>
 
-        <!-- TAB CONTENT -->
         <div class="card-body">
             <div class="tab-content">
-
-                <!-- INFO -->
                 <div class="tab-pane fade show active" id="tab-info">
                     <div class="row g-3">
-
                         <div class="col-md-3">
                             <div class="border rounded p-3">
                                 <small class="text-muted">Doküman Tipi</small>
@@ -129,20 +116,15 @@
                             <div class="border rounded p-3">
                                 <small class="text-muted">Versiyon Notu</small>
                                 <div>
-                                    @(string.IsNullOrWhiteSpace(Model.VersionNote)
-                                                                        ? "-"
-                                                                        : Model.VersionNote)
+                                    @(string.IsNullOrWhiteSpace(Model.VersionNote) ? "-" : Model.VersionNote)
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <!-- ACCESS -->
                 <div class="tab-pane fade" id="tab-access">
                     <div class="row g-3 mt-3">
-
                         <div class="col-md-4">
                             <div class="border rounded p-3 h-100">
                                 <h6 class="fw-semibold mb-2">Departmanlar</h6>
@@ -202,18 +184,15 @@
                                 }
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                <!-- PDF -->
                 <div class="tab-pane fade" id="tab-pdf">
                     <div class="ratio ratio-16x9 border rounded">
                         <iframe src="@Url.Action("Pdf", "Document", new { id = Model.Id })"></iframe>
                     </div>
                 </div>
 
-                <!-- ATTACHMENTS -->
                 <div class="tab-pane fade" id="tab-attachments">
                     @if (Model.Attachments?.Any() == true)
                     {
@@ -243,9 +222,7 @@
                     }
                 </div>
 
-                <!-- APPROVAL -->
                 <div class="tab-pane fade" id="tab-approval">
-
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
                             <div class="border rounded p-3">
@@ -267,7 +244,6 @@
                     @if (canApprove && Model.StatusId == 1)
                     {
                         <div class="border rounded p-3 bg-light mb-3">
-
                             <form asp-action="Approve" method="post" class="d-inline">
                                 <input type="hidden" name="documentId" value="@Model.Id" />
                                 <button class="btn btn-success">
@@ -285,28 +261,22 @@
                                 <form asp-action="Reject" method="post">
                                     <input type="hidden" name="documentId" value="@Model.Id" />
                                     <textarea name="reason"
-                                          class="form-control mb-2"
-                                          rows="3"
-                                          required
-                                          placeholder="Red gerekçesi"></textarea>
+                                              class="form-control mb-2"
+                                              rows="3"
+                                              required
+                                              placeholder="Red gerekçesi"></textarea>
                                     <button class="btn btn-danger">Gönder</button>
                                 </form>
                             </div>
-
                         </div>
                     }
-
                 </div>
 
-                <!-- HISTORY (TIMELINE BOOTSTRAP ONLY) -->
                 <div class="tab-pane fade" id="tab-history">
-
                     @if (Model.ApprovalHistories?.Any() == true)
                     {
                         <div class="list-group list-group-flush">
-
-                            @foreach (var h in Model.ApprovalHistories
-                                                    .OrderByDescending(x => x.ActionAt))
+                            @foreach (var h in Model.ApprovalHistories.OrderByDescending(x => x.ActionAt))
                             {
                                 var badgeClass =
                                 h.ActionType == "Onaylandı" ? "bg-success" :
@@ -316,22 +286,16 @@
 
                                 <div class="list-group-item border-0 ps-0">
                                     <div class="d-flex">
-
                                         <div class="d-flex flex-column align-items-center me-3">
-                                            <span class="rounded-circle @badgeClass"
-                                                  style="width:12px;height:12px;"></span>
+                                            <span class="rounded-circle @badgeClass" style="width:12px;height:12px;"></span>
                                             <div class="flex-grow-1 border-start mt-1"></div>
                                         </div>
 
                                         <div class="flex-grow-1 pb-4">
                                             <div class="d-flex align-items-center gap-2">
-                                                <span class="badge @badgeClass">
-                                                    @h.ActionDisplayName
-                                                </span>
-
+                                                <span class="badge @badgeClass">@h.ActionDisplayName</span>
                                                 <small class="text-muted">
-                                                    @h.ActionByName •
-                                                    @h.ActionAt?.ToString("dd.MM.yyyy HH:mm")
+                                                    @h.ActionByName • @h.ActionAt?.ToString("dd.MM.yyyy HH:mm")
                                                 </small>
                                             </div>
 
@@ -342,20 +306,16 @@
                                                 </div>
                                             }
                                         </div>
-
                                     </div>
                                 </div>
                             }
-
                         </div>
                     }
                     else
                     {
                         <div class="text-muted">Geçmiş kaydı yok.</div>
                     }
-
                 </div>
-
             </div>
         </div>
     </div>

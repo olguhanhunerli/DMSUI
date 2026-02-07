@@ -1,4 +1,4 @@
-﻿﻿@using DMSUI.Entities.DTOs.Calibration
+﻿@using DMSUI.Entities.DTOs.Calibration
 @using DMSUI.Entities.DTOs.Common
 @model PagedResultDTO<CalibrationItemDTO>
 
@@ -6,7 +6,7 @@
     ViewData["Title"] = "Kalibrasyonlar";
 
     var q = Context.Request.Query["q"].ToString();
-    var result = Context.Request.Query["result"].ToString(); 
+    var result = Context.Request.Query["result"].ToString();
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
 
@@ -40,14 +40,14 @@
                        class="form-control form-control-sm"
                        placeholder="Cihaz / Kod / Seri / Sertifika ara..." />
             </div>
-@* 
+
             <div class="col-6 col-md-2">
                 <select id="fResult" name="result" class="form-select form-select-sm">
                     <option value="" selected="@(string.IsNullOrWhiteSpace(result))">Tümü</option>
-                    <option value="PASS" selected="@(result == "PASS")">PASS</option>
-                    <option value="FAIL" selected="@(result == "FAIL")">FAIL</option>
+                    <option value="PASS" selected="@(string.Equals(result, "PASS", StringComparison.OrdinalIgnoreCase))">PASS</option>
+                    <option value="FAIL" selected="@(string.Equals(result, "FAIL", StringComparison.OrdinalIgnoreCase))">FAIL</option>
                 </select>
-            </div> *@
+            </div>
 
             <div class="col-12 col-md-2">
                 <input id="fLocation"
@@ -66,6 +66,7 @@
         </div>
     </div>
 </form>
+
 <a class="btn btn-success btn-sm mb-2"
    asp-action="ExportExcel"
    asp-route-page="@Model.Page"
@@ -76,6 +77,7 @@
    asp-route-location="@location">
     <i class="bi bi-file-earmark-excel me-1"></i> Excel
 </a>
+
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -87,29 +89,30 @@
                     <th>Seri No</th>
                     <th>Lokasyon</th>
                     <th>Kalibrasyon Tarihi</th>
-                    <th>Kalibrasyon Geçerlilik Tarihi</th>
+                    <th>Geçerlilik Tarihi</th>
                     <th style="width:90px;" class="text-center">Kalan</th>
-                    <th style="width: 90px" class="text-center">Firma</th>
+                    <th style="width:90px;" class="text-center">Sonuç</th>
+                    <th style="width:90px;" class="text-center">Firma</th>
                     <th>Sertifika No</th>
-                    <th style="width:110px;" class="text-center">Dosya Yüklü Mü?</th>
-                    <th style="width:120px;" class="text-center">İşlemler</th>
+                    <th style="width:120px;" class="text-center">Dosya Durumu</th>
+                    <th style="width:180px;" class="text-center">İşlemler</th>
                 </tr>
             </thead>
 
             <tbody>
-                @if (Model?.Items != null && Model.Items.Any())
+                @if (Model?.Items?.Any() == true)
                 {
-                    var row = (Model.Page - 1) * Model.PageSize;
-
                     foreach (var item in Model.Items)
                     {
-                        row++;
+                        var remaining = item.RemainingDays;
 
                         var rowClass =
-                        item.Result == "FAIL" ? "table-danger" :
-                        item.RemainingDays < 0 ? "table-danger" :
-                        item.RemainingDays <= 30 ? "table-warning" :
+                        remaining < 0 ? "table-danger" :
+                        remaining <= 30 ? "table-warning" :
                         "";
+
+                        var isFail = string.Equals(item.Result?.Trim(), "FAIL", StringComparison.OrdinalIgnoreCase);
+                        var resultBadge = isFail ? "bg-danger" : "bg-success";
 
                         <tr class="@rowClass"
                             data-result="@item.Result"
@@ -117,10 +120,7 @@
                             data-location="@item.InstrumentLocation"
                             data-q="@($"{item.InstrumentName} {item.AssetCode} {item.SerialNo} {item.CertificateNo}")">
 
-                            <td>
-                                <div class="fw-semibold">@item.CompanyName</div>
-                            </td>
-
+                            <td><div class="fw-semibold">@item.CompanyName</div></td>
                             <td class="fw-semibold">@item.AssetCode</td>
                             <td>@item.InstrumentName</td>
                             <td>@item.SerialNo</td>
@@ -130,27 +130,32 @@
                             <td>@item.DueDate.ToString("dd.MM.yyyy")</td>
 
                             <td class="text-end">
-                                <span class="fw-semibold @(item.RemainingDays <= 30 ? "text-danger" : "")">
-                                    @item.RemainingDays
+                                <span class="fw-semibold @(remaining <= 30 ? "text-danger" : "")">
+                                    @remaining
                                 </span>
                                 <span class="text-muted small">gün</span>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="badge rounded-pill @resultBadge">
+                                    @(isFail ? "FAIL" : "PASS")
+                                </span>
                             </td>
 
                             <td>@item.CalibrationCompany</td>
                             <td class="text-nowrap">@item.CertificateNo</td>
 
-
-                            <td>
+                            <td class="text-center">
                                 @if (item.Files?.Any() == true)
                                 {
                                     <span class="text-success fw-semibold">
-                                        <i class="bi bi-paperclip me-1"></i> Dosya Yüklü
+                                        <i class="bi bi-paperclip me-1"></i> Dosya yüklü
                                     </span>
                                 }
                                 else
                                 {
                                     <span class="text-muted">
-                                        <i class="bi bi-x-circle me-1"></i> Dosya Yok
+                                        <i class="bi bi-x-circle me-1"></i> Dosya yok
                                     </span>
                                 }
                             </td>
@@ -170,14 +175,17 @@
                                        asp-route-id="@item.CalibrationId">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <a class="btn btn-outline-dark btn-sm"
+
+                                    <a class="btn btn-outline-dark"
+                                       title="PDF"
                                        asp-action="Pdf"
                                        asp-route-id="@item.CalibrationId">
                                         <i class="bi bi-filetype-pdf me-1"></i> PDF
                                     </a>
+
                                     <button type="button"
                                             class="btn btn-outline-success"
-                                            title="Doküman Ekle"
+                                            title="Doküman ekle"
                                             data-bs-toggle="modal"
                                             data-bs-target="#uploadModal"
                                             data-calibration-id="@item.CalibrationId"
@@ -318,7 +326,6 @@
                   asp-controller="CalibrationFile"
                   method="post"
                   enctype="multipart/form-data">
-
                 @Html.AntiForgeryToken()
 
                 <div class="modal-header">
@@ -331,7 +338,11 @@
 
                     <div class="mb-2">
                         <label class="form-label small text-muted">Cihaz</label>
-                        <input type="text" class="form-control form-control-sm" id="ufInstrumentName" name="InstrumentName" readonly />
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               id="ufInstrumentName"
+                               name="InstrumentName"
+                               readonly />
                     </div>
 
                     <div class="mb-2">
@@ -339,12 +350,11 @@
                         <input type="file" name="File" class="form-control form-control-sm" required />
                     </div>
 
-                    <div class="row g-2">
-                        <input type="hidden" name="FileType" value="ORIGINAL" />
-                        <div class="col-12">
-                            <label class="form-label small text-muted">Açıklama</label>
-                            <input type="text" name="Description" class="form-control form-control-sm" />
-                        </div>
+                    <input type="hidden" name="FileType" value="ORIGINAL" />
+
+                    <div class="mb-2">
+                        <label class="form-label small text-muted">Açıklama</label>
+                        <input type="text" name="Description" class="form-control form-control-sm" />
                     </div>
                 </div>
 
@@ -354,7 +364,6 @@
                         <i class="bi bi-upload me-1"></i> Yükle
                     </button>
                 </div>
-
             </form>
         </div>
     </div>
@@ -379,7 +388,6 @@
 
         const q = document.getElementById('fQ');
         const result = document.getElementById('fResult');
-        const companyId = document.getElementById('fCompanyId');
         const location = document.getElementById('fLocation');
 
         function norm(v) {
@@ -389,23 +397,20 @@
         function apply() {
             const qv = norm(q?.value);
             const rv = norm(result?.value);
-            const civ = norm(companyId?.value);
             const lv = norm(location?.value);
 
             const rows = document.querySelectorAll('tbody tr[data-result]');
 
             rows.forEach(tr => {
                 const trResult = norm(tr.dataset.result);
-                const trCompanyId = norm(tr.dataset.companyid);
                 const trLocation = norm(tr.dataset.location);
                 const trHay = norm(tr.dataset.q);
 
                 const okQ = !qv || trHay.includes(qv);
                 const okR = !rv || trResult === rv;
-                const okC = !civ || trCompanyId === civ;       
-                const okL = !lv || trLocation.includes(lv);    
+                const okL = !lv || trLocation.includes(lv);
 
-                tr.style.display = (okQ && okR && okC && okL) ? '' : 'none';
+                tr.style.display = (okQ && okR && okL) ? '' : 'none';
             });
         }
 
@@ -414,7 +419,7 @@
             apply();
         });
 
-        [q, result, companyId, location].forEach(el => {
+        [q, result, location].forEach(el => {
             if (!el) return;
             el.addEventListener('input', apply);
             el.addEventListener('change', apply);

@@ -1,4 +1,5 @@
 ﻿@model DMSUI.ViewModels.Complaint.EditComplaintVM
+
 @{
     ViewData["Title"] = "Şikayet Düzenle";
 }
@@ -47,7 +48,7 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <label class="form-label small text-muted mb-1">Primary Atanan</label>
+                <label class="form-label small text-muted mb-1">Birincil Atanan</label>
                 <select asp-for="PrimaryAssigneeUserId"
                         class="form-select form-select-sm"
                         id="primarySelect">
@@ -111,6 +112,7 @@
                         Yüksek/Kritik veya tekrar şikayetlerde Parça No ve Containment zorunludur.
                     </span>
                 </div>
+                <div class="text-muted small">Parça/Lot bilgisi denetim ve analiz için önerilir.</div>
             </div>
 
             <div class="col-12 col-md-4">
@@ -148,6 +150,7 @@
 
             <div class="col-12">
                 <h6 class="mb-1">Müşteri / Sevkiyat</h6>
+                <div class="text-muted small">Varsa müşteri referansı ve sevkiyat bilgilerini güncelle.</div>
             </div>
 
             <div class="col-12 col-md-4">
@@ -192,13 +195,18 @@
 
             <div class="col-12 col-md-6">
                 <label class="form-label small text-muted mb-1">Ek Dosya</label>
-                <input type="file" name="Attachment" multiple class="form-control form-control-sm" />
+                <input type="file" name="AttachmentFile" multiple class="form-control form-control-sm" />
+                <div class="form-text">Birden fazla dosya seçebilirsin.</div>
             </div>
 
         </div>
     </div>
 
-    <div class="card-body">
+    <div class="card-body border-top">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="mb-0">Mevcut Dosyalar</h6>
+        </div>
+
         @if (Model.Attachments != null && Model.Attachments.Any())
         {
             <div class="table-responsive">
@@ -208,7 +216,7 @@
                             <th>Dosya</th>
                             <th class="text-end">Boyut</th>
                             <th class="text-center">Yükleme</th>
-                            <th class="text-center">İşlemler</th>
+                            <th class="text-center" style="width:140px;">İşlemler</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -221,6 +229,7 @@
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a class="btn btn-outline-primary"
+                                           title="İndir"
                                            asp-controller="Complaint"
                                            asp-action="DownloadAttachment"
                                            asp-route-id="@a.Id">
@@ -235,7 +244,7 @@
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@a.Id" />
                                             <input type="hidden" name="complaintNo" value="@Model.ComplaintNo" />
-                                            <button type="submit" class="btn btn-outline-danger">
+                                            <button type="submit" class="btn btn-outline-danger" title="Sil">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
@@ -250,7 +259,7 @@
         else
         {
             <div class="text-muted small">
-                <i class="bi bi-x-circle me-1"></i> Dosya yok.
+                <i class="bi bi-x-circle me-1"></i> Mevcut dosya yok.
             </div>
         }
     </div>
@@ -269,6 +278,7 @@
 
 <script>
     (function () {
+        // Ara aksiyon notunu aç/kapat
         const interimToggle = document.getElementById('interimToggle');
         const interimWrap = document.getElementById('interimNoteWrap');
 
@@ -279,6 +289,7 @@
         if (interimToggle) interimToggle.addEventListener('change', syncInterim);
         syncInterim();
 
+        // İzlenebilirlik kuralları: severity >= 3 veya tekrar ise Parça No + Containment zorunlu
         const severity = document.getElementById('severitySelect');
         const isRepeat = document.getElementById('isRepeatToggle');
         const partNumber = document.getElementById('partNumberInput');

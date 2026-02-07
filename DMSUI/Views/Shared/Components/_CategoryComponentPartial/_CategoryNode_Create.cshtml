@@ -18,11 +18,12 @@
     @if (Model.Children != null && Model.Children.Any())
     {
         <div class="ps-3">
-            @foreach (var child in Model.Children)
+            @foreach (var altKategori in Model.Children)
             {
                 @await Html.PartialAsync(
                          "~/Views/Shared/Components/_CategoryComponentPartial/_CategoryNode_Create.cshtml",
-                         child)
+                         altKategori
+                         )
             }
         </div>
     }

@@ -21,13 +21,11 @@
     <input type="hidden" asp-for="CalibrationId" />
     <input type="hidden" asp-for="InstrumentId" />
     <input type="hidden" asp-for="CompanyId" />
-
     <input type="hidden" asp-for="DueDate" />
 
     <div class="card-body">
-
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h6 class="text-muted mb-0">Cihaz Bilgileri (Readonly)</h6>
+            <h6 class="text-muted mb-0">Cihaz Bilgileri (Salt okunur)</h6>
 
             <span class="badge rounded-pill @(string.Equals(Model.Result, "PASS", StringComparison.OrdinalIgnoreCase) ? "bg-success" : "bg-danger")">
                 @Model.Result
@@ -61,7 +59,6 @@
         <h6 class="text-muted mb-3">Kalibrasyon Bilgileri</h6>
 
         <div class="row g-3 mb-4">
-
             <div class="col-md-3">
                 <label asp-for="CalibrationDate" class="form-label small text-muted mb-1">Kalibrasyon Tarihi</label>
                 <input asp-for="CalibrationDate" type="date" class="form-control form-control-sm" />
@@ -93,7 +90,6 @@
                 <input asp-for="InstrumentLocation" class="form-control form-control-sm" />
                 <span asp-validation-for="InstrumentLocation" class="text-danger small"></span>
             </div>
-
         </div>
 
         <hr />
@@ -113,6 +109,7 @@
                 <span asp-validation-for="CertificateNo" class="text-danger small"></span>
             </div>
         </div>
+
         <div class="row g-3 mb-2">
             <div class="col-12">
                 <label asp-for="Notes" class="form-label small text-muted mb-1">Notlar</label>
@@ -123,13 +120,14 @@
                 <span asp-validation-for="Notes" class="text-danger small"></span>
             </div>
         </div>
+
         <hr />
 
         <div class="d-flex align-items-center justify-content-between mb-2">
             <h6 class="text-muted mb-0">Dosyalar</h6>
         </div>
 
-        @if (Model.Files != null && Model.Files.Any())
+        @if (Model.Files?.Any() == true)
         {
             <div class="table-responsive">
                 <table class="table table-sm table-hover align-middle">
@@ -144,6 +142,7 @@
                             <th class="text-center">İşlemler</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach (var file in Model.Files)
                         {
@@ -157,9 +156,7 @@
                                     <span class="fw-semibold">@file.Description</span>
                                 </td>
 
-                                <td class="text-center">
-                                    @file.CreatedByName
-                                </td>
+                                <td class="text-center">@file.CreatedByName</td>
 
                                 <td class="text-center">
                                     @file.CreatedAt.ToString("dd.MM.yyyy HH:mm")
@@ -170,12 +167,11 @@
                                 </td>
 
                                 <td class="text-center">
-                                    @file.UpdatedAt.ToString("dd.MM.yyyy HH:mm")
+                                    @(file.UpdatedAt.ToString("dd.MM.yyyy HH:mm") ?? "-")
                                 </td>
 
                                 <td class="text-center">
                                     <div class="btn-group btn-group-sm">
-
                                         <a asp-controller="CalibrationFile"
                                            asp-action="DownloadOriginal"
                                            asp-route-fileId="@file.FileId"
@@ -194,17 +190,16 @@
                                                 <i class="bi bi-filetype-pdf"></i>
                                             </a>
                                         }
+
                                         <form asp-controller="CalibrationFile"
                                               asp-action="DeleteFile"
                                               method="post"
                                               class="d-inline"
                                               onsubmit="return confirm('Bu dosyayı silmek istediğine emin misin?');">
-
                                             @Html.AntiForgeryToken()
 
                                             <input type="hidden" name="fileId" value="@file.FileId" />
                                             <input type="hidden" name="calibrationId" value="@Model.CalibrationId" />
-
 
                                             <button type="submit"
                                                     class="btn btn-outline-danger btn-sm"
@@ -229,7 +224,8 @@
 
         <hr />
 
-        <h6 class="text-muted mb-3">Kayıt Bilgileri (Readonly)</h6>
+        <h6 class="text-muted mb-3">Kayıt Bilgileri (Salt okunur)</h6>
+
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="text-muted small">Oluşturan</div>
@@ -244,10 +240,11 @@
             <div class="col-md-4">
                 <div class="text-muted small">Son Güncelleyen</div>
                 <div>@(Model.UpdatedByName ?? "-")</div>
-                <div class="text-muted small">@(Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")</div>
+                <div class="text-muted small">
+                    @(Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                </div>
             </div>
         </div>
-
     </div>
 
     <div class="card-footer bg-white d-flex align-items-center justify-content-between">

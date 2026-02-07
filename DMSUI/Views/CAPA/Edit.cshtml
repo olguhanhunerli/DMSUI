@@ -2,18 +2,18 @@
 @model CAPADetailDTO
 
 @{
-    ViewData["Title"] = "CAPA Edit";
+    ViewData["Title"] = "CAPA Düzenle";
 
-    string fmtDate(DateTime d) => d.ToString("dd.MM.yyyy");
-    string fmtDateTime(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
-    string fmtDateTimeN(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+    string Tarih(DateTime d) => d.ToString("dd.MM.yyyy");
+    string TarihSaat(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
+    string TarihSaatYoksaCizgi(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
 
-    string badge(string? status)
+    string DurumRozeti(string? durum)
     {
-        if (string.IsNullOrWhiteSpace(status)) return "secondary";
-        status = status.Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(durum)) return "secondary";
+        durum = durum.Trim().ToUpperInvariant();
 
-        return status switch
+        return durum switch
         {
             "BEKLIYOR" => "warning",
             "AÇIK" or "ACIK" => "info",
@@ -23,16 +23,17 @@
         };
     }
 
-    bool locked = string.Equals(Model.Status, "KAPALI", StringComparison.OrdinalIgnoreCase);
-    var actionsCount = Model.Actions?.Count ?? 0;
+    bool kilitli = string.Equals(Model.Status, "KAPALI", StringComparison.OrdinalIgnoreCase);
+    var aksiyonSayisi = Model.Actions?.Count ?? 0;
 }
 
 <div class="container my-4">
 
     <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
         <div>
-            <div class="text-muted small">CAPA No</div>
+            <div class="text-muted small">CAPA Numarası</div>
             <h3 class="mb-1">@Model.CapaNo</h3>
+
             <div class="text-muted">
                 Şikayet:
                 <span class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.ComplaintNo) ? Model.ComplaintNo : "-")</span>
@@ -41,13 +42,15 @@
 
         <div class="text-end">
             <div class="mb-2">
-                <span class="badge bg-@badge(Model.Status) fs-6">@Model.Status</span>
+                <span class="badge bg-@DurumRozeti(Model.Status) fs-6">@Model.Status</span>
             </div>
 
             <div class="d-flex gap-2 justify-content-end">
-                <a class="btn btn-outline-secondary" asp-action="Detail" asp-route-capaNo="@Model.CapaNo">Detay</a>
+                <a class="btn btn-outline-secondary" asp-action="Detail" asp-route-capaNo="@Model.CapaNo">
+                    Detay
+                </a>
 
-                @if (locked)
+                @if (kilitli)
                 {
                     <button type="button" class="btn btn-primary" disabled>Kaydet</button>
                 }
@@ -57,9 +60,9 @@
                 }
             </div>
 
-            @if (locked)
+            @if (kilitli)
             {
-                <div class="text-muted small mt-2">Durum KAPALI olduğu için düzenleme kilitli.</div>
+                <div class="text-muted small mt-2">Durum “KAPALI” olduğu için düzenleme kilitli.</div>
             }
         </div>
     </div>
@@ -68,6 +71,8 @@
 
         <div class="col-lg-8">
             <form id="capaForm" asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+
                 <input type="hidden" asp-for="OwnerId" />
                 <input type="hidden" asp-for="CapaNo" />
                 <input type="hidden" asp-for="Status" />
@@ -75,6 +80,7 @@
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">Genel</div>
+
                     <div class="card-body">
                         <div class="row g-3">
 
@@ -86,7 +92,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Termin</label>
 
-                                @if (locked)
+                                @if (kilitli)
                                 {
                                     <input asp-for="DueDate" type="date" class="form-control" disabled />
                                 }
@@ -122,12 +128,12 @@
 
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">İçerik</div>
-                    <div class="card-body">
 
+                    <div class="card-body">
                         <div class="mb-3">
                             <label class="form-label">Uygunsuzluk</label>
 
-                            @if (locked)
+                            @if (kilitli)
                             {
                                 <textarea asp-for="NonConformity" class="form-control" rows="3" disabled></textarea>
                             }
@@ -140,7 +146,7 @@
                         <div class="mb-3">
                             <label class="form-label">Kök Neden</label>
 
-                            @if (locked)
+                            @if (kilitli)
                             {
                                 <textarea asp-for="RootCause" class="form-control" rows="3" disabled></textarea>
                             }
@@ -153,7 +159,7 @@
                         <div class="mb-3">
                             <label class="form-label">Düzeltici Faaliyet</label>
 
-                            @if (locked)
+                            @if (kilitli)
                             {
                                 <textarea asp-for="CorrectiveAction" class="form-control" rows="3" disabled></textarea>
                             }
@@ -166,7 +172,7 @@
                         <div class="mb-0">
                             <label class="form-label">Etkinlik Kontrolü</label>
 
-                            @if (locked)
+                            @if (kilitli)
                             {
                                 <textarea asp-for="EffectivenessCheck" class="form-control" rows="2" disabled></textarea>
                             }
@@ -175,14 +181,13 @@
                                 <textarea asp-for="EffectivenessCheck" class="form-control" rows="2"></textarea>
                             }
                         </div>
-
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
                     <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
 
-                    @if (locked)
+                    @if (kilitli)
                     {
                         <button type="button" class="btn btn-primary" disabled>Kaydet</button>
                     }
@@ -196,44 +201,29 @@
 
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
-                <div class="card-header fw-semibold">
-                    Şikayet Bilgileri
-                </div>
+                <div class="card-header fw-semibold">Şikayet Bilgileri</div>
 
                 <div class="card-body">
                     <dl class="row mb-0">
-
                         <dt class="col-5 text-muted">Firma</dt>
-                        <dd class="col-7 fw-semibold">
-                            @(Model.ComplaintCompanyName ?? "-")
-                        </dd>
+                        <dd class="col-7 fw-semibold">@(Model.ComplaintCompanyName ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri</dt>
-                        <dd class="col-7">
-                            @(Model.CustomerName ?? "-")
-                        </dd>
+                        <dd class="col-7">@(Model.CustomerName ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Şikayet No</dt>
-                        <dd class="col-7">
-                            @(Model.ComplaintNo ?? "-")
-                        </dd>
+                        <dd class="col-7">@(Model.ComplaintNo ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri Şikayet No</dt>
-                        <dd class="col-7">
-                            @(Model.CustomerComplaintNo ?? "-")
-                        </dd>
+                        <dd class="col-7">@(Model.CustomerComplaintNo ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri PO</dt>
-                        <dd class="col-7">
-                            @(Model.CustomerPO ?? "-")
-                        </dd>
+                        <dd class="col-7">@(Model.CustomerPO ?? "-")</dd>
 
                         @if (!string.IsNullOrWhiteSpace(Model.ComplaintTitle))
                         {
                             <dt class="col-5 text-muted">Konu</dt>
-                            <dd class="col-7">
-                                @Model.ComplaintTitle
-                            </dd>
+                            <dd class="col-7">@Model.ComplaintTitle</dd>
                         }
                     </dl>
                 </div>
@@ -241,22 +231,23 @@
 
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold">Özet</div>
+
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-6 text-muted">Açılış</dt>
-                        <dd class="col-6">@fmtDateTime(Model.OpenedAt)</dd>
+                        <dd class="col-6">@TarihSaat(Model.OpenedAt)</dd>
 
                         <dt class="col-6 text-muted">Kapanış</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.CloseAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.CloseAt)</dd>
 
                         <dt class="col-6 text-muted">Oluşturma</dt>
-                        <dd class="col-6">@fmtDateTime(Model.CreatedAt)</dd>
+                        <dd class="col-6">@TarihSaat(Model.CreatedAt)</dd>
 
                         <dt class="col-6 text-muted">Güncelleme</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.UpdatedAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.UpdatedAt)</dd>
 
                         <dt class="col-6 text-muted">Etkinlik Kontrol Tarihi</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.EffectivenessCheckedAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.EffectivenessCheckedAt)</dd>
 
                         <dt class="col-6 text-muted">Kontrol Eden</dt>
                         <dd class="col-6">@(!string.IsNullOrWhiteSpace(Model.EffectivenessCheckedByName) ? Model.EffectivenessCheckedByName : "-")</dd>
@@ -267,8 +258,9 @@
             <div class="alert alert-light border mt-3 mb-0">
                 <div class="fw-semibold mb-1">Hızlı Bilgi</div>
                 <div class="small text-muted">
-                    Aksiyon Sayısı: <span class="fw-semibold">@actionsCount</span><br />
-                    Firma: <span class="fw-semibold">@Model.CompanyName</span> <br /> Atanan Kişi: <span class="fw-semibold">@Model.OwnerByName</span>
+                    Aksiyon Sayısı: <span class="fw-semibold">@aksiyonSayisi</span><br />
+                    Firma: <span class="fw-semibold">@Model.CompanyName</span><br />
+                    Atanan Kişi: <span class="fw-semibold">@Model.OwnerByName</span>
                 </div>
             </div>
         </div>
@@ -278,10 +270,10 @@
                 <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-2">
                         <span>Aksiyonlar</span>
-                        <span class="text-muted small">Toplam: @actionsCount</span>
+                        <span class="text-muted small">Toplam: @aksiyonSayisi</span>
                     </div>
 
-                    @if (!locked)
+                    @if (!kilitli)
                     {
                         <button type="button"
                                 class="btn btn-sm btn-success"
@@ -307,10 +299,11 @@
                                     <th>Oluşturma</th>
                                 </tr>
                             </thead>
+
                             <tbody id="actionsTbody">
-                                @if (Model.Actions == null || !Model.Actions.Any())
+                                @if (Model.Actions?.Any() != true)
                                 {
-                                    <tr>
+                                    <tr data-empty-row="true">
                                         <td colspan="8" class="text-center text-muted py-4">Aksiyon yok.</td>
                                     </tr>
                                 }
@@ -323,10 +316,10 @@
                                             <td>@a.ActionType</td>
                                             <td>@a.Description</td>
                                             <td>@(a.OwnerName ?? "-")</td>
-                                            <td>@fmtDateTime(a.DueDate)</td>
-                                            <td><span class="badge bg-@badge(a.Status)">@a.Status</span></td>
+                                            <td>@TarihSaat(a.DueDate)</td>
+                                            <td><span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span></td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
-                                            <td>@fmtDateTime(a.CreatedAt)</td>
+                                            <td>@TarihSaat(a.CreatedAt)</td>
                                         </tr>
                                     }
                                 }
@@ -334,17 +327,13 @@
                         </table>
                     </div>
                 </div>
-
-                <div class="card-footer text-muted small">
-                    * Aksiyon ekleme/silme/düzenleme istersen tabloyu editable yapıp POST’ta collection binding ile gönderebiliriz.
-                </div>
             </div>
         </div>
 
     </div>
 </div>
 
-@if (!locked)
+@if (!kilitli)
 {
     <div class="modal fade" id="addActionModal" tabindex="-1" aria-labelledby="addActionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -365,12 +354,11 @@
                         <input type="hidden" name="capaNo" value="@Model.CapaNo" />
 
                         <div class="row g-3">
-
                             <div class="col-md-3">
                                 <label class="form-label">Tip</label>
                                 <select name="ActionType" class="form-select" required>
-                                    <option value="">Seç</option>
-                                    <option value="TEST">TEST</option>
+                                    <option value="">Seçiniz</option>
+                                    <option value="TEST">Test</option>
                                     <option value="CORRECTIVE">Düzeltici</option>
                                     <option value="PREVENTIVE">Önleyici</option>
                                 </select>
@@ -382,7 +370,7 @@
                             </div>
 
                             <div class="col-md-2">
-                                <label class="form-label">Sahip (OwnerId)</label>
+                                <label class="form-label">Sahip ID</label>
                                 <input name="OwnerId" type="number" class="form-control" required />
                             </div>
 
@@ -397,11 +385,14 @@
 
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input name="EvidenceRequired" class="form-check-input" type="checkbox" value="true" id="evidenceRequiredChk" />
+                                    <input name="EvidenceRequired"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           value="true"
+                                           id="evidenceRequiredChk" />
                                     <label class="form-check-label" for="evidenceRequiredChk">Kanıt gerekli</label>
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -416,83 +407,81 @@
         </div>
     </div>
 }
+
 <script>
     (function () {
-      const form = document.getElementById('addActionForm');
-      if (!form) return;
+        const form = document.getElementById('addActionForm');
+        if (!form) return;
 
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.disabled = true;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
 
-        try {
-          const formData = new FormData(form);
+            try {
+                const formData = new FormData(form);
 
-          const res = await fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          });
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
 
-          const payload = await res.json().catch(() => null);
+                const payload = await res.json().catch(() => null);
 
-          if (!res.ok || !payload || payload.ok !== true) {
-            alert(payload?.message || 'Aksiyon eklenemedi.');
-            return;
-          }
+                if (!res.ok || !payload || payload.ok !== true) {
+                    alert(payload?.message || 'Aksiyon eklenemedi.');
+                    return;
+                }
 
-          // ✅ tabloya satır ekle
-          const a = payload.data; // created action dto
-          const tbody = document.getElementById('actionsTbody');
-          if (tbody && a) {
-            // boş "Aksiyon yok" satırı varsa kaldır
-            const emptyRow = tbody.querySelector('[data-empty-row="true"]');
-            if (emptyRow) emptyRow.remove();
+                const a = payload.data;
+                const tbody = document.getElementById('actionsTbody');
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${a.id ?? ''}</td>
-              <td>${escapeHtml(a.actionType ?? '')}</td>
-              <td>${escapeHtml(a.description ?? '')}</td>
-              <td>${escapeHtml(a.ownerName ?? '-')}</td>
-              <td>${formatDateTime(a.dueDate)}</td>
-              <td><span class="badge bg-info">${escapeHtml(a.status ?? '')}</span></td>
-              <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
-              <td>${formatDateTime(a.createdAt)}</td>
-            `;
-            tbody.prepend(tr);
-          }
+                if (tbody && a) {
+                    const emptyRow = tbody.querySelector('[data-empty-row="true"]');
+                    if (emptyRow) emptyRow.remove();
 
-          const modalEl = document.getElementById('addActionModal');
-          const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          modal.hide();
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${a.id ?? ''}</td>
+                        <td>${escapeHtml(a.actionType ?? '')}</td>
+                        <td>${escapeHtml(a.description ?? '')}</td>
+                        <td>${escapeHtml(a.ownerName ?? '-')}</td>
+                        <td>${formatDateTime(a.dueDate)}</td>
+                        <td><span class="badge bg-info">${escapeHtml(a.status ?? '')}</span></td>
+                        <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
+                        <td>${formatDateTime(a.createdAt)}</td>
+                    `;
+                    tbody.prepend(tr);
+                }
 
-          form.reset();
+                const modalEl = document.getElementById('addActionModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
 
+                form.reset();
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
 
-        } finally {
-          if (submitBtn) submitBtn.disabled = false;
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        function formatDateTime(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            if (isNaN(d)) return iso;
+            return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
         }
-      });
 
-      function pad2(n) { return String(n).padStart(2, '0'); }
-
-      function formatDateTime(iso) {
-        if (!iso) return '-';
-        const d = new Date(iso);
-        if (isNaN(d)) return iso;
-        return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-      }
-
-      function escapeHtml(str) {
-        return String(str)
-          .replaceAll('&', '&amp;')
-          .replaceAll('<', '&lt;')
-          .replaceAll('>', '&gt;')
-          .replaceAll('"', '&quot;')
-          .replaceAll("'", '&#039;');
-      }
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
     })();
 </script>

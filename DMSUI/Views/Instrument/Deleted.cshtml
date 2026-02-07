@@ -6,7 +6,6 @@
 @{
     ViewData["Title"] = "Silinen Cihazlar";
 
-    // Client-side filtre yapacağız: bunlar sadece default değerler olarak kalabilir
     var q = Context.Request.Query["q"].ToString();
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
@@ -15,10 +14,41 @@
     var isCritical = Context.Request.Query["isCritical"].ToString();
     var isActive = Context.Request.Query["isActive"].ToString();
 
+    var pageSizeStr = Context.Request.Query["pageSize"].ToString();
     var pageSize = Model?.PageSize ?? 10;
+    if (int.TryParse(pageSizeStr, out var ps) && ps > 0) { pageSize = ps; }
 
     var companies = ViewBag.Companies as List<SelectListItem> ?? new();
     var locations = ViewBag.Locations as List<SelectListItem> ?? new();
+
+    string TypeTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Dimensional" => "Boyutsal",
+        "Electrical" => "Elektriksel",
+        "Pressure" => "Basınç",
+        "Temperature" => "Sıcaklık",
+        "Other" => "Diğer",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
+
+    string DisciplineTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Length" => "Uzunluk",
+        "Temperature" => "Sıcaklık",
+        "Pressure" => "Basınç",
+        "Voltage" => "Gerilim",
+        "Current" => "Akım",
+        "Other" => "Diğer",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
+
+    string RiskTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Low" => "Düşük",
+        "Medium" => "Orta",
+        "High" => "Yüksek",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -40,11 +70,22 @@
                        name="q"
                        value="@q"
                        class="form-control form-control-sm"
-                       placeholder="Kod / Cihaz / Seri No" />
+                       placeholder="Kod / Cihaz / Seri Numarası" />
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Lokasyon</label>
+                <label class="form-label small text-muted mb-1">Şirket</label>
+                <select id="fCompanyId" name="companyId" class="form-select form-select-sm">
+                    <option value="">Tümü</option>
+                    @foreach (var c in companies)
+                    {
+                        <option value="@c.Value" selected="@(c.Value == companyId)">@c.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1">Konum</label>
                 <select id="fLocation" name="location" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     @foreach (var l in locations)
@@ -55,14 +96,14 @@
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Tip</label>
+                <label class="form-label small text-muted mb-1">Cihaz Türü</label>
                 <select id="fInstrumentType" name="instrumentType" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    <option value="Dimensional" selected="@(instrumentType == "Dimensional")">Dimensional</option>
-                    <option value="Electrical" selected="@(instrumentType == "Electrical")">Electrical</option>
-                    <option value="Pressure" selected="@(instrumentType == "Pressure")">Pressure</option>
-                    <option value="Temperature" selected="@(instrumentType == "Temperature")">Temperature</option>
-                    <option value="Other" selected="@(instrumentType == "Other")">Other</option>
+                    <option value="Dimensional" selected="@(instrumentType == "Dimensional")">Boyutsal</option>
+                    <option value="Electrical" selected="@(instrumentType == "Electrical")">Elektriksel</option>
+                    <option value="Pressure" selected="@(instrumentType == "Pressure")">Basınç</option>
+                    <option value="Temperature" selected="@(instrumentType == "Temperature")">Sıcaklık</option>
+                    <option value="Other" selected="@(instrumentType == "Other")">Diğer</option>
                 </select>
             </div>
 
@@ -70,9 +111,9 @@
                 <label class="form-label small text-muted mb-1">Risk</label>
                 <select id="fRiskLevel" name="riskLevel" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    <option value="Low" selected="@(riskLevel == "Low")">Low</option>
-                    <option value="Medium" selected="@(riskLevel == "Medium")">Medium</option>
-                    <option value="High" selected="@(riskLevel == "High")">High</option>
+                    <option value="Low" selected="@(riskLevel == "Low")">Düşük</option>
+                    <option value="Medium" selected="@(riskLevel == "Medium")">Orta</option>
+                    <option value="High" selected="@(riskLevel == "High")">Yüksek</option>
                 </select>
             </div>
 
@@ -86,7 +127,7 @@
             </div>
 
             <div class="col-6 col-md-1">
-                <label class="form-label small text-muted mb-1">Aktif</label>
+                <label class="form-label small text-muted mb-1">Aktiflik</label>
                 <select id="fIsActive" name="isActive" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="true" selected="@(isActive == "true")">Aktif</option>
@@ -122,15 +163,15 @@
                     <th>Şirket</th>
                     <th>Kod</th>
                     <th>Cihaz</th>
-                    <th>Tip</th>
+                    <th>Tür</th>
                     <th>Disiplin</th>
                     <th class="text-center">Risk</th>
                     <th class="text-center">Kritik</th>
-                    <th>Seri No</th>
-                    <th>Aralık</th>
-                    <th>Hass.</th>
+                    <th>Seri Numarası</th>
+                    <th>Ölçüm Aralığı</th>
+                    <th>Çözünürlük</th>
                     <th>Birim</th>
-                    <th>Lokasyon</th>
+                    <th>Konum</th>
                     <th>Sorumlu</th>
                     <th style="width:130px;" class="text-center">İşlemler</th>
                 </tr>
@@ -166,11 +207,11 @@
                             <td><div class="fw-semibold">@item.CompanyName</div></td>
                             <td class="fw-semibold">@item.Asset_Code</td>
                             <td>@item.Name</td>
-                            <td>@(item.Instrument_Type ?? "-")</td>
-                            <td>@(item.Measurement_Discipline ?? "-")</td>
+                            <td>@TypeTr(item.Instrument_Type)</td>
+                            <td>@DisciplineTr(item.Measurement_Discipline)</td>
 
                             <td class="text-center">
-                                <span class="badge @riskBadge">@((item.Risk_Level ?? "-"))</span>
+                                <span class="badge @riskBadge">@RiskTr(item.Risk_Level)</span>
                             </td>
 
                             <td class="text-center">
@@ -184,12 +225,12 @@
                                 }
                             </td>
 
-                            <td>@item.Serial_No</td>
-                            <td>@item.Measurement_Range</td>
-                            <td>@item.Resolution</td>
-                            <td>@item.Unit</td>
-                            <td>@item.Location</td>
-                            <td>@item.Owner_Person</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Serial_No) ? "-" : item.Serial_No)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Measurement_Range) ? "-" : item.Measurement_Range)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Resolution) ? "-" : item.Resolution)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Unit) ? "-" : item.Unit)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Location) ? "-" : item.Location)</td>
+                            <td>@(string.IsNullOrWhiteSpace(item.Owner_Person) ? "-" : item.Owner_Person)</td>
 
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">

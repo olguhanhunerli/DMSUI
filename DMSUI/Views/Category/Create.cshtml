@@ -2,7 +2,7 @@
 @model CreateCategoryViewModel
 
 @{
-    ViewData["Title"] = "Yeni Kategori Ekle";
+    ViewData["Title"] = "Yeni Kategori";
 }
 
 <div class="container-fluid mt-3">
@@ -21,9 +21,10 @@
         <div class="card-body">
 
             <form asp-action="Create" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
 
                 <div class="col-md-6">
-                    <label class="form-label">Kategori Adı</label>
+                    <label asp-for="Name" class="form-label">Kategori Adı</label>
                     <input asp-for="Name"
                            class="form-control form-control-sm"
                            placeholder="Örn: Yetkilendirme" />
@@ -31,7 +32,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Kategori Kodu</label>
+                    <label asp-for="Code" class="form-label">Kategori Kodu</label>
                     <input asp-for="Code"
                            class="form-control form-control-sm"
                            placeholder="Örn: YETK" />
@@ -39,35 +40,39 @@
                 </div>
 
                 <div class="col-md-12">
-                    <label class="form-label">Açıklama</label>
+                    <label asp-for="Description" class="form-label">Açıklama</label>
                     <textarea asp-for="Description"
                               class="form-control form-control-sm"
-                              rows="2"></textarea>
+                              rows="2"
+                              placeholder="Kategori hakkında kısa açıklama..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Üst Kategori</label>
+                    <label asp-for="ParentId" class="form-label">Üst Kategori</label>
                     <select asp-for="ParentId"
                             asp-items="ViewBag.ParentList"
                             class="form-select form-select-sm">
                         <option value="">Ana Kategori</option>
                     </select>
+                    <span asp-validation-for="ParentId" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-3">
-                    <label class="form-label">Sıra</label>
+                    <label asp-for="SortOrder" class="form-label">Sıra</label>
                     <input asp-for="SortOrder"
                            type="number"
                            min="1"
                            class="form-control form-control-sm" />
+                    <span asp-validation-for="SortOrder" class="text-danger small"></span>
                 </div>
 
                 <div class="col-md-3 d-flex align-items-end">
-                    <div class="form-check mt-2">
+                    <div class="form-check">
                         <input asp-for="IsActive"
                                class="form-check-input"
-                               type="checkbox" checked />
-                        <label class="form-check-label">
+                               type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">
                             Aktif
                         </label>
                     </div>
@@ -90,5 +95,3 @@
         </div>
     </div>
 </div>
-
-

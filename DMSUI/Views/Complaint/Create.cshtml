@@ -1,4 +1,5 @@
 ﻿@model DMSUI.ViewModels.Complaint.CreateComplaintVM
+
 @{
     ViewData["Title"] = "Yeni Şikayet";
 }
@@ -40,7 +41,7 @@
             </div>
 
             <div class="col-12 col-md-4">
-                <label class="form-label small text-muted mb-1">Primary Atanan</label>
+                <label class="form-label small text-muted mb-1">Birincil Atanan</label>
                 <select asp-for="PrimaryAssigneeUserId" class="form-select form-select-sm" id="primarySelect">
                     <option value="">Seçiniz</option>
                 </select>
@@ -65,7 +66,10 @@
 
             <div class="col-12 col-md-4">
                 <label asp-for="SeverityId" class="form-label small text-muted mb-1"></label>
-                <select asp-for="SeverityId" asp-items="Model.Severities" class="form-select form-select-sm" id="severitySelect">
+                <select asp-for="SeverityId"
+                        asp-items="Model.Severities"
+                        class="form-select form-select-sm"
+                        id="severitySelect">
                     <option value="">Seçiniz</option>
                 </select>
                 <span asp-validation-for="SeverityId" class="text-danger small"></span>
@@ -96,7 +100,7 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <h6 class="mb-1">Ürün / İzlenebilirlik</h6>
                     <span id="traceHint" class="small text-danger d-none">
-                        Yüksek/Kritik veya Tekrar şikayetlerde Parça No ve Containment zorunludur.
+                        Yüksek/Kritik veya tekrar şikayetlerde Parça No ve Containment zorunludur.
                     </span>
                 </div>
                 <div class="text-muted small">Parça/Lot bilgisi denetim ve analiz için önerilir.</div>
@@ -204,6 +208,7 @@
             if (!interimToggle || !interimWrap) return;
             interimWrap.style.display = interimToggle.checked ? '' : 'none';
         }
+
         if (interimToggle) interimToggle.addEventListener('change', syncInterim);
         syncInterim();
 

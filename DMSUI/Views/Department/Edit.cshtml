@@ -1,8 +1,9 @@
 ﻿@using DMSUI.ViewModels
 @using DMSUI.ViewModels.Department
 @model DepartmentEditViewModel
+
 @{
-    ViewData["Title"] = "Department Edit";
+    ViewData["Title"] = "Departman Düzenle";
 }
 
 <div class="container-fluid">
@@ -53,12 +54,12 @@
 
                 <div class="mb-3">
                     <label class="form-label">Açıklama</label>
-                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">Notlar</label>
-                    <textarea asp-for="Notes" class="form-control"></textarea>
+                    <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
                 </div>
 
                 <div class="mb-4">
@@ -66,9 +67,10 @@
                     <input asp-for="SortOrder" type="number" class="form-control" />
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Güncelle
-                </button>
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Vazgeç</a>
+                    <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
 
             </form>
 

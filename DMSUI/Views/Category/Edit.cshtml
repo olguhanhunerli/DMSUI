@@ -1,4 +1,5 @@
 ﻿@model DMSUI.ViewModels.Category.CategoryEditViewModel
+
 @{
     ViewData["Title"] = "Kategori Düzenle";
 }
@@ -16,6 +17,7 @@
 
                 <div class="card-body">
                     <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
 
                         <input asp-for="Id" type="hidden" />
                         <input asp-for="CompanyId" type="hidden" />
@@ -38,48 +40,54 @@
 
                             <div class="col-md-6">
                                 <label asp-for="SortOrder" class="form-label">Sıra</label>
-                                <input asp-for="SortOrder" class="form-control" />
+                                <input asp-for="SortOrder" type="number" min="1" class="form-control" />
+                                <span asp-validation-for="SortOrder" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="ParentId" class="form-label">Üst Kategori</label>
                                 <select asp-for="ParentId" asp-items="Model.ParentSelectList" class="form-select">
-                                    <option value="">-- Ana Kategori --</option>
+                                    <option value="">Ana Kategori</option>
                                 </select>
+                                <span asp-validation-for="ParentId" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Şirket</label>
-                                <input class="form-control" value="@Model.CompanyName" disabled/>
+                                <input class="form-control" value="@Model.CompanyName" readonly />
                             </div>
 
                             <div class="col-md-12">
                                 <label asp-for="Description" class="form-label">Açıklama</label>
-                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="3"
+                                          placeholder="Kategori hakkında kısa açıklama..."></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="form-check mt-4">
-                                    <input asp-for="IsActive" class="form-check-input" />
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
                                     <label asp-for="IsActive" class="form-check-label">Aktif</label>
                                 </div>
                             </div>
 
                             <div class="col-md-3">
                                 <div class="form-check mt-4">
-                                    <input asp-for="IsDeleted" class="form-check-input" />
+                                    <input asp-for="IsDeleted" class="form-check-input" type="checkbox" />
                                     <label asp-for="IsDeleted" class="form-check-label">Silinmiş</label>
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Oluşturan</label>
-                                <input class="form-control" value="@Model.CreatedByName" disabled />
+                                <input class="form-control" value="@Model.CreatedByName" readonly />
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Son Güncelleyen</label>
-                                <input class="form-control" value="@Model.UpdatedByName" disabled />
+                                <input class="form-control" value="@Model.UpdatedByName" readonly />
                             </div>
 
                         </div>
@@ -101,4 +109,3 @@
         </div>
     </div>
 </div>
-

@@ -2,17 +2,22 @@
 @model CustomersItemDTO
 
 @{
-    ViewData["Title"] = "Müşteri Detay";
-    var statusBadge = Model?.isDelete == true ? "bg-danger" : "bg-success";
-    var statusText = Model?.isDelete == true ? "Silinmiş" : "Aktif";
+    ViewData["Title"] = "Müşteri Detayı";
+
+    var silinmisMi = Model?.isDelete == true;
+    var durumRozeti = silinmisMi ? "bg-danger" : "bg-success";
+    var durumYazi = silinmisMi ? "Silinmiş" : "Aktif";
+
+    string goster(string? v) => string.IsNullOrWhiteSpace(v) ? "-" : v;
+    string gosterInt(int? v) => v.HasValue ? v.Value.ToString() : "-";
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
-        <h4 class="mb-0">Müşteri Detay</h4>
+        <h4 class="mb-0">Müşteri Detayı</h4>
         <div class="text-muted small">
-            ID: <strong>@Model?.id</strong>
-            • Kod: <strong>@(Model?.customerCode ?? "-")</strong>
+            ID: <strong>@gosterInt(Model?.id)</strong>
+            • Kod: <strong>@goster(Model?.customerCode)</strong>
         </div>
     </div>
 
@@ -32,7 +37,7 @@
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex align-items-center justify-content-between">
                 <div class="fw-semibold">Genel Bilgiler</div>
-                <span class="badge @statusBadge">@statusText</span>
+                <span class="badge @durumRozeti">@durumYazi</span>
             </div>
 
             <div class="card-body">
@@ -40,22 +45,22 @@
 
                     <div class="col-12 col-md-4">
                         <label class="form-label small text-muted mb-1">Müşteri Kodu</label>
-                        <input class="form-control form-control-sm" value="@(Model?.customerCode ?? "-")" readonly />
+                        <input class="form-control form-control-sm" value="@goster(Model?.customerCode)" readonly />
                     </div>
 
                     <div class="col-12 col-md-8">
                         <label class="form-label small text-muted mb-1">Müşteri Adı</label>
-                        <input class="form-control form-control-sm" value="@(Model?.name ?? "-")" readonly />
+                        <input class="form-control form-control-sm" value="@goster(Model?.name)" readonly />
                     </div>
 
                     <div class="col-12 col-md-4">
                         <label class="form-label small text-muted mb-1">Telefon</label>
-                        <input class="form-control form-control-sm" value="@(Model?.phone ?? "-")" readonly />
+                        <input class="form-control form-control-sm" value="@goster(Model?.phone)" readonly />
                     </div>
 
                     <div class="col-12 col-md-8">
-                        <label class="form-label small text-muted mb-1">Email</label>
-                        <input class="form-control form-control-sm" value="@(Model?.email ?? "-")" readonly />
+                        <label class="form-label small text-muted mb-1">E-posta</label>
+                        <input class="form-control form-control-sm" value="@goster(Model?.email)" readonly />
                     </div>
 
                     <div class="col-12 col-md-4">
@@ -65,7 +70,7 @@
 
                     <div class="col-12 col-md-8">
                         <label class="form-label small text-muted mb-1">Şirket</label>
-                        <input class="form-control form-control-sm" value="@(Model?.companyName ?? "-")" readonly />
+                        <input class="form-control form-control-sm" value="@goster(Model?.companyName)" readonly />
                     </div>
 
                 </div>
@@ -97,7 +102,7 @@
                 <div class="mb-0">
                     <div class="text-muted small">Silen Kullanıcı</div>
                     <div class="fw-semibold">
-                        @(Model?.deletedByName ?? "-")
+                        @goster(Model?.deletedByName)
                     </div>
                 </div>
             </div>
@@ -119,13 +124,13 @@
 
                 <form asp-action="ToggleDelete" method="post" asp-route-id="@Model?.id">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" name="isDelete" value="@(Model?.isDelete == true ? "false" : "true")" />
+                    <input type="hidden" name="isDelete" value="@(silinmisMi ? "false" : "true")" />
 
                     <button type="submit"
-                            class="btn btn-sm @(Model?.isDelete == true ? "btn-outline-success" : "btn-outline-danger")"
-                            onclick="return confirm('@(Model?.isDelete == true ? "Kayıt geri alınsın mı?" : "Silmek istediğine emin misin?")');">
-                        <i class="bi @(Model?.isDelete == true ? "bi-arrow-counterclockwise" : "bi-trash") me-1"></i>
-                        @(Model?.isDelete == true ? "Geri Al" : "Sil")
+                            class="btn btn-sm @(silinmisMi ? "btn-outline-success" : "btn-outline-danger")"
+                            onclick="return confirm('@(silinmisMi ? "Kayıt geri alınsın mı?" : "Silmek istediğine emin misin?")');">
+                        <i class="bi @(silinmisMi ? "bi-arrow-counterclockwise" : "bi-trash") me-1"></i>
+                        @(silinmisMi ? "Geri Al" : "Sil")
                     </button>
                 </form>
             </div>

@@ -9,27 +9,34 @@
 <div class="container vh-100 d-flex align-items-center justify-content-center">
     <div class="row w-100 justify-content-center">
         <div class="col-11 col-sm-8 col-md-5 col-lg-4">
-
             <div class="card shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
-
                     <div class="text-center mb-4">
                         <h4 class="fw-bold mb-1">DMS Giriş</h4>
                         <small class="text-muted">Hesabına giriş yap</small>
                     </div>
 
-                    <form method="post" asp-action="Login" asp-controller="Auth" novalidate>
+                    <form method="post"
+                          asp-action="Login"
+                          asp-controller="Auth"
+                          novalidate>
                         @Html.AntiForgeryToken()
 
                         <div class="mb-3">
                             <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="email@ornek.com" />
+                            <input asp-for="Email"
+                                   type="email"
+                                   class="form-control"
+                                   placeholder="email@ornek.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Password" class="form-label">Şifre</label>
-                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
+                            <input asp-for="Password"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="••••••••" />
                             <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
 
@@ -56,13 +63,9 @@
                         <div class="text-center mt-3">
                             <small class="text-muted">© 2025 DMSUI</small>
                         </div>
-
                     </form>
-
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-

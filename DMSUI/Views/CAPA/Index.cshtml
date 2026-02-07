@@ -1,15 +1,46 @@
 ﻿@using DMSUI.Entities.DTOs.CAPA
 @using DMSUI.Entities.DTOs.Common
-@model PagedResultDTO<CAPADTO>
 @using DMSUI.Extensions
+@model PagedResultDTO<CAPADTO>
 
 @{
-   
-}
-@{
-    ViewData["Title"] = "CAPA";
+    ViewData["Title"] = "DÖF Listesi";
     var currentUserId = User.GetUserId();
     var isAdmin = User.IsAdmin();
+
+    string DurumMetni(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return "-";
+
+        return status.Trim().ToUpperInvariant() switch
+        {
+            "OPEN" or "ACIK" or "AÇIK" => "Açık",
+            "CLOSED" or "KAPALI" => "Kapalı",
+            "PENDING" or "BEKLIYOR" => "Bekliyor",
+            "IPTAL" or "CANCELLED" => "İptal",
+            "RED" or "REJECTED" => "Red",
+            _ => status
+        };
+    }
+
+    string DurumRozeti(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status)) return "bg-secondary";
+
+        return status.Trim().ToUpperInvariant() switch
+        {
+            "OPEN" or "ACIK" or "AÇIK" => "bg-primary",
+            "CLOSED" or "KAPALI" => "bg-success",
+            "PENDING" or "BEKLIYOR" => "bg-warning text-dark",
+            "IPTAL" or "CANCELLED" or "RED" or "REJECTED" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    string KalanGunSinifi(int remainingDays) =>
+        remainingDays < 0 ? "text-danger fw-semibold" :
+        remainingDays <= 3 ? "text-warning fw-semibold" :
+        "text-success fw-semibold";
 }
 
 <div class="container-fluid px-3 pb-4">
@@ -20,24 +51,24 @@
             DÖF Listesi
         </h4>
 
-        <button type="button" class="btn btn-primary btn-sm shadow-sm"
+        <button type="button"
+                class="btn btn-primary btn-sm shadow-sm"
                 id="btnNewCapa"
                 data-bs-toggle="modal"
                 data-bs-target="#newCapaModal">
             <i class="bi bi-plus-circle me-1"></i>
-            Yeni CAPA
+            Yeni DÖF
         </button>
     </div>
 
     <div class="card border-0 shadow-sm">
         <div class="card-body p-2">
-
             <div class="table-scroll-x">
                 <table class="table table-hover align-middle mb-0 small w-100">
                     <thead class="table-light text-nowrap">
                         <tr>
                             <th>#</th>
-                            <th>CAPA No</th>
+                            <th>DÖF No</th>
                             <th>Sahip</th>
                             <th>Durum</th>
                             <th>Kalan Gün</th>
@@ -48,8 +79,7 @@
                     </thead>
 
                     <tbody class="text-nowrap">
-
-                        @if (Model == null || Model.Items == null || !Model.Items.Any())
+                        @if (Model?.Items?.Any() != true)
                         {
                             <tr>
                                 <td colspan="8" class="text-center py-4 text-muted">
@@ -63,51 +93,36 @@
 
                             foreach (var capa in Model.Items)
                             {
-                                string statusClass = capa.Status switch
-                                {
-                                    "OPEN" => "bg-primary",
-                                    "CLOSED" => "bg-success",
-                                    "PENDING" => "bg-warning text-dark",
-                                    _ => "bg-secondary"
-                                };
+                                var durumMetni = DurumMetni(capa.Status);
+                                var durumRozeti = DurumRozeti(capa.Status);
+                                var kalanGunClass = KalanGunSinifi(capa.RemainingDays);
 
-                                string remainingClass =
-                                capa.RemainingDays < 0 ? "text-danger fw-semibold" :
-                                capa.RemainingDays <= 3 ? "text-warning fw-semibold" :
-                                "text-success fw-semibold";
                                 <tr>
                                     <td>@rowNo</td>
 
                                     <td class="fw-semibold">
                                         @capa.CapaNo
                                         <div class="small text-muted">
-                                            @capa.ComplaintNo
+                                            Şikayet: @capa.ComplaintNo
                                         </div>
                                     </td>
 
-                                    <td>
-                                        @capa.OwnerByName
-                                    </td>
+                                    <td>@capa.OwnerByName</td>
 
                                     <td>
-                                        <span class="badge @statusClass">
-                                            @capa.Status
+                                        <span class="badge @durumRozeti">
+                                            @durumMetni
                                         </span>
                                     </td>
 
                                     <td>
-                                        <span class="@remainingClass">
-                                            @capa.RemainingDays
-                                        </span>
+                                        <span class="@kalanGunClass">@capa.RemainingDays</span>
                                     </td>
 
-                                    <td>
-                                        @capa.DueDate.ToString("dd.MM.yyyy")
-                                    </td>
+                                    <td>@capa.DueDate.ToString("dd.MM.yyyy")</td>
 
-                                    <td>
-                                        @capa.OpenedAt.ToString("dd.MM.yyyy HH:mm")
-                                    </td>
+                                    <td>@capa.OpenedAt.ToString("dd.MM.yyyy HH:mm")</td>
+
                                     <td class="text-end">
                                         <div class="btn-group btn-group-sm shadow-sm">
                                             <a asp-action="Detail"
@@ -136,11 +151,10 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
     </div>
 
-    @if (Model.TotalPages > 1)
+    @if (Model?.TotalPages > 1)
     {
         <nav class="mt-3">
             <ul class="pagination pagination-sm justify-content-end mb-0">
@@ -159,14 +173,16 @@
     }
 
 </div>
+
 <div class="modal fade" id="newCapaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="get" asp-action="Create" asp-controller="CAPA">
                 <input type="hidden" name="complaintNo" id="SelectedComplaintNo" />
+
                 <div class="modal-header">
                     <h5 class="modal-title">Yeni DÖF</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
 
                 <div class="modal-body">
@@ -188,27 +204,27 @@
 
                         <div class="row g-2">
                             <div class="col-md-6">
-                                <label class="form-label">Complaint No</label>
+                                <label class="form-label">Şikayet No</label>
                                 <input type="text" class="form-control" id="detailComplaintNo" readonly />
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Reported At</label>
+                                <label class="form-label">Bildirim Tarihi</label>
                                 <input type="text" class="form-control" id="detailReportedAt" readonly />
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Title</label>
+                                <label class="form-label">Başlık</label>
                                 <input type="text" class="form-control" id="detailTitle" readonly />
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Customer</label>
+                                <label class="form-label">Müşteri</label>
                                 <input type="text" class="form-control" id="detailCustomer" readonly />
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label">Severity</label>
+                                <label class="form-label">Önem Derecesi</label>
                                 <input type="text" class="form-control" id="detailSeverity" readonly />
                             </div>
                         </div>
@@ -223,6 +239,7 @@
         </div>
     </div>
 </div>
+
 <script>
     const modalEl = document.getElementById('newCapaModal');
     const selectEl = document.getElementById('complaintSelect');
@@ -238,7 +255,7 @@
     const detailSeverity = document.getElementById('detailSeverity');
     const detailReportedAt = document.getElementById('detailReportedAt');
 
-    function clearDetails() {
+    function detaylariTemizle() {
         hiddenId.value = '';
         hiddenNo.value = '';
 
@@ -250,14 +267,14 @@
         detailReportedAt.value = '';
     }
 
-    function formatDateTR(isoDate) {
+    function tarihTR(isoDate) {
         if (!isoDate) return '';
         const d = new Date(isoDate);
         if (isNaN(d.getTime())) return isoDate;
         return d.toLocaleString('tr-TR');
     }
 
-    async function loadComplaints() {
+    async function sikayetleriYukle() {
         errEl.classList.add('d-none');
         errEl.textContent = '';
         selectEl.innerHTML = `<option value="">Yükleniyor...</option>`;
@@ -269,7 +286,7 @@
             });
 
             if (!resp.ok) {
-                throw new Error(`Liste çekilemedi. Status: ${resp.status}`);
+                throw new Error(`Liste alınamadı. Durum: ${resp.status}`);
             }
 
             const data = await resp.json();
@@ -279,7 +296,8 @@
                 return;
             }
 
-            selectEl.innerHTML = `<option value="">Seçiniz...</option>` +
+            selectEl.innerHTML =
+                `<option value="">Seçiniz...</option>` +
                 data.map(x => `
                     <option
                         value="${x.id}"
@@ -300,15 +318,15 @@
     }
 
     modalEl.addEventListener('shown.bs.modal', () => {
-        clearDetails();
-        loadComplaints();
+        detaylariTemizle();
+        sikayetleriYukle();
     });
 
     selectEl.addEventListener('change', () => {
         const opt = selectEl.options[selectEl.selectedIndex];
 
         if (!opt || !opt.value) {
-            clearDetails();
+            detaylariTemizle();
             return;
         }
 
@@ -320,6 +338,6 @@
         detailTitle.value = opt.dataset.title || '';
         detailCustomer.value = opt.dataset.customer || '';
         detailSeverity.value = opt.dataset.severity || '';
-        detailReportedAt.value = formatDateTR(opt.dataset.reportedat);
+        detailReportedAt.value = tarihTR(opt.dataset.reportedat);
     });
 </script>

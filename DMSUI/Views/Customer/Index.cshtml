@@ -6,13 +6,13 @@
 @{
     ViewData["Title"] = "Müşteriler";
 
-    var q = Context.Request.Query["q"].ToString();
-    var companyId = Context.Request.Query["companyId"].ToString();
-    var isDelete = Context.Request.Query["isDelete"].ToString();
+    var arama = Context.Request.Query["q"].ToString();
+    var sirketId = Context.Request.Query["companyId"].ToString();
+    var silinmeDurumu = Context.Request.Query["isDelete"].ToString();
 
-    var pageSize = Model?.PageSize ?? 10;
+    var sayfaBoyutu = Model?.PageSize ?? 10;
 
-    var companies = ViewBag.Companies as List<SelectListItem> ?? new();
+    var sirketler = ViewBag.Companies as List<SelectListItem> ?? new();
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -32,18 +32,18 @@
                 <input id="fQ"
                        type="text"
                        name="q"
-                       value="@q"
+                       value="@arama"
                        class="form-control form-control-sm"
-                       placeholder="Kod / Ad / Telefon / Email" />
+                       placeholder="Kod / Ad / Telefon / E-posta" />
             </div>
 
             <div class="col-12 col-md-3">
                 <label class="form-label small text-muted mb-1">Şirket</label>
                 <select id="fCompanyId" name="companyId" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    @foreach (var c in companies)
+                    @foreach (var s in sirketler)
                     {
-                        <option value="@c.Value" selected="@(c.Value == companyId)">@c.Text</option>
+                        <option value="@s.Value" selected="@(s.Value == sirketId)">@s.Text</option>
                     }
                 </select>
             </div>
@@ -52,17 +52,17 @@
                 <label class="form-label small text-muted mb-1">Durum</label>
                 <select id="fIsDelete" name="isDelete" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    <option value="false" selected="@(isDelete == "false")">Aktif</option>
-                    <option value="true" selected="@(isDelete == "true")">Silinmiş</option>
+                    <option value="false" selected="@(silinmeDurumu == "false")">Aktif</option>
+                    <option value="true" selected="@(silinmeDurumu == "true")">Silinmiş</option>
                 </select>
             </div>
 
             <div class="col-6 col-md-1">
                 <label class="form-label small text-muted mb-1">Sayfa</label>
                 <select name="pageSize" class="form-select form-select-sm">
-                    <option value="10" selected="@(pageSize == 10)">10</option>
-                    <option value="25" selected="@(pageSize == 25)">25</option>
-                    <option value="50" selected="@(pageSize == 50)">50</option>
+                    <option value="10" selected="@(sayfaBoyutu == 10)">10</option>
+                    <option value="25" selected="@(sayfaBoyutu == 25)">25</option>
+                    <option value="50" selected="@(sayfaBoyutu == 50)">50</option>
                 </select>
             </div>
 
@@ -86,7 +86,7 @@
                     <th>Kod</th>
                     <th>Ad</th>
                     <th>Telefon</th>
-                    <th>Email</th>
+                    <th>E-posta</th>
                     <th>Oluşturma</th>
                     <th style="width:120px;" class="text-center">Durum</th>
                     <th style="width:120px;" class="text-center">İşlemler</th>
@@ -96,21 +96,21 @@
             <tbody>
                 @if (Model?.Items != null && Model.Items.Any())
                 {
-                    var row = (Model.Page - 1) * Model.PageSize;
+                    var siraNo = (Model.Page - 1) * Model.PageSize;
 
                     foreach (var item in Model.Items)
                     {
-                        row++;
+                        siraNo++;
 
-                        var statusBadge = (item.isDelete == true) ? "bg-danger" : "bg-success";
-                        var statusText = (item.isDelete == true) ? "Silinmiş" : "Aktif";
+                        var durumRozeti = (item.isDelete == true) ? "bg-danger" : "bg-success";
+                        var durumYazisi = (item.isDelete == true) ? "Silinmiş" : "Aktif";
 
                         <tr class="@(item.isDelete == true ? "table-secondary" : "")"
                             data-q="@($"{item.customerCode} {item.name} {item.phone} {item.email}")"
                             data-companyid="@item.companyId"
                             data-isdelete="@(item.isDelete == true ? "true" : "false")">
 
-                            <td class="text-muted">@row</td>
+                            <td class="text-muted">@siraNo</td>
 
                             <td>
                                 <div class="fw-semibold">@item.companyName</div>
@@ -127,26 +127,35 @@
                                 {
                                     <div class="text-muted small mt-1">
                                         Silen: @(item.deletedByName ?? "-")<br />
-                                        Silme: @(item.deleteAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
+                                        Silinme: @(item.deleteAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")
                                     </div>
                                 }
                             </td>
 
                             <td class="text-center">
-                                <span class="badge @statusBadge">@statusText</span>
+                                <span class="badge @durumRozeti">@durumYazisi</span>
                             </td>
 
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <a class="btn btn-outline-secondary" title="Detay" asp-action="Detail" asp-route-id="@item.id">
+                                    <a class="btn btn-outline-secondary"
+                                       title="Detay"
+                                       asp-action="Detail"
+                                       asp-route-id="@item.id">
                                         <i class="bi bi-eye"></i>
                                     </a>
 
-                                    <a class="btn btn-outline-primary" title="Düzenle" asp-action="Edit" asp-route-id="@item.id">
+                                    <a class="btn btn-outline-primary"
+                                       title="Düzenle"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.id">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
 
-                                    <form asp-action="Delete" method="post" asp-route-id="@item.id" class="d-inline">
+                                    <form asp-action="Delete"
+                                          method="post"
+                                          asp-route-id="@item.id"
+                                          class="d-inline">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="isDelete" value="@( !(item.isDelete == true) )" />
 
@@ -183,48 +192,48 @@
             <nav>
                 <ul class="pagination pagination-sm mb-0">
                     @{
-                        int current = Model.Page;
-                        int total = Model.TotalPages;
+                        int gecerli = Model.Page;
+                        int toplam = Model.TotalPages;
 
-                        int start = Math.Max(1, current - 2);
-                        int end = Math.Min(total, current + 2);
+                        int baslangic = Math.Max(1, gecerli - 2);
+                        int bitis = Math.Min(toplam, gecerli + 2);
                     }
 
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <li class="page-item @(gecerli == 1 ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(current - 1)"
-                           asp-route-pageSize="@pageSize"
-                           asp-route-q="@q"
-                           asp-route-companyId="@companyId"
-                           asp-route-isDelete="@isDelete">
+                           asp-route-page="@(gecerli - 1)"
+                           asp-route-pageSize="@sayfaBoyutu"
+                           asp-route-q="@arama"
+                           asp-route-companyId="@sirketId"
+                           asp-route-isDelete="@silinmeDurumu">
                             ‹
                         </a>
                     </li>
 
-                    @for (int i = start; i <= end; i++)
+                    @for (int i = baslangic; i <= bitis; i++)
                     {
-                        <li class="page-item @(i == current ? "active" : "")">
+                        <li class="page-item @(i == gecerli ? "active" : "")">
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-page="@i"
-                               asp-route-pageSize="@pageSize"
-                               asp-route-q="@q"
-                               asp-route-companyId="@companyId"
-                               asp-route-isDelete="@isDelete">
+                               asp-route-pageSize="@sayfaBoyutu"
+                               asp-route-q="@arama"
+                               asp-route-companyId="@sirketId"
+                               asp-route-isDelete="@silinmeDurumu">
                                 @i
                             </a>
                         </li>
                     }
 
-                    <li class="page-item @(current == total ? "disabled" : "")">
+                    <li class="page-item @(gecerli == toplam ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(current + 1)"
-                           asp-route-pageSize="@pageSize"
-                           asp-route-q="@q"
-                           asp-route-companyId="@companyId"
-                           asp-route-isDelete="@isDelete">
+                           asp-route-page="@(gecerli + 1)"
+                           asp-route-pageSize="@sayfaBoyutu"
+                           asp-route-q="@arama"
+                           asp-route-companyId="@sirketId"
+                           asp-route-isDelete="@silinmeDurumu">
                             ›
                         </a>
                     </li>

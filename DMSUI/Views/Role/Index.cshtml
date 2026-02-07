@@ -13,8 +13,7 @@
             Roller
         </h4>
 
-        <a asp-action="Create"
-           class="btn btn-primary btn-sm">
+        <a asp-action="Create" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle me-1"></i> Yeni Rol
         </a>
     </div>
@@ -42,28 +41,20 @@
 
                         @if (Model != null && Model.Any())
                         {
-                            @foreach (var role in Model)
+                            foreach (var role in Model)
                             {
                                 <tr>
                                     <td class="px-3">@rowNo</td>
 
                                     <td class="fw-semibold px-3">
-                                        <span class="badge bg-secondary">
-                                            @role.Name
-                                        </span>
+                                        <span class="badge bg-secondary">@role.Name</span>
                                     </td>
 
-                                    <td class="px-3">
-                                        @role.Description
-                                    </td>
+                                    <td class="px-3">@role.Description</td>
 
-                                    <td class="px-3">
-                                        @(role.CreatedByUser ?? "-")
-                                    </td>
+                                    <td class="px-3">@(role.CreatedByUser ?? "-")</td>
 
-                                    <td class="px-3">
-                                        @(role.UploadedByUser ?? "-")
-                                    </td>
+                                    <td class="px-3">@(role.UploadedByUser ?? "-")</td>
 
                                     <td class="px-3 text-end">
                                         <div class="btn-group btn-group-sm shadow-sm">
@@ -75,16 +66,14 @@
                                                 <i class="bi bi-pencil-square text-primary"></i>
                                             </a>
 
-                                            <form asp-action="Delete"
-                                                  method="post"
-                                                  class="d-inline">
+                                            <form asp-action="Delete" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@role.Id" />
 
                                                 <button type="submit"
-                                                        onclick="return confirm('Bu rol silinsin mi?')"
                                                         class="btn btn-light border"
-                                                        title="Sil">
+                                                        title="Sil"
+                                                        onclick="return confirm('Bu rol silinsin mi?');">
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </button>
                                             </form>

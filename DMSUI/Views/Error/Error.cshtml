@@ -1,4 +1,6 @@
 ﻿@{
+    Layout = null;
+
     ViewData["Title"] = "Bir Sorun Oluştu";
     var statusCode = ViewBag.StatusCode as int?;
     string traceId = ViewBag.TraceId as string;
@@ -25,68 +27,256 @@
 
     var errorMessage = ViewBag.ErrorMessage as string;
     var errorDetail = ViewBag.ErrorDetail as string;
+    var isDev = string.Equals(
+        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+        "Development",
+        StringComparison.OrdinalIgnoreCase
+    );
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
-    <div class="card shadow-sm border-0" style="max-width: 560px; width: 100%;">
-        <div class="card-body text-center p-4">
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
 
-            <div class="mb-3">
-                <span class="display-4 text-warning">⚠️</span>
+    <!-- Bootstrap kullanıyorsan kalsın; kullanmıyorsan kaldırabilirsin -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <style>
+        :root {
+            --bg1: #0f172a;
+            --bg2: #111827;
+            --card: #0b1220cc;
+            --border: #1f2937;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --accent: #f59e0b;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            color: var(--text);
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(245,158,11,.18), transparent 55%), radial-gradient(900px 500px at 90% 30%, rgba(59,130,246,.12), transparent 55%), linear-gradient(160deg, var(--bg1), var(--bg2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 620px;
+        }
+
+        .cardx {
+            border: 1px solid rgba(255,255,255,.08);
+            background: linear-gradient(180deg, rgba(11,18,32,.82), rgba(11,18,32,.62));
+            box-shadow: 0 20px 60px rgba(0,0,0,.45);
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .head {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            background: rgba(255,255,255,.02);
+        }
+
+        .icon {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: rgba(245,158,11,.15);
+            border: 1px solid rgba(245,158,11,.25);
+            font-size: 22px;
+        }
+
+        .body {
+            padding: 20px;
+        }
+
+        .title {
+            font-weight: 750;
+            font-size: 1.15rem;
+            margin: 0 0 6px 0;
+        }
+
+        .desc {
+            margin: 0 0 14px 0;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .pill {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.08);
+            color: var(--text);
+        }
+
+            .pill code {
+                color: var(--text);
+            }
+
+        .alertx {
+            border-radius: 12px;
+            padding: 10px 12px;
+            border: 1px solid rgba(239,68,68,.25);
+            background: rgba(239,68,68,.10);
+            color: #fecaca;
+            font-size: 13px;
+            margin: 14px 0 0 0;
+        }
+
+        details {
+            margin-top: 12px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+            padding: 10px 12px;
+            background: rgba(255,255,255,.03);
+        }
+
+            details > summary {
+                cursor: pointer;
+                color: var(--muted);
+                font-size: 13px;
+                list-style: none;
+            }
+
+                details > summary::-webkit-details-marker {
+                    display: none;
+                }
+
+        pre {
+            margin: 10px 0 0 0;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0,0,0,.35);
+            color: #e5e7eb;
+            overflow: auto;
+            font-size: 12px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 18px 20px 20px;
+        }
+
+        .btnx {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(255,255,255,.06);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: transform .08s ease, background .15s ease, border-color .15s ease;
+            user-select: none;
+        }
+
+            .btnx:hover {
+                background: rgba(255,255,255,.10);
+                border-color: rgba(255,255,255,.18);
+                transform: translateY(-1px);
+                color: var(--text);
+            }
+
+            .btnx.primary {
+                background: rgba(59,130,246,.16);
+                border-color: rgba(59,130,246,.28);
+            }
+
+                .btnx.primary:hover {
+                    background: rgba(59,130,246,.22);
+                    border-color: rgba(59,130,246,.36);
+                }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="cardx">
+            <div class="head">
+                <div class="icon">⚠️</div>
+                <div>
+                    <div class="title">@title</div>
+                    <div class="desc">@description</div>
+                </div>
             </div>
 
-            <h4 class="mb-2">@title</h4>
+            <div class="body">
+                <div class="meta">
+                    @if (statusCode != null)
+                    {
+                        <span class="pill">HTTP <strong>@statusCode</strong></span>
+                    }
 
-            <p class="text-muted mb-3">@description</p>
-
-            @if (statusCode != null)
-            {
-                <div class="badge bg-light text-dark mb-2">
-                    HTTP @statusCode
+                    @if (!string.IsNullOrWhiteSpace(traceId))
+                    {
+                        <span class="pill">TraceId: <code>@traceId</code></span>
+                    }
                 </div>
-            }
 
-            @if (!string.IsNullOrWhiteSpace(traceId))
-            {
-                <div class="small text-muted mb-3">
-                    TraceId: <code>@traceId</code>
-                </div>
-            }
-
-            @if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                <div class="alert alert-danger small">
-                    @errorMessage
-                </div>
-            }
-
-            @if (!string.IsNullOrWhiteSpace(errorDetail) &&
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                <details class="text-start mt-3">
-                    <summary class="text-muted small">Detayları göster</summary>
-                    <pre class="small mt-2">@errorDetail</pre>
-                </details>
-            }
-
-            @if (ViewBag.StackTrace != null &&
-            Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                <details class="text-start mt-3">
-                    <summary class="text-muted small">StackTrace</summary>
-                    <pre class="small mt-2">@ViewBag.StackTrace</pre>
-                </details>
-            }
-
-            <div class="d-flex justify-content-center gap-2 mt-4">
-                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary">Anasayfa</a>
-
-                @if (statusCode == 401 || statusCode == 403)
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
-                    <a asp-controller="Auth" asp-action="Login" class="btn btn-outline-secondary">Giriş Yap</a>
+                    <div class="alertx">@errorMessage</div>
+                }
+
+                @if (isDev && !string.IsNullOrWhiteSpace(errorDetail))
+                {
+                    <details>
+                        <summary>Detayları göster</summary>
+                        <pre>@errorDetail</pre>
+                    </details>
+                }
+
+                @if (isDev && ViewBag.StackTrace != null)
+                {
+                    <details>
+                        <summary>StackTrace</summary>
+                        <pre>@ViewBag.StackTrace</pre>
+                    </details>
                 }
             </div>
 
+            <div class="actions">
+                <a asp-controller="Dashboard" asp-action="Index" class="btnx primary">Anasayfa</a>
+
+                @if (statusCode == 401 || statusCode == 403)
+                {
+                    <a asp-controller="Auth" asp-action="Login" class="btnx">Giriş Yap</a>
+                }
+            </div>
         </div>
     </div>
-</div>
+</body>
+</html>

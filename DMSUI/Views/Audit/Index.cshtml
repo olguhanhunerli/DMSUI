@@ -1,5 +1,5 @@
 ﻿@model DMSUI.Entities.DTOs.Common.PagedResultDTO<
-       DMSUI.Entities.DTOs.Audit.DocumentAccessLogDTO>
+    DMSUI.Entities.DTOs.Audit.DocumentAccessLogDTO>
 
 <table class="table table-hover table-sm">
     <thead class="table-light">
@@ -28,11 +28,11 @@
         }
     </tbody>
 </table>
+
 @if (Model.TotalPages > 1)
 {
     <nav class="mt-3">
         <ul class="pagination pagination-sm justify-content-end">
-
             <li class="page-item @(Model.Page == 1 ? "disabled" : "")">
                 <a class="page-link"
                    asp-action="Index"
@@ -62,7 +62,6 @@
                     ›
                 </a>
             </li>
-
         </ul>
     </nav>
 }

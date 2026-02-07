@@ -5,16 +5,16 @@
 @{
     ViewData["Title"] = "Şikayet Listesi";
 
-    var q = Context.Request.Query["q"].ToString();
-    var status = Context.Request.Query["status"].ToString();
-    var isRepeat = Context.Request.Query["isRepeat"].ToString();
-    var needsCapa = Context.Request.Query["needsCapa"].ToString();
+    var arama = Context.Request.Query["q"].ToString();
+    var durum = Context.Request.Query["status"].ToString();
+    var tekrarMi = Context.Request.Query["isRepeat"].ToString();
+    var dofVarMi = Context.Request.Query["needsCapa"].ToString();
 
-    var pageSizeStr = Context.Request.Query["pageSize"].ToString();
-    var pageSize = Model?.PageSize ?? 10;
-    if (int.TryParse(pageSizeStr, out var ps) && ps > 0) { pageSize = ps; }
+    var sayfaBoyutuStr = Context.Request.Query["pageSize"].ToString();
+    var sayfaBoyutu = Model?.PageSize ?? 10;
+    if (int.TryParse(sayfaBoyutuStr, out var ps) && ps > 0) { sayfaBoyutu = ps; }
 
-    string SeverityText(int id) => id switch
+    string OnemMetni(int id) => id switch
     {
         1 => "Düşük",
         2 => "Orta",
@@ -23,7 +23,7 @@
         _ => "?"
     };
 
-    string SeverityBadge(int id) => id switch
+    string OnemRozeti(int id) => id switch
     {
         1 => "bg-light text-dark",
         2 => "bg-info",
@@ -32,7 +32,7 @@
         _ => "bg-secondary"
     };
 
-    string StatusBadge(string? st)
+    string DurumRozeti(string? st)
     {
         var s = (st ?? "").Trim();
         if (s.Equals("AÇIK", StringComparison.OrdinalIgnoreCase)) return "bg-danger";
@@ -48,7 +48,6 @@
     <a class="btn btn-primary btn-sm" asp-action="Create">
         <i class="bi bi-plus-circle me-1"></i> Yeni Şikayet
     </a>
-
 </div>
 
 <form method="get" class="card shadow-sm mb-3" id="filterForm">
@@ -58,47 +57,47 @@
             <div class="col-12 col-md-5">
                 <label class="form-label small text-muted mb-1">Arama</label>
                 <input id="fQ"
-                type="text"
-                name="q"
-                value="@q"
-                class="form-control form-control-sm"
-                placeholder="Şikayet No / Firma / Müşteri / Başlık / Parça / Lot / Atanan" />
+                       type="text"
+                       name="q"
+                       value="@arama"
+                       class="form-control form-control-sm"
+                       placeholder="Şikayet No / Firma / Müşteri / Başlık / Parça / Lot / Atanan" />
             </div>
 
             <div class="col-12 col-md-3">
                 <label class="form-label small text-muted mb-1">Durum</label>
                 <select id="fStatus" name="status" class="form-select form-select-sm">
-                    <option value="" selected="@(string.IsNullOrWhiteSpace(status))">Tümü</option>
-                    <option value="AÇIK" selected="@(status == "AÇIK")">AÇIK</option>
-                    <option value="GÜNCELLENDİ" selected="@(status == "GÜNCELLENDİ")">GÜNCELLENDİ</option>
-                    <option value="KAPALI" selected="@(status == "KAPALI")">KAPALI</option>
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(durum))">Tümü</option>
+                    <option value="AÇIK" selected="@(durum == "AÇIK")">AÇIK</option>
+                    <option value="GÜNCELLENDİ" selected="@(durum == "GÜNCELLENDİ")">GÜNCELLENDİ</option>
+                    <option value="KAPALI" selected="@(durum == "KAPALI")">KAPALI</option>
                 </select>
             </div>
 
             <div class="col-6 col-md-2">
                 <label class="form-label small text-muted mb-1">Tekrar?</label>
                 <select id="fIsRepeat" name="isRepeat" class="form-select form-select-sm">
-                    <option value="" selected="@(string.IsNullOrWhiteSpace(isRepeat))">Tümü</option>
-                    <option value="true" selected="@(isRepeat == "true")">Evet</option>
-                    <option value="false" selected="@(isRepeat == "false")">Hayır</option>
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(tekrarMi))">Tümü</option>
+                    <option value="true" selected="@(tekrarMi == "true")">Evet</option>
+                    <option value="false" selected="@(tekrarMi == "false")">Hayır</option>
                 </select>
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">DÖF Kaydı </label>
+                <label class="form-label small text-muted mb-1">DÖF Kaydı</label>
                 <select id="fNeedsCapa" name="needsCapa" class="form-select form-select-sm">
-                    <option value="" selected="@(string.IsNullOrWhiteSpace(needsCapa))">Tümü</option>
-                    <option value="true" selected="@(needsCapa == "true")">Evet</option>
-                    <option value="false" selected="@(needsCapa == "false")">Hayır</option>
+                    <option value="" selected="@(string.IsNullOrWhiteSpace(dofVarMi))">Tümü</option>
+                    <option value="true" selected="@(dofVarMi == "true")">Evet</option>
+                    <option value="false" selected="@(dofVarMi == "false")">Hayır</option>
                 </select>
             </div>
 
             <div class="col-6 col-md-1">
                 <label class="form-label small text-muted mb-1">Sayfa</label>
                 <select name="pageSize" class="form-select form-select-sm">
-                    <option value="10" selected="@(pageSize == 10)">10</option>
-                    <option value="25" selected="@(pageSize == 25)">25</option>
-                    <option value="50" selected="@(pageSize == 50)">50</option>
+                    <option value="10" selected="@(sayfaBoyutu == 10)">10</option>
+                    <option value="25" selected="@(sayfaBoyutu == 25)">25</option>
+                    <option value="50" selected="@(sayfaBoyutu == 50)">50</option>
                 </select>
             </div>
 
@@ -106,23 +105,24 @@
                 <button class="btn btn-primary btn-sm" type="submit">
                     <i class="bi bi-search me-1"></i> Ara
                 </button>
-
             </div>
-            
+
         </div>
     </div>
 </form>
+
 <a class="btn btn-success btn-sm"
    asp-action="ExportExcel"
    asp-route-page="@Model.Page"
-   asp-route-pageSize="@pageSize"
-   asp-route-q="@q"
-   asp-route-status="@status"
-   asp-route-isRepeat="@isRepeat"
-   asp-route-needsCapa="@needsCapa">
+   asp-route-pageSize="@sayfaBoyutu"
+   asp-route-q="@arama"
+   asp-route-status="@durum"
+   asp-route-isRepeat="@tekrarMi"
+   asp-route-needsCapa="@dofVarMi">
     <i class="bi bi-file-earmark-excel me-1"></i> Excel Aktar
 </a>
-<div class="card shadow-sm">
+
+<div class="card shadow-sm mt-2">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
@@ -143,34 +143,26 @@
             <tbody>
                 @if (Model?.Items != null && Model.Items.Any())
                 {
-                    var row = (Model.Page - 1) * Model.PageSize;
+                    var siraNo = (Model.Page - 1) * Model.PageSize;
 
                     foreach (var item in Model.Items)
                     {
-                        row++;
+                        siraNo++;
 
                         var st = (item.status ?? "").ToString();
-                        var stBadge = StatusBadge(st);
+                        var stBadge = DurumRozeti(st);
 
-                        var sevText = SeverityText(item.severityId);
-                        var sevBadge = SeverityBadge(item.severityId);
+                        var onemText = OnemMetni(item.severityId);
+                        var onemBadge = OnemRozeti(item.severityId);
 
-                        var metaParts = new List<string>();
-                        if (!string.IsNullOrWhiteSpace(item.partNumber)) metaParts.Add($"Parça: {item.partNumber}");
-                        if (!string.IsNullOrWhiteSpace(item.lotNumber)) metaParts.Add($"Lot: {item.lotNumber}");
-                        if (!string.IsNullOrWhiteSpace(item.customerComplaintNo)) metaParts.Add($"Müşteri Ref: {item.customerComplaintNo}");
-                        if (item.quantityAffected.HasValue) metaParts.Add($"Adet: {item.quantityAffected.Value}");
+                        var aramaMetni = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignees} {item.status} {item.partNumber} {item.lotNumber} {item.customerComplaintNo}";
 
-                        var meta = string.Join(" • ", metaParts);
+                        <tr data-q="@aramaMetni"
+                            data-status="@st"
+                            data-isrepeat="@(item.isRepeat ? "true" : "false")"
+                            data-needscapa="@(item.needsCapa ? "true" : "false")">
 
-                        var qdata = $"{item.complaintNo} {item.companyName} {item.customerName} {item.title} {item.assignees} {item.status} {item.partNumber} {item.lotNumber} {item.customerComplaintNo}";
-
-                        <tr data-q="@qdata"
-                        data-status="@st"
-                        data-isrepeat="@(item.isRepeat ? "true" : "false")"
-                        data-needscapa="@(item.needsCapa ? "true" : "false")">
-
-                            <td class="text-muted">@row</td>
+                            <td class="text-muted">@siraNo</td>
 
                             <td>
                                 <div class="fw-semibold">@item.complaintNo</div>
@@ -180,11 +172,10 @@
 
                             <td>
                                 <div class="fw-semibold">@item.title</div>
-
                             </td>
 
                             <td class="text-center">
-                                <span class="badge @sevBadge">@sevText</span>
+                                <span class="badge @onemBadge">@onemText</span>
                             </td>
 
                             <td class="text-center">
@@ -206,6 +197,7 @@
                             <td class="text-muted">
                                 @((item.reportedAt != default ? item.reportedAt : (item.createdAt ?? DateTime.MinValue)).ToString("dd.MM.yyyy HH:mm"))
                             </td>
+
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm" role="group">
                                     <a class="btn btn-outline-secondary"
@@ -214,11 +206,14 @@
                                        asp-route-complaintNo="@item.complaintNo">
                                         <i class="bi bi-eye"></i>
                                     </a>
+
                                     <a class="btn btn-outline-dark btn-sm"
+                                       title="PDF"
                                        asp-action="Pdf"
                                        asp-route-complaintNo="@item.complaintNo">
-                                        <i class="bi bi-filetype-pdf me-1"></i> 
+                                        <i class="bi bi-filetype-pdf me-1"></i>
                                     </a>
+
                                     @if (item.isClosed != true)
                                     {
                                         <form asp-action="Close"
@@ -226,16 +221,14 @@
                                               method="post"
                                               class="d-inline"
                                               onsubmit="return confirm('Şikayeti kapatmak istediğine emin misin?');">
-
                                             @Html.AntiForgeryToken()
-
                                             <button type="submit"
                                                     class="btn btn-outline-danger btn-sm"
                                                     title="Şikayeti Kapat">
-                                                <i class="bi bi-lock-fill me-1"></i> 
+                                                <i class="bi bi-lock-fill me-1"></i>
                                             </button>
                                         </form>
-                                       
+
                                         <a class="btn btn-outline-primary"
                                            title="Düzenle"
                                            asp-action="Edit"
@@ -269,51 +262,51 @@
             <nav>
                 <ul class="pagination pagination-sm mb-0">
                     @{
-                        int current = Model.Page;
-                        int total = Model.TotalPages;
+                        int mevcut = Model.Page;
+                        int toplam = Model.TotalPages;
 
-                        int start = Math.Max(1, current - 2);
-                        int end = Math.Min(total, current + 2);
+                        int bas = Math.Max(1, mevcut - 2);
+                        int bit = Math.Min(toplam, mevcut + 2);
                     }
 
-                    <li class="page-item @(current == 1 ? "disabled" : "")">
+                    <li class="page-item @(mevcut == 1 ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(current - 1)"
-                           asp-route-pageSize="@pageSize"
-                           asp-route-q="@q"
-                           asp-route-status="@status"
-                           asp-route-isRepeat="@isRepeat"
-                           asp-route-needsCapa="@needsCapa">
+                           asp-route-page="@(mevcut - 1)"
+                           asp-route-pageSize="@sayfaBoyutu"
+                           asp-route-q="@arama"
+                           asp-route-status="@durum"
+                           asp-route-isRepeat="@tekrarMi"
+                           asp-route-needsCapa="@dofVarMi">
                             ‹
                         </a>
                     </li>
 
-                    @for (int i = start; i <= end; i++)
+                    @for (int i = bas; i <= bit; i++)
                     {
-                        <li class="page-item @(i == current ? "active" : "")">
+                        <li class="page-item @(i == mevcut ? "active" : "")">
                             <a class="page-link"
                                asp-action="Index"
                                asp-route-page="@i"
-                               asp-route-pageSize="@pageSize"
-                               asp-route-q="@q"
-                               asp-route-status="@status"
-                               asp-route-isRepeat="@isRepeat"
-                               asp-route-needsCapa="@needsCapa">
+                               asp-route-pageSize="@sayfaBoyutu"
+                               asp-route-q="@arama"
+                               asp-route-status="@durum"
+                               asp-route-isRepeat="@tekrarMi"
+                               asp-route-needsCapa="@dofVarMi">
                                 @i
                             </a>
                         </li>
                     }
 
-                    <li class="page-item @(current == total ? "disabled" : "")">
+                    <li class="page-item @(mevcut == toplam ? "disabled" : "")">
                         <a class="page-link"
                            asp-action="Index"
-                           asp-route-page="@(current + 1)"
-                           asp-route-pageSize="@pageSize"
-                           asp-route-q="@q"
-                           asp-route-status="@status"
-                           asp-route-isRepeat="@isRepeat"
-                           asp-route-needsCapa="@needsCapa">
+                           asp-route-page="@(mevcut + 1)"
+                           asp-route-pageSize="@sayfaBoyutu"
+                           asp-route-q="@arama"
+                           asp-route-status="@durum"
+                           asp-route-isRepeat="@tekrarMi"
+                           asp-route-needsCapa="@dofVarMi">
                             ›
                         </a>
                     </li>

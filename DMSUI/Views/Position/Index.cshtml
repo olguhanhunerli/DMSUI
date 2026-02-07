@@ -1,4 +1,4 @@
-﻿"@using DMSUI.Entities.DTOs.Position
+﻿@using DMSUI.Entities.DTOs.Position
 @model List<PositionListDTO>
 
 @{
@@ -18,7 +18,6 @@
         </a>
     </div>
 
-  
     <div class="card border-0 shadow-sm">
         <div class="card-body p-2">
 
@@ -46,7 +45,7 @@
 
                         @if (Model != null && Model.Any())
                         {
-                            @foreach (var pos in Model)
+                            foreach (var pos in Model)
                             {
                                 <tr>
                                     <td class="px-3">@rowNo</td>
@@ -57,9 +56,7 @@
                                     <td class="px-3">@pos.CreatedByName</td>
                                     <td class="px-3">@pos.UploadedByName</td>
 
-                                    <td class="px-3">
-                                        @(pos.CompanyName ?? "-")
-                                    </td>
+                                    <td class="px-3">@(pos.CompanyName ?? "-")</td>
 
                                     <td class="px-3">
                                         <span class="badge @(pos.IsActive == true ? "bg-success" : "bg-danger")">
@@ -67,32 +64,28 @@
                                         </span>
                                     </td>
 
-                                    <td class="px-3">
-                                        @(pos.CreatedAt?.ToString("dd.MM.yyyy") ?? "-")
-                                    </td>
+                                    <td class="px-3">@(pos.CreatedAt?.ToString("dd.MM.yyyy") ?? "-")</td>
 
-                                    <td class="px-3">
-                                        @(pos.UploadedAt?.ToString("dd.MM.yyyy") ?? "-")
-                                    </td>
+                                    <td class="px-3">@(pos.UploadedAt?.ToString("dd.MM.yyyy") ?? "-")</td>
 
                                     <td class="px-3 text-end">
                                         <div class="btn-group btn-group-sm shadow-sm">
 
                                             <a asp-action="Edit"
                                                asp-route-id="@pos.Id"
-                                               class="btn btn-light border">
+                                               class="btn btn-light border"
+                                               title="Düzenle">
                                                 <i class="bi bi-pencil-square text-primary"></i>
                                             </a>
 
-                                            <form asp-action="Delete"
-                                                  method="post"
-                                                  class="d-inline">
+                                            <form asp-action="Delete" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@pos.Id" />
 
                                                 <button type="submit"
-                                                        onclick="return confirm('Bu pozisyon silinsin mi?')"
-                                                        class="btn btn-light border">
+                                                        class="btn btn-light border"
+                                                        title="Sil"
+                                                        onclick="return confirm('Bu pozisyon silinsin mi?');">
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </button>
                                             </form>
@@ -135,4 +128,4 @@
             }
         </ul>
     </nav>
-</div>" 
+</div>

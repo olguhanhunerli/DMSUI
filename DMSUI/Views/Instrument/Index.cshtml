@@ -6,7 +6,6 @@
 @{
     ViewData["Title"] = "Cihazlar";
 
-    // Client-side filtre yapacağız: bunlar sadece default değerler olarak kalabilir
     var q = Context.Request.Query["q"].ToString();
     var companyId = Context.Request.Query["companyId"].ToString();
     var location = Context.Request.Query["location"].ToString();
@@ -19,6 +18,43 @@
 
     var companies = ViewBag.Companies as List<SelectListItem> ?? new();
     var locations = ViewBag.Locations as List<SelectListItem> ?? new();
+
+    string TipTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Dimensional" => "Boyutsal",
+        "Electrical" => "Elektriksel",
+        "Pressure" => "Basınç",
+        "Temperature" => "Sıcaklık",
+        "Other" => "Diğer",
+        _ => "-"
+    };
+
+    string DisiplinTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Length" => "Uzunluk",
+        "Temperature" => "Sıcaklık",
+        "Pressure" => "Basınç",
+        "Voltage" => "Gerilim",
+        "Current" => "Akım",
+        "Other" => "Diğer",
+        _ => "-"
+    };
+
+    string RiskTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Low" => "Düşük",
+        "Medium" => "Orta",
+        "High" => "Yüksek",
+        _ => "-"
+    };
+
+    string RiskCss(string? v) => (v ?? "").Trim() switch
+    {
+        "High" => "bg-danger",
+        "Medium" => "bg-warning text-dark",
+        "Low" => "bg-success",
+        _ => "bg-secondary"
+    };
 }
 
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -40,11 +76,11 @@
                        name="q"
                        value="@q"
                        class="form-control form-control-sm"
-                       placeholder="Kod / Cihaz / Seri No" />
+                       placeholder="Kod / Cihaz / Seri Numarası" />
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Lokasyon</label>
+                <label class="form-label small text-muted mb-1">Konum</label>
                 <select id="fLocation" name="location" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     @foreach (var l in locations)
@@ -55,14 +91,14 @@
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label small text-muted mb-1">Tip</label>
+                <label class="form-label small text-muted mb-1">Cihaz Türü</label>
                 <select id="fInstrumentType" name="instrumentType" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    <option value="Dimensional" selected="@(instrumentType == "Dimensional")">Dimensional</option>
-                    <option value="Electrical" selected="@(instrumentType == "Electrical")">Electrical</option>
-                    <option value="Pressure" selected="@(instrumentType == "Pressure")">Pressure</option>
-                    <option value="Temperature" selected="@(instrumentType == "Temperature")">Temperature</option>
-                    <option value="Other" selected="@(instrumentType == "Other")">Other</option>
+                    <option value="Dimensional" selected="@(instrumentType == "Dimensional")">@TipTr("Dimensional")</option>
+                    <option value="Electrical" selected="@(instrumentType == "Electrical")">@TipTr("Electrical")</option>
+                    <option value="Pressure" selected="@(instrumentType == "Pressure")">@TipTr("Pressure")</option>
+                    <option value="Temperature" selected="@(instrumentType == "Temperature")">@TipTr("Temperature")</option>
+                    <option value="Other" selected="@(instrumentType == "Other")">@TipTr("Other")</option>
                 </select>
             </div>
 
@@ -70,9 +106,9 @@
                 <label class="form-label small text-muted mb-1">Risk</label>
                 <select id="fRiskLevel" name="riskLevel" class="form-select form-select-sm">
                     <option value="">Tümü</option>
-                    <option value="Low" selected="@(riskLevel == "Low")">Low</option>
-                    <option value="Medium" selected="@(riskLevel == "Medium")">Medium</option>
-                    <option value="High" selected="@(riskLevel == "High")">High</option>
+                    <option value="Low" selected="@(riskLevel == "Low")">@RiskTr("Low")</option>
+                    <option value="Medium" selected="@(riskLevel == "Medium")">@RiskTr("Medium")</option>
+                    <option value="High" selected="@(riskLevel == "High")">@RiskTr("High")</option>
                 </select>
             </div>
 
@@ -86,7 +122,7 @@
             </div>
 
             <div class="col-6 col-md-1">
-                <label class="form-label small text-muted mb-1">Aktif</label>
+                <label class="form-label small text-muted mb-1">Durum</label>
                 <select id="fIsActive" name="isActive" class="form-select form-select-sm">
                     <option value="">Tümü</option>
                     <option value="true" selected="@(isActive == "true")">Aktif</option>
@@ -112,6 +148,7 @@
         </div>
     </div>
 </form>
+
 <a class="btn btn-success btn-sm mb-2"
    asp-action="ExportExcel"
    asp-route-page="@Model.Page"
@@ -125,6 +162,7 @@
    asp-route-isActive="@isActive">
     <i class="bi bi-file-earmark-excel me-1"></i> Excel
 </a>
+
 <div class="card shadow-sm">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -134,15 +172,15 @@
                     <th>Şirket</th>
                     <th>Kod</th>
                     <th>Cihaz</th>
-                    <th>Tip</th>
+                    <th>Tür</th>
                     <th>Disiplin</th>
                     <th class="text-center">Risk</th>
                     <th class="text-center">Kritik</th>
-                    <th>Seri No</th>
+                    <th>Seri Numarası</th>
                     <th>Aralık</th>
-                    <th>Hass.</th>
+                    <th>Çöz.</th>
                     <th>Birim</th>
-                    <th>Lokasyon</th>
+                    <th>Konum</th>
                     <th>Sorumlu</th>
                     <th style="width:110px;" class="text-center">Durum</th>
                     <th style="width:110px;" class="text-center">İşlemler</th>
@@ -158,13 +196,10 @@
                     {
                         row++;
 
-                        string riskBadge = item.Risk_Level switch
-                        {
-                            "High" => "bg-danger",
-                            "Medium" => "bg-warning text-dark",
-                            "Low" => "bg-success",
-                            _ => "bg-secondary"
-                        };
+                        var riskBadge = RiskCss(item.Risk_Level);
+                        var tipText = TipTr(item.Instrument_Type);
+                        var disiplinText = DisiplinTr(item.Measurement_Discipline);
+                        var riskText = RiskTr(item.Risk_Level);
 
                         <tr class="@(item.IsActive ? "" : "table-secondary")"
                             data-q="@($"{item.Asset_Code} {item.Name} {item.Serial_No}")"
@@ -179,11 +214,11 @@
                             <td><div class="fw-semibold">@item.CompanyName</div></td>
                             <td class="fw-semibold">@item.Asset_Code</td>
                             <td>@item.Name</td>
-                            <td>@(item.Instrument_Type ?? "-")</td>
-                            <td>@(item.Measurement_Discipline ?? "-")</td>
+                            <td>@tipText</td>
+                            <td>@disiplinText</td>
 
                             <td class="text-center">
-                                <span class="badge @riskBadge">@((item.Risk_Level ?? "-"))</span>
+                                <span class="badge @riskBadge">@riskText</span>
                             </td>
 
                             <td class="text-center">
@@ -367,12 +402,12 @@
                 const trActive = norm(tr.dataset.isactive);
 
                 const okQ = !qv || trQ.includes(qv);
-                const okC = !civ || trCompanyId === civ;         
-                const okL = !lv || trLocation.includes(lv);     
+                const okC = !civ || trCompanyId === civ;
+                const okL = !lv || trLocation.includes(lv);
                 const okT = !tv || trType === tv;
                 const okR = !rv || trRisk === rv;
-                const okCr = !cv || trCritical === cv;          
-                const okA = !av || trActive === av;              
+                const okCr = !cv || trCritical === cv;
+                const okA = !av || trActive === av;
 
                 tr.style.display = (okQ && okC && okL && okT && okR && okCr && okA) ? '' : 'none';
             });

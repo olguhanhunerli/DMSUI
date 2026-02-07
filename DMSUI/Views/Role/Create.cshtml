@@ -7,53 +7,38 @@
 
 <form asp-action="Create" method="post" class="container-fluid px-3 pb-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h4 class="fw-bold mb-0">
             <i class="bi bi-plus-circle me-2 text-primary"></i>
             Yeni Rol Ekle
         </h4>
 
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary btn-sm">
-                Kaydet
-            </button>
+            <button type="submit" class="btn btn-primary btn-sm">Kaydet</button>
 
-            <a asp-action="Index"
-               class="btn btn-outline-secondary btn-sm">
-                İptal
-            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">İptal</a>
         </div>
     </div>
 
     <div class="row justify-content-center">
         <div class="col-xl-6 col-lg-8 col-md-12">
-
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            Rol Adı
-                        </label>
-                        <input asp-for="Name"
-                               class="form-control"
-                               placeholder="Rol adını giriniz" />
+                        <label asp-for="Name" class="form-label fw-semibold">Rol Adı</label>
+                        <input asp-for="Name" class="form-control" placeholder="Rol adını giriniz" />
                         <span asp-validation-for="Name" class="text-danger small"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">
-                            Açıklama
-                        </label>
-                        <input asp-for="Description"
-                               class="form-control"
-                               placeholder="Rol açıklaması" />
+                        <label asp-for="Description" class="form-label fw-semibold">Açıklama</label>
+                        <input asp-for="Description" class="form-control" placeholder="Rol açıklaması" />
                         <span asp-validation-for="Description" class="text-danger small"></span>
                     </div>
 
                 </div>
             </div>
-
         </div>
     </div>
 </form>

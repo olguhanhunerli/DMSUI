@@ -1,47 +1,83 @@
 ﻿@using DMSUI.ViewModels.Customer
 @model CreateCustomerVM
 
-<h3>➕ Yeni Müşteri Oluştur</h3>
+@{
+    ViewData["Title"] = "Yeni Müşteri Oluştur";
+}
 
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
+<div class="container-fluid px-3 pb-4">
 
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-    <div class="row">
-        <div class="col-md-6">
-            <label>Müşteri Kodu</label>
-            <input asp-for="customerCode" class="form-control" />
-            <span asp-validation-for="customerCode" class="text-danger"></span>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h4 class="fw-bold mb-0">
+            <i class="bi bi-person-plus me-2 text-primary"></i>
+            Yeni Müşteri Oluştur
+        </h4>
 
-        <div class="col-md-6">
-            <label>Müşteri Adı</label>
-            <input asp-for="name" class="form-control" />
-            <span asp-validation-for="name" class="text-danger"></span>
-        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+        </a>
     </div>
 
-    <hr />
+    <form asp-action="Create" method="post" class="card shadow-sm border-0">
+        @Html.AntiForgeryToken()
 
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <label>Telefon</label>
-            <input asp-for="phone" class="form-control" />
-            <span asp-validation-for="phone" class="text-danger"></span>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+            <div class="row g-3">
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Müşteri Kodu</label>
+                    <input asp-for="customerCode"
+                           class="form-control"
+                           placeholder="Örn: CUST001" />
+                    <span asp-validation-for="customerCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Müşteri Adı</label>
+                    <input asp-for="name"
+                           class="form-control"
+                           placeholder="Örn: ABC Otomotiv" />
+                    <span asp-validation-for="name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <hr class="my-1" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Telefon</label>
+                    <input asp-for="phone"
+                           class="form-control"
+                           placeholder="Örn: +90 5xx xxx xx xx" />
+                    <span asp-validation-for="phone" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">E-posta</label>
+                    <input asp-for="email"
+                           class="form-control"
+                           type="email"
+                           placeholder="Örn: info@firma.com" />
+                    <span asp-validation-for="email" class="text-danger small"></span>
+                </div>
+
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <label>Email</label>
-            <input asp-for="email" class="form-control" type="email" />
-            <span asp-validation-for="email" class="text-danger"></span>
-        </div>
-    </div>
+        <div class="card-footer bg-white d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Vazgeç
+            </a>
 
-    <div class="mt-4 text-end">
-        <a asp-action="Index" class="btn btn-secondary">↩️ Vazgeç</a>
-        <button type="submit" class="btn btn-success ms-2">✅ Oluştur</button>
-    </div>
-</form>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-1"></i> Oluştur
+            </button>
+        </div>
+
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

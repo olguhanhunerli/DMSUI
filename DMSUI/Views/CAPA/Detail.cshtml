@@ -2,18 +2,18 @@
 @model CAPADetailDTO
 
 @{
-    ViewData["Title"] = "CAPA Detay";
+    ViewData["Title"] = "CAPA Detayı";
 
-    string fmtDate(DateTime d) => d.ToString("dd.MM.yyyy");
-    string fmtDateTime(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
-    string fmtDateTimeN(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+    string Tarih(DateTime d) => d.ToString("dd.MM.yyyy");
+    string TarihSaat(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
+    string TarihSaatYoksaCizgi(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
 
-    string badge(string? status)
+    string DurumRozeti(string? durum)
     {
-        if (string.IsNullOrWhiteSpace(status)) return "secondary";
-        status = status.Trim().ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(durum)) return "secondary";
+        durum = durum.Trim().ToUpperInvariant();
 
-        return status switch
+        return durum switch
         {
             "BEKLIYOR" => "warning",
             "AÇIK" or "ACIK" => "info",
@@ -22,23 +22,23 @@
         };
     }
 
-    var actionsCount = Model.Actions?.Count ?? 0;
+    var aksiyonSayisi = Model.Actions?.Count ?? 0;
 }
 
 <div class="container my-4">
-
     <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
-            <div class="text-muted small">CAPA No</div>
+            <div class="text-muted small">CAPA Numarası</div>
             <h3 class="mb-1">@Model.CapaNo</h3>
+
             <div class="text-muted">
-                Şikayet No:
+                Şikayet Numarası:
                 <span class="fw-semibold">@Model.ComplaintNo</span>
             </div>
         </div>
 
         <div class="text-end">
-            <span class="badge bg-@badge(Model.Status) fs-6">@Model.Status</span>
+            <span class="badge bg-@DurumRozeti(Model.Status) fs-6">@Model.Status</span>
             <div class="mt-2">
                 <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
             </div>
@@ -46,14 +46,12 @@
     </div>
 
     <div class="row g-3">
-
         <div class="col-lg-8">
-
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Genel Bilgiler</div>
+
                 <div class="card-body">
                     <div class="row g-3">
-
                         <div class="col-md-4">
                             <label class="form-label">Durum</label>
                             <input class="form-control" value="@Model.Status" readonly />
@@ -61,7 +59,7 @@
 
                         <div class="col-md-4">
                             <label class="form-label">Termin</label>
-                            <input class="form-control" value="@fmtDate(Model.DueDate)" readonly />
+                            <input class="form-control" value="@Tarih(Model.DueDate)" readonly />
                         </div>
 
                         <div class="col-md-4">
@@ -83,15 +81,14 @@
                             <label class="form-label">Kök Neden Metodu</label>
                             <input class="form-control" value="@Model.RootCauseMethodName" readonly />
                         </div>
-
                     </div>
                 </div>
             </div>
 
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">İçerik</div>
-                <div class="card-body">
 
+                <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label">Uygunsuzluk</label>
                         <textarea class="form-control" rows="3" readonly>@Model.NonConformity</textarea>
@@ -111,16 +108,14 @@
                         <label class="form-label">Etkinlik Kontrolü</label>
                         <textarea class="form-control" rows="2" readonly>@Model.EffectivenessCheck</textarea>
                     </div>
-
                 </div>
             </div>
-
         </div>
 
         <div class="col-lg-4">
-
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Şikayet Bilgileri</div>
+
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-5 text-muted">Firma</dt>
@@ -146,35 +141,35 @@
 
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold">Özet</div>
+
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-6 text-muted">Açılış</dt>
-                        <dd class="col-6">@fmtDateTime(Model.OpenedAt)</dd>
+                        <dd class="col-6">@TarihSaat(Model.OpenedAt)</dd>
 
                         <dt class="col-6 text-muted">Kapanış</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.CloseAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.CloseAt)</dd>
 
                         <dt class="col-6 text-muted">Oluşturma</dt>
-                        <dd class="col-6">@fmtDateTime(Model.CreatedAt)</dd>
+                        <dd class="col-6">@TarihSaat(Model.CreatedAt)</dd>
 
                         <dt class="col-6 text-muted">Güncelleme</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.UpdatedAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.UpdatedAt)</dd>
 
                         <dt class="col-6 text-muted">Kontrol Tarihi</dt>
-                        <dd class="col-6">@fmtDateTimeN(Model.EffectivenessCheckedAt)</dd>
+                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.EffectivenessCheckedAt)</dd>
 
                         <dt class="col-6 text-muted">Kontrol Eden</dt>
                         <dd class="col-6">@Model.EffectivenessCheckedByName</dd>
                     </dl>
                 </div>
             </div>
-
         </div>
 
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold">
-                    Aksiyonlar <span class="text-muted small">(Toplam: @actionsCount)</span>
+                    Aksiyonlar <span class="text-muted small">(Toplam: @aksiyonSayisi)</span>
                 </div>
 
                 <div class="table-responsive">
@@ -191,8 +186,9 @@
                                 <th>Oluşturma</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            @if (!Model.Actions.Any())
+                            @if (Model.Actions?.Any() != true)
                             {
                                 <tr>
                                     <td colspan="8" class="text-center text-muted py-4">Aksiyon yok</td>
@@ -207,10 +203,10 @@
                                         <td>@a.ActionType</td>
                                         <td>@a.Description</td>
                                         <td>@a.OwnerName</td>
-                                        <td>@fmtDateTime(a.DueDate)</td>
-                                        <td><span class="badge bg-@badge(a.Status)">@a.Status</span></td>
+                                        <td>@TarihSaat(a.DueDate)</td>
+                                        <td><span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span></td>
                                         <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
-                                        <td>@fmtDateTime(a.CreatedAt)</td>
+                                        <td>@TarihSaat(a.CreatedAt)</td>
                                     </tr>
                                 }
                             }
@@ -219,6 +215,5 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>

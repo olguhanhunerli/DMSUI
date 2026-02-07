@@ -4,10 +4,10 @@
 @{
     ViewData["Title"] = "Arama Sonuçları";
 
-    var docs = Model.Documents;
-    int page = docs.Page;
-    int totalPages = docs.TotalPages;
-    int totalCount = docs.TotalCount;
+    var dokumanlar = Model.Documents;
+    int sayfa = dokumanlar.Page;
+    int toplamSayfa = dokumanlar.TotalPages;
+    int toplamKayit = dokumanlar.TotalCount;
 }
 
 <div class="container mt-4">
@@ -22,23 +22,25 @@
             @if (Model.Categories.Any())
             {
                 <h6 class="fw-bold mb-2">Kategoriler</h6>
+
                 <ul class="list-group mb-4">
-                    @foreach (var cat in Model.Categories)
+                    @foreach (var kategori in Model.Categories)
                     {
-                        <li class="list-group-item d-flex justify-content-between">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
                                 <i class="bi bi-folder"></i>
-                                <strong>@cat.Name</strong>
-                                @if (!string.IsNullOrEmpty(cat.Code))
+                                <strong>@kategori.Name</strong>
+                                @if (!string.IsNullOrWhiteSpace(kategori.Code))
                                 {
-                                    <span class="text-muted ms-1">(@cat.Code)</span>
+                                    <span class="text-muted ms-1">(@kategori.Code)</span>
                                 }
                             </div>
+
                             <a asp-controller="Document"
                                asp-action="Index"
-                               asp-route-categoryId="@cat.Id"
+                               asp-route-categoryId="@kategori.Id"
                                class="btn btn-sm btn-outline-primary">
-                                İçeri Gir
+                                Aç
                             </a>
                         </li>
                     }
@@ -57,74 +59,68 @@
                 </thead>
                 <tbody>
 
-                @if (docs.Items.Any())
-                {
-                    foreach (var doc in docs.Items)
+                    @if (dokumanlar.Items.Any())
+                    {
+                        foreach (var dokuman in dokumanlar.Items)
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    <a asp-controller="Document"
+                                       asp-action="Detail"
+                                       asp-route-id="@dokuman.Id"
+                                       class="text-decoration-none">
+                                        @dokuman.DocumentCode
+                                    </a>
+                                </td>
+                                <td>@dokuman.Title</td>
+                                <td>@dokuman.CategoryPath</td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td class="fw-semibold">
-                                <a asp-controller="Document"
-                                   asp-action="Detail"
-                                   asp-route-id="@doc.Id"
-                                   class="text-decoration-none">
-                                    @doc.DocumentCode
-                                </a>
+                            <td colspan="3" class="text-center text-muted py-4">
+                                Sonuç bulunamadı.
                             </td>
-                            <td>@doc.Title</td>
-                            <td>@doc.CategoryPath</td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="3" class="text-center text-muted py-4">
-                            Sonuç bulunamadı.
-                        </td>
-                    </tr>
-                }
 
                 </tbody>
             </table>
 
         </div>
 
-        @if (totalPages > 1)
+        @if (toplamSayfa > 1)
         {
             <div class="card-footer bg-white d-flex justify-content-between align-items-center">
 
                 <small class="text-muted">
-                    Toplam <strong>@totalCount</strong> kayıt ·
-                    Sayfa <strong></strong> / <strong>@totalPages</strong>
+                    Toplam <strong>@toplamKayit</strong> kayıt ·
+                    Sayfa <strong>@sayfa</strong> / <strong>@toplamSayfa</strong>
                 </small>
 
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item @(page == 1 ? "disabled" : "")">
-                            <a class="page-link"
-                               asp-route-page="@(page - 1)">
-                                ‹
-                            </a>
+
+                        <li class="page-item @(sayfa == 1 ? "disabled" : "")">
+                            <a class="page-link" asp-route-page="@(sayfa - 1)">‹</a>
                         </li>
 
-                        @for (int i = 1; i <= totalPages; i++)
+                        @for (int i = 1; i <= toplamSayfa; i++)
                         {
-                            <li class="page-item @(i == page ? "active" : "")">
-                                <a class="page-link"
-                                   asp-route-page="@i">
-                                    @i
-                                </a>
+                            <li class="page-item @(i == sayfa ? "active" : "")">
+                                <a class="page-link" asp-route-page="@i">@i</a>
                             </li>
                         }
 
-                        <li class="page-item @(page == totalPages ? "disabled" : "")">
-                            <a class="page-link"
-                               asp-route-page="@(page + 1)">
-                                ›
-                            </a>
+                        <li class="page-item @(sayfa == toplamSayfa ? "disabled" : "")">
+                            <a class="page-link" asp-route-page="@(sayfa + 1)">›</a>
                         </li>
+
                     </ul>
                 </nav>
+
             </div>
         }
 

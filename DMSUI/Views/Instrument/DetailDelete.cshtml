@@ -1,6 +1,47 @@
 ﻿@using DMSUI.Entities.DTOs.Instruments
 @model InstrumentDTO
 
+@{
+    ViewData["Title"] = "Silinen Ölçüm Aleti Detayı";
+
+    string TypeTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Dimensional" => "Boyutsal",
+        "Electrical" => "Elektriksel",
+        "Pressure" => "Basınç",
+        "Temperature" => "Sıcaklık",
+        "Other" => "Diğer",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
+
+    string DisciplineTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Length" => "Uzunluk",
+        "Temperature" => "Sıcaklık",
+        "Pressure" => "Basınç",
+        "Voltage" => "Gerilim",
+        "Current" => "Akım",
+        "Other" => "Diğer",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
+
+    string RiskTr(string? v) => (v ?? "").Trim() switch
+    {
+        "Low" => "Düşük",
+        "Medium" => "Orta",
+        "High" => "Yüksek",
+        _ => string.IsNullOrWhiteSpace(v) ? "-" : v
+    };
+
+    string riskBadge = (Model?.Risk_Level ?? "").Trim() switch
+    {
+        "High" => "bg-danger",
+        "Medium" => "bg-warning text-dark",
+        "Low" => "bg-success",
+        _ => "bg-secondary"
+    };
+}
+
 <h3 class="text-danger">🗑️ Silinen Ölçüm Aleti Detayı</h3>
 
 <div class="alert alert-warning mt-3">
@@ -10,18 +51,18 @@
 <form>
     <div class="row">
         <div class="col-md-4">
-            <label>Firma</label>
-            <input value="@Model.CompanyName" class="form-control" readonly />
+            <label class="form-label">Firma</label>
+            <input value="@(Model?.CompanyName ?? "-")" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Demirbaş Kodu</label>
+            <label class="form-label">Demirbaş Kodu</label>
             <input asp-for="Asset_Code" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Durum</label>
-            <input asp-for="Status" class="form-control" readonly />
+            <label class="form-label">Durum</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.Status) ? "-" : Model.Status)" class="form-control" readonly />
         </div>
     </div>
 
@@ -29,51 +70,51 @@
 
     <div class="row mt-3">
         <div class="col-md-4">
-            <label>Cihaz Adı</label>
+            <label class="form-label">Cihaz Adı</label>
             <input asp-for="Name" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Marka</label>
+            <label class="form-label">Marka</label>
             <input asp-for="Brand" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Model</label>
+            <label class="form-label">Model</label>
             <input asp-for="Model" class="form-control" readonly />
         </div>
     </div>
 
     <div class="row mt-3">
         <div class="col-md-4">
-            <label>Seri No</label>
+            <label class="form-label">Seri Numarası</label>
             <input asp-for="Serial_No" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Ölçüm Aralığı</label>
+            <label class="form-label">Ölçüm Aralığı</label>
             <input asp-for="Measurement_Range" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Hassasiyet</label>
+            <label class="form-label">Çözünürlük</label>
             <input asp-for="Resolution" class="form-control" readonly />
         </div>
     </div>
 
     <div class="row mt-3">
         <div class="col-md-4">
-            <label>Birim</label>
+            <label class="form-label">Birim</label>
             <input asp-for="Unit" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Lokasyon</label>
+            <label class="form-label">Konum</label>
             <input asp-for="Location" class="form-control" readonly />
         </div>
 
         <div class="col-md-4">
-            <label>Sorumlu</label>
+            <label class="form-label">Sorumlu</label>
             <input asp-for="Owner_Person" class="form-control" readonly />
         </div>
     </div>
@@ -81,24 +122,77 @@
     <hr />
 
     <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Cihaz Türü</label>
+            <input value="@TypeTr(Model?.Instrument_Type)" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Ölçüm Disiplini</label>
+            <input value="@DisciplineTr(Model?.Measurement_Discipline)" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Risk Seviyesi</label>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge @riskBadge">@RiskTr(Model?.Risk_Level)</span>
+                <input value="" class="form-control" readonly style="display:none;" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <label class="form-label">Kritiklik</label>
+            <input value="@(Model?.Is_Critical == true ? "Evet" : "Hayır")" class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Belirsizlik</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.Measurement_Uncertainty) ? "-" : Model.Measurement_Uncertainty)"
+                   class="form-control" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Ortam Şartı</label>
+            <input value="@(Model?.Environment_Required == true ? "Gerekli" : "Gerekli Değil")"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <label class="form-label">Ortam Notları</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.Environment_Notes) ? "-" : Model.Environment_Notes)"
+                   class="form-control" readonly />
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="row mt-3">
         <div class="col-md-3">
-            <label>Oluşturan</label>
-            <input asp-for="CreatedByName" class="form-control" readonly />
+            <label class="form-label">Oluşturan</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.CreatedByName) ? "-" : Model.CreatedByName)"
+                   class="form-control" readonly />
         </div>
 
         <div class="col-md-3">
-            <label>Oluşturma Tarihi</label>
-            <input value="@Model.Created_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
+            <label class="form-label">Oluşturma Tarihi</label>
+            <input value="@(Model?.Created_At?.ToString("dd.MM.yyyy HH:mm") ?? "-")"
+                   class="form-control" readonly />
         </div>
 
         <div class="col-md-3">
-            <label>Güncelleyen</label>
-            <input asp-for="UpdatedByName" class="form-control" readonly />
+            <label class="form-label">Güncelleyen</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.UpdatedByName) ? "-" : Model.UpdatedByName)"
+                   class="form-control" readonly />
         </div>
 
         <div class="col-md-3">
-            <label>Güncelleme Tarihi</label>
-            <input value="@Model.Updated_At?.ToString("dd.MM.yyyy HH:mm")" class="form-control" readonly />
+            <label class="form-label">Güncelleme Tarihi</label>
+            <input value="@(Model?.Updated_At?.ToString("dd.MM.yyyy HH:mm") ?? "-")"
+                   class="form-control" readonly />
         </div>
     </div>
 
@@ -106,15 +200,15 @@
 
     <div class="row mt-3">
         <div class="col-md-6">
-            <label>Silinme Tarihi</label>
-            <input value="@(Model.DeletedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")" 
-                    class="form-control" readonly />
+            <label class="form-label">Silinme Tarihi</label>
+            <input value="@(Model?.DeletedAt?.ToString("dd.MM.yyyy HH:mm") ?? "-")"
+                   class="form-control" readonly />
         </div>
 
         <div class="col-md-6">
-            <label>Silen Kullanıcı</label>
-            <input value="@(string.IsNullOrWhiteSpace(Model.DeletedByUser) ? "-" : Model.DeletedByUser)"
-                    class="form-control" readonly />
+            <label class="form-label">Silen Kullanıcı</label>
+            <input value="@(string.IsNullOrWhiteSpace(Model?.DeletedByUser) ? "-" : Model.DeletedByUser)"
+                   class="form-control" readonly />
         </div>
     </div>
 

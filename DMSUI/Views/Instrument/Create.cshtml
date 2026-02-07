@@ -36,7 +36,7 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Seri No</label>
+            <label class="form-label">Seri Numarası</label>
             <input asp-for="Serial_No" class="form-control" />
             <span asp-validation-for="Serial_No" class="text-danger"></span>
         </div>
@@ -50,7 +50,7 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Hassasiyet</label>
+            <label class="form-label">Çözünürlük</label>
             <input asp-for="Resolution" class="form-control" />
             <span asp-validation-for="Resolution" class="text-danger"></span>
         </div>
@@ -66,28 +66,28 @@
 
     <div class="row mt-3">
         <div class="col-md-4">
-            <label class="form-label">Tip</label>
+            <label class="form-label">Cihaz Türü</label>
             <select asp-for="Instrument_Type" class="form-select">
                 <option value="">Seçiniz</option>
-                <option value="Dimensional">Dimensional</option>
-                <option value="Electrical">Electrical</option>
-                <option value="Pressure">Pressure</option>
-                <option value="Temperature">Temperature</option>
-                <option value="Other">Other</option>
+                <option value="Dimensional">Boyutsal</option>
+                <option value="Electrical">Elektriksel</option>
+                <option value="Pressure">Basınç</option>
+                <option value="Temperature">Sıcaklık</option>
+                <option value="Other">Diğer</option>
             </select>
             <span asp-validation-for="Instrument_Type" class="text-danger"></span>
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Disiplin</label>
+            <label class="form-label">Ölçüm Disiplini</label>
             <select asp-for="Measurement_Discipline" class="form-select">
                 <option value="">Seçiniz</option>
-                <option value="Length">Length</option>
-                <option value="Temperature">Temperature</option>
-                <option value="Pressure">Pressure</option>
-                <option value="Voltage">Voltage</option>
-                <option value="Current">Current</option>
-                <option value="Other">Other</option>
+                <option value="Length">Uzunluk</option>
+                <option value="Temperature">Sıcaklık</option>
+                <option value="Pressure">Basınç</option>
+                <option value="Voltage">Gerilim</option>
+                <option value="Current">Akım</option>
+                <option value="Other">Diğer</option>
             </select>
             <span asp-validation-for="Measurement_Discipline" class="text-danger"></span>
         </div>
@@ -96,9 +96,9 @@
             <label class="form-label">Risk Seviyesi</label>
             <select asp-for="Risk_Level" class="form-select">
                 <option value="">Seçiniz</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="Low">Düşük</option>
+                <option value="Medium">Orta</option>
+                <option value="High">Yüksek</option>
             </select>
             <span asp-validation-for="Risk_Level" class="text-danger"></span>
         </div>
@@ -106,7 +106,7 @@
 
     <div class="row mt-3">
         <div class="col-md-4">
-            <label class="form-label">Belirsizlik</label>
+            <label class="form-label">Ölçüm Belirsizliği</label>
             <input asp-for="Measurement_Uncertainty" class="form-control" placeholder="Örn: ±0.02 mm" />
             <span asp-validation-for="Measurement_Uncertainty" class="text-danger"></span>
         </div>
@@ -138,13 +138,13 @@
 
     <div class="row mt-3">
         <div class="col-md-6">
-            <label class="form-label">Lokasyon</label>
+            <label class="form-label">Konum</label>
             <input asp-for="Location" class="form-control" />
             <span asp-validation-for="Location" class="text-danger"></span>
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Sorumlu</label>
+            <label class="form-label">Sorumlu Kişi</label>
             <input asp-for="Owner_Person" class="form-control" />
             <span asp-validation-for="Owner_Person" class="text-danger"></span>
         </div>

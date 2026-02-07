@@ -2,89 +2,100 @@
 @using DMSUI.ViewModels.NewFolder
 @model EditCustomersVM
 
-<h3>✏️ Müşteri Düzenle</h3>
+@{
+    ViewData["Title"] = "Müşteri Düzenle";
 
-<form asp-action="Edit" method="post">
+    var silinmisMi = Model?.isDelete == true;
+
+    string goster(string? v) => string.IsNullOrWhiteSpace(v) ? "-" : v;
+    string fmtTarih(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">
+        <i class="bi bi-pencil-square me-1 text-primary"></i>
+        Müşteri Düzenle
+    </h4>
+
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Listeye Dön
+    </a>
+</div>
+
+<form asp-action="Edit" method="post" class="card shadow-sm">
     @Html.AntiForgeryToken()
 
-    <input type="hidden" asp-for="id" />
-    <input type="hidden" asp-for="createdAt" />
-    <input type="hidden" asp-for="isDelete" />
-    <input type="hidden" asp-for="deleteAt" />
-    <input type="hidden" asp-for="deletedByName" />
-    <input type="hidden" asp-for="companyName" />
-    <div class="row">
+    <div class="card-body">
+        <input type="hidden" asp-for="id" />
+        <input type="hidden" asp-for="createdAt" />
+        <input type="hidden" asp-for="isDelete" />
+        <input type="hidden" asp-for="deleteAt" />
+        <input type="hidden" asp-for="deletedByName" />
+        <input type="hidden" asp-for="companyName" />
 
-        <div class="col-md-6">
-            <label>Müşteri Kodu</label>
-            <input asp-for="customerCode" class="form-control" />
-        </div>
+        <div class="row g-3">
 
-        <div class="col-md-6">
-            <label>Durum</label>
-            <input value="@(Model.isDelete ? "Silinmiş" : "Aktif")"
-                   class="form-control" readonly />
-        </div>
-    </div>
+            <div class="col-md-6">
+                <label class="form-label">Müşteri Kodu</label>
+                <input asp-for="customerCode" class="form-control" />
+                <span asp-validation-for="customerCode" class="text-danger small"></span>
+            </div>
 
-    <hr />
+            <div class="col-md-6">
+                <label class="form-label">Durum</label>
+                <input value="@(silinmisMi ? "Silinmiş" : "Aktif")"
+                       class="form-control"
+                       readonly />
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-md-6">
-            <label>Müşteri Adı</label>
-            <input asp-for="name" class="form-control" />
-        </div>
+            <div class="col-md-6">
+                <label class="form-label">Müşteri Adı</label>
+                <input asp-for="name" class="form-control" />
+                <span asp-validation-for="name" class="text-danger small"></span>
+            </div>
 
-        <div class="col-md-3">
-            <label>Telefon</label>
-            <input asp-for="phone" class="form-control" />
-        </div>
+            <div class="col-md-3">
+                <label class="form-label">Telefon</label>
+                <input asp-for="phone" class="form-control" />
+                <span asp-validation-for="phone" class="text-danger small"></span>
+            </div>
 
-        <div class="col-md-3">
-            <label>Email</label>
-            <input asp-for="email" class="form-control" type="email" />
-        </div>
-    </div>
+            <div class="col-md-3">
+                <label class="form-label">E-posta</label>
+                <input asp-for="email" class="form-control" type="email" />
+                <span asp-validation-for="email" class="text-danger small"></span>
+            </div>
 
-    <hr />
+            <div class="col-12">
+                <label class="form-label">Şirket</label>
+                <input value="@goster(Model?.companyName)" class="form-control" readonly />
+            </div>
 
-    <div class="row mt-3">
+            <div class="col-md-3">
+                <label class="form-label">Oluşturma Tarihi</label>
+                <input value="@fmtTarih(Model?.createdAt)" class="form-control" readonly />
+            </div>
 
-        <div class="col-md-12">
-            <label>Şirket</label>
-            <input asp-for="companyName" class="form-control" />
-        </div>
-    </div>
+            <div class="col-md-3">
+                <label class="form-label">Silinme Tarihi</label>
+                <input value="@(silinmisMi ? fmtTarih(Model?.deleteAt) : "-")" class="form-control" readonly />
+            </div>
 
-    <hr />
+            <div class="col-md-6">
+                <label class="form-label">Silen Kullanıcı</label>
+                <input value="@goster(Model?.deletedByName)" class="form-control" readonly />
+            </div>
 
-    <div class="row mt-3">
-        <div class="col-md-3">
-            <label>Oluşturma Tarihi</label>
-            <input value="@Model.createdAt.ToString("dd.MM.yyyy HH:mm")"
-                   class="form-control" readonly />
-        </div>
-
-        <div class="col-md-3">
-            <label>Silinme Tarihi</label>
-            <input value="@(Model.isDelete? Model.deleteAt?.ToString("dd.MM.yyyy HH:mm") : "-")"
-                   class="form-control" readonly />
-        </div>
-
-        <div class="col-md-6">
-            <label>Silen Kullanıcı</label>
-            <input value="@(Model.deletedByName?.ToString() ?? "-")"
-                   class="form-control" readonly />
         </div>
     </div>
 
-    <div class="mt-4 text-end">
-        <a asp-action="Index" class="btn btn-secondary">
-            ↩️ Vazgeç
+    <div class="card-footer bg-white d-flex justify-content-end gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Vazgeç
         </a>
 
-        <button type="submit" class="btn btn-primary ms-2">
-            💾 Kaydet
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i> Kaydet
         </button>
     </div>
 </form>
