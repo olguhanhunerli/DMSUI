@@ -25,6 +25,7 @@
 
     bool kilitli = string.Equals(Model.Status, "KAPALI", StringComparison.OrdinalIgnoreCase);
     var aksiyonSayisi = Model.Actions?.Count ?? 0;
+    int currentUserId = int.Parse(User.FindFirst("UserId")!.Value);
 }
 
 <div class="container my-4">
@@ -317,7 +318,31 @@
                                             <td>@a.Description</td>
                                             <td>@(a.OwnerName ?? "-")</td>
                                             <td>@TarihSaat(a.DueDate)</td>
-                                            <td><span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span></td>
+                                            <td>
+                                                @if (!kilitli && a.OwnerId == currentUserId)
+                                                {
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <select class="form-select form-select-sm action-status"
+                                                                data-action-id="@a.Id"
+                                                                data-prev="@a.Status">
+                                                            <option value="BEKLIYOR" selected="@(string.Equals(a.Status,"BEKLIYOR",StringComparison.OrdinalIgnoreCase))">BEKLIYOR</option>
+                                                            <option value="AÇIK" selected="@(string.Equals(a.Status,"AÇIK",StringComparison.OrdinalIgnoreCase) || string.Equals(a.Status,"ACIK",StringComparison.OrdinalIgnoreCase))">AÇIK</option>
+                                                            <option value="KAPALI" selected="@(string.Equals(a.Status,"KAPALI",StringComparison.OrdinalIgnoreCase))">KAPALI</option>
+                                                            <option value="RED" selected="@(string.Equals(a.Status,"RED",StringComparison.OrdinalIgnoreCase))">RED</option>
+                                                        </select>
+
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-primary action-status-save"
+                                                                data-action-id="@a.Id">
+                                                            Kaydet
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span>
+                                                }
+                                            </td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
                                             <td>@TarihSaat(a.CreatedAt)</td>
                                         </tr>
