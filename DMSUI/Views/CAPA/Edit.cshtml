@@ -143,7 +143,7 @@
                                 <textarea asp-for="NonConformity" class="form-control" rows="3"></textarea>
                             }
                         </div>
-                         
+
                         <div class="mb-3">
                             <label class="form-label">Kök Neden</label>
 
@@ -319,29 +319,29 @@
                                             <td>@(a.OwnerName ?? "-")</td>
                                             <td>@TarihSaat(a.DueDate)</td>
                                             <td>
-                                                @if (!kilitli && a.OwnerId == currentUserId)
-                                                {
-                                                    <div class="d-flex gap-2 align-items-center">
-                                                        <select class="form-select form-select-sm action-status"
-                                                                data-action-id="@a.Id"
-                                                                data-prev="@a.Status">
-                                                            <option value="BEKLIYOR" selected="@(string.Equals(a.Status,"BEKLIYOR",StringComparison.OrdinalIgnoreCase))">BEKLIYOR</option>
-                                                            <option value="AÇIK" selected="@(string.Equals(a.Status,"AÇIK",StringComparison.OrdinalIgnoreCase) || string.Equals(a.Status,"ACIK",StringComparison.OrdinalIgnoreCase))">AÇIK</option>
-                                                            <option value="KAPALI" selected="@(string.Equals(a.Status,"KAPALI",StringComparison.OrdinalIgnoreCase))">KAPALI</option>
-                                                            <option value="RED" selected="@(string.Equals(a.Status,"RED",StringComparison.OrdinalIgnoreCase))">RED</option>
-                                                        </select>
+                                                @if (!kilitli && a.OwnerId == currentUserId && !string.Equals(a.Status, "TAMAMLANDI", StringComparison.OrdinalIgnoreCase))
+{
+    <div class="d-flex gap-2 align-items-center">
+        <select class="form-select form-select-sm action-status"
+                data-action-id="@a.Id"
+                data-prev="@a.Status">
+            <option value="BEKLIYOR" selected="@(string.Equals(a.Status, "BEKLIYOR", StringComparison.OrdinalIgnoreCase))">BEKLIYOR</option>
+            <option value="AÇIK" selected="@(string.Equals(a.Status, "AÇIK", StringComparison.OrdinalIgnoreCase) || string.Equals(a.Status, "ACIK", StringComparison.OrdinalIgnoreCase))">AÇIK</option>
+            <option value="KAPALI" selected="@(string.Equals(a.Status, "KAPALI", StringComparison.OrdinalIgnoreCase))">KAPALI</option>
+            <option value="RED" selected="@(string.Equals(a.Status, "RED", StringComparison.OrdinalIgnoreCase))">RED</option>
+        </select>
 
-                                                        <button type="button"
-                                                                class="btn btn-sm btn-outline-primary action-status-save"
-                                                                data-action-id="@a.Id">
-                                                            Kaydet
-                                                        </button>
-                                                    </div>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span>
-                                                }
+        <button type="button"
+                class="btn btn-sm btn-outline-primary action-status-save"
+                data-action-id="@a.Id">
+            Kaydet
+        </button>
+    </div>
+}
+else
+{
+    <span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span>
+}
                                             </td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
                                             <td>@TarihSaat(a.CreatedAt)</td>
@@ -433,80 +433,129 @@
     </div>
 }
 
+<div class="modal fade" id="kapaliModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">KAPALI için dosya yükle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="hidden" id="kapaliActionId" />
+                <input class="form-control" type="file" id="kapaliFile" />
+                <div class="small text-muted mt-2">
+                    Dosya yüklenmeden işlem tamamlanmaz.
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Vazgeç</button>
+                <button class="btn btn-primary" type="button" id="kapaliDevam">Yükle & Tamamla</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    (function () {
-        const form = document.getElementById('addActionForm');
-        if (!form) return;
+    document.addEventListener("DOMContentLoaded", () => {
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
+      if (!window.bootstrap) {
+        console.error("Bootstrap JS yok. Modal çalışmaz (bootstrap.bundle.min.js gerekli).");
+        return;
+      }
 
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn) submitBtn.disabled = true;
+      const modalEl = document.getElementById("kapaliModal");
+      if (!modalEl) return;
 
-            try {
-                const formData = new FormData(form);
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-                const res = await fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                });
+      let pending = null; 
 
-                const payload = await res.json().catch(() => null);
+      document.addEventListener("change", (e) => {
+        const sel = e.target.closest(".action-status");
+        if (!sel) return;
 
-                if (!res.ok || !payload || payload.ok !== true) {
-                    alert(payload?.message || 'Aksiyon eklenemedi.');
-                    return;
-                }
+        if ((sel.value || "").toUpperCase() !== "KAPALI") return;
 
-                const a = payload.data;
-                const tbody = document.getElementById('actionsTbody');
+        pending = {
+          sel,
+          prev: sel.dataset.prev || "",
+          actionId: sel.dataset.actionId
+        };
 
-                if (tbody && a) {
-                    const emptyRow = tbody.querySelector('[data-empty-row="true"]');
-                    if (emptyRow) emptyRow.remove();
+        const fileInput = document.getElementById("kapaliFile");
+        if (fileInput) fileInput.value = "";
 
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${a.id ?? ''}</td>
-                        <td>${escapeHtml(a.actionType ?? '')}</td>
-                        <td>${escapeHtml(a.description ?? '')}</td>
-                        <td>${escapeHtml(a.ownerName ?? '-')}</td>
-                        <td>${formatDateTime(a.dueDate)}</td>
-                        <td><span class="badge bg-info">${escapeHtml(a.status ?? '')}</span></td>
-                        <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
-                        <td>${formatDateTime(a.createdAt)}</td>
-                    `;
-                    tbody.prepend(tr);
-                }
+        modal.show();
+      });
 
-                const modalEl = document.getElementById('addActionModal');
-                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                modal.hide();
+      modalEl.addEventListener("hidden.bs.modal", () => {
+        if (!pending) return;
 
-                form.reset();
-            } finally {
-                if (submitBtn) submitBtn.disabled = false;
-            }
-        });
+        try { pending.sel.value = pending.prev; } catch { }
+        pending = null;
+      });
 
-        function pad2(n) { return String(n).padStart(2, '0'); }
+      const btn = document.getElementById("kapaliDevam");
+      if (!btn) return;
 
-        function formatDateTime(iso) {
-            if (!iso) return '-';
-            const d = new Date(iso);
-            if (isNaN(d)) return iso;
-            return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      btn.addEventListener("click", async () => {
+        if (!pending) return;
+
+        const actionId = pending.actionId;
+        const file = document.getElementById("kapaliFile")?.files?.[0];
+
+        if (!file) { alert("Dosya seçmelisin."); return; }
+
+        const fd = new FormData();
+        fd.append("file", file); 
+
+        btn.disabled = true;
+
+        try {
+          const up = await fetch(`/CAPA/UploadFiles?actionId=${encodeURIComponent(actionId)}`, {
+            method: "POST",
+            body: fd
+          });
+
+          if (!up.ok) {
+            const msg = await up.text().catch(() => null);
+            alert(msg || "Dosya yüklenemedi.");
+            return;
+          }
+
+          const comp = await fetch(`/CAPA/ComplateAction?actionId=${encodeURIComponent(actionId)}&status=KAPALI`, {
+            method: "POST"
+          });
+
+          if (!comp.ok) {
+            const msg = await comp.text().catch(() => null);
+            alert(msg || "Tamamlama başarısız.");
+            return;
+          }
+
+          pending.sel.dataset.prev = "KAPALI";
+
+          // UI güncelle
+          pending.sel.value = "KAPALI";
+          const container = pending.sel.closest("div.d-flex") || pending.sel.parentElement;
+          if (container) {
+            container.innerHTML = `<span class="badge bg-success">KAPALI</span>`;
+          } else {
+            pending.sel.disabled = true;
+          }
+
+          pending = null;
+          modal.hide();
+
+        } catch (err) {
+          console.error(err);
+          alert("İşlem sırasında hata oluştu.");
+        } finally {
+          btn.disabled = false;
         }
+      });
 
-        function escapeHtml(str) {
-            return String(str)
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
-    })();
+    });
 </script>

@@ -10,6 +10,7 @@ namespace DMSUI.Services.Interfaces
     public interface ICapaActionsManager
     {
         Task<CapaActionDTO> CreateCapaActionAsync(string capaNo, CreateCapaActionDTO dto);
+        Task<bool> ComplateActionAsync(int actionId, string status);
 
     }
 }

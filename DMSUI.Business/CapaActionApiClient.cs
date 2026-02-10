@@ -76,5 +76,12 @@ namespace DMSUI.Business
             return result;
 
         }
+
+        public async Task<bool> ComplateActionAsync(int actionId, string status)
+        {
+            AttachToken();
+            var res = await _httpClient.PostAsJsonAsync($"api/CapaActions/actions/{actionId}/complete", status);
+            return res.IsSuccessStatusCode;
+        }
     }
 }

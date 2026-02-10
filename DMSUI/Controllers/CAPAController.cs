@@ -16,12 +16,14 @@ namespace DMSUI.Controllers
         private readonly IComplaintManager _complaintManager;
         private readonly ICAPAManager _capaManager;
         private readonly ICapaActionsManager _capaActionsManager;
+        private readonly ICapaActionFilesManager _capaActionFilesManager;
 
-        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager)
+        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager, ICapaActionFilesManager capaActionFilesManager)
         {
             _complaintManager = complaintManager;
             _capaManager = capaManager;
             _capaActionsManager = capaActionsManager;
+            _capaActionFilesManager = capaActionFilesManager;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -251,7 +253,6 @@ namespace DMSUI.Controllers
                 if (created == null)
                     return StatusCode(500, new { ok = false, message = "Aksiyon ekleme başarısız (API)." });
 
-                // UI tabloya ekleyebilsin diye created'ı geri dön
                 return Ok(new { ok = true, message = "Aksiyon eklendi.", data = created });
             }
             catch (Exception ex)
@@ -259,6 +260,20 @@ namespace DMSUI.Controllers
                 return StatusCode(500, new { ok = false, message = ex.Message });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> ComplateAction(int actionId, string status)
+        {
+            var result = await _capaActionsManager.ComplateActionAsync(actionId, status);
 
+            return Ok(new { ok = result });
+        }
+        [HttpPost]
+        public async Task<IActionResult> UploadFiles(int actionId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("Dosya Seçilmedi");
+            var ok = await _capaActionFilesManager.CreateFile(actionId, file);
+            return Ok(new { ok });
+        }
     }
 }
