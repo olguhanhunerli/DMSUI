@@ -141,7 +141,6 @@ namespace DMSUI.Controllers
                 Theme = vm.Theme,
                 NotificationPreferences = vm.NotificationPreferences
             };
-            Console.WriteLine(JsonSerializer.Serialize(dto));
             var success = await _userManager.CreateUserAsync(dto);
             if (!success)
             {

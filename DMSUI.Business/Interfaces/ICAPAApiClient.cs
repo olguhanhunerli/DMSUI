@@ -15,5 +15,6 @@ namespace DMSUI.Business.Interfaces
         Task<CAPACreateFormDTO> CreateFormCAPAS(string complaintNo);
         Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto);
         Task<bool> UpdateCAPAAsync(string capaNo, CAPAUpdateReqDTO dto);
+        Task<bool> ClosedCapaAsync(string capaNo, CloseCapaDTO dto);
     }
 }

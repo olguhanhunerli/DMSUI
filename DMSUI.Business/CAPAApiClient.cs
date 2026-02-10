@@ -63,7 +63,7 @@ namespace DMSUI.Business
                 return new CAPADetailDTO();
             }
             var body = await result.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<CAPADetailDTO> (
+            return JsonSerializer.Deserialize<CAPADetailDTO>(
                body,
                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
            );
@@ -74,7 +74,7 @@ namespace DMSUI.Business
         {
             AttachToken();
             var result = await _httpClient.GetAsync($"/api/CAPA/create-form?complaintNo={complaintNo}");
-            if(result == null)
+            if (result == null)
                 return new CAPACreateFormDTO();
             var body = await result.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<CAPACreateFormDTO>(
@@ -121,15 +121,27 @@ namespace DMSUI.Business
             {
                 Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
             };
-            Console.WriteLine("PATCH JSON => " + json);
             var response = await _httpClient.SendAsync(request);
 
             var body = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("PATCH STATUS: " + (int)response.StatusCode);
-            Console.WriteLine("PATCH BODY: " + body);
 
             return response.IsSuccessStatusCode;
 
+        }
+
+        public async Task<bool> ClosedCapaAsync(string capaNo, CloseCapaDTO dto)
+        {
+            AttachToken();
+
+            var url = $"/api/CAPA/{Uri.EscapeDataString(capaNo)}/close";
+            using var response = await _httpClient.PostAsJsonAsync(url, dto);
+
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"CAPA close failed: {(int)response.StatusCode} {response.ReasonPhrase}. Body: {body}");
+
+            return true;
         }
     }
 }

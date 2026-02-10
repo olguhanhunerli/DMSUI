@@ -6,6 +6,7 @@ using DMSUI.Services.Interfaces;
 using DMSUI.ViewModels.CAPA;
 using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Threading.Tasks;
 
@@ -17,15 +18,16 @@ namespace DMSUI.Controllers
         private readonly ICAPAManager _capaManager;
         private readonly ICapaActionsManager _capaActionsManager;
         private readonly ICapaActionFilesManager _capaActionFilesManager;
-
-        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager, ICapaActionFilesManager capaActionFilesManager)
+        private readonly IUserManager _userManager;
+        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager, ICapaActionFilesManager capaActionFilesManager, IUserManager userManager)
         {
             _complaintManager = complaintManager;
             _capaManager = capaManager;
             _capaActionsManager = capaActionsManager;
             _capaActionFilesManager = capaActionFilesManager;
+            _userManager = userManager;
         }
-
+        
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var entity = await _capaManager.GetAllCAPAS(page, pageSize);
@@ -192,7 +194,13 @@ namespace DMSUI.Controllers
                     form.Lookups?.RootCauseMethods ?? new List<LookupItemDTO>();
                 }
             }
-
+            ViewBag.Users = (await _userManager.GetAllUsersAsync())
+                .Select(u => new SelectListItem
+                {
+                    Value = u.Id.ToString(),
+                    Text = u.FullName 
+                })
+                .ToList();
             return View(model);
         }
         [HttpPost]
@@ -274,6 +282,38 @@ namespace DMSUI.Controllers
                 return BadRequest("Dosya Seçilmedi");
             var ok = await _capaActionFilesManager.CreateFile(actionId, file);
             return Ok(new { ok });
+        }
+        [HttpPost]
+        public async Task<IActionResult> CloseCapa(string capaNo, CloseCapaDTO dto)
+        {
+
+            if (string.IsNullOrWhiteSpace(capaNo))
+                return BadRequest();
+
+            if (!ModelState.IsValid)
+            {
+                var errs = string.Join(" | ",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                TempData["Error"] = "Form validation: " + errs;
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
+
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto, new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
+
+            try
+            {
+                var ok = await _capaManager.ClosedCapaAsync(capaNo, dto);
+                TempData["Success"] = "DÖF başarı ile kapatıldı";
+                return RedirectToAction(nameof(Detail), new { capaNo });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message; 
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
         }
     }
 }

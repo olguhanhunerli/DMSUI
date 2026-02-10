@@ -20,6 +20,11 @@ namespace DMSUI.Services
             _apiClient = apiClient;
         }
 
+        public async Task<bool> ClosedCapaAsync(string capaNo, CloseCapaDTO dto)
+        {
+           return await _apiClient.ClosedCapaAsync(capaNo, dto);
+        }
+
         public async Task<CAPADTO> CreateCAPAAsync(CAPACreateReqDTO dto)
         {
             return await _apiClient.CreateCAPAAsync(dto);
