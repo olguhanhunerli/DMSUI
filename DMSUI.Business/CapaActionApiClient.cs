@@ -83,5 +83,21 @@ namespace DMSUI.Business
             var res = await _httpClient.PostAsJsonAsync($"api/CapaActions/actions/{actionId}/complete", status);
             return res.IsSuccessStatusCode;
         }
+
+        public async Task<List<CapaActionDTO>> GetCapaActionAsync(string capaNo)
+        {
+            AttachToken();
+            var result = await _httpClient.GetAsync($"api/CapaActions/{capaNo}/actions");
+            if (!result.IsSuccessStatusCode)
+            {
+                throw new Exception("Aksiyon Getirme Başarısız");
+            }
+
+            var body = await result.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<List<CapaActionDTO>>(
+                body,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+            ) ?? new List<CapaActionDTO>();
+        }
     }
 }

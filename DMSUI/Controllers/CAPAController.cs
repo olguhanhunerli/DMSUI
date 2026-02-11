@@ -286,9 +286,27 @@ namespace DMSUI.Controllers
         [HttpPost]
         public async Task<IActionResult> CloseCapa(string capaNo, CloseCapaDTO dto)
         {
-
             if (string.IsNullOrWhiteSpace(capaNo))
                 return BadRequest();
+
+            var actions = await _capaActionsManager.GetCapaActionAsync(capaNo);
+            if (actions.Count == 0)
+            {
+                TempData["Error"] = "En az 1 aksiyon girilmeden DÖF kapatılamaz.";
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
+
+            if (actions.Any(a => !string.Equals(a.Status, "TAMAMLANDI", StringComparison.OrdinalIgnoreCase)))
+            {
+                TempData["Error"] = "DÖF kapatılamaz: Aksiyonlar devam ediyor.";
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
+
+            if (dto is null)
+            {
+                TempData["Error"] = "Geçersiz form verisi.";
+                return RedirectToAction(nameof(Edit), new { capaNo });
+            }
 
             if (!ModelState.IsValid)
             {
@@ -298,20 +316,15 @@ namespace DMSUI.Controllers
                 return RedirectToAction(nameof(Edit), new { capaNo });
             }
 
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(dto, new System.Text.Json.JsonSerializerOptions
-            {
-                WriteIndented = true
-            }));
-
             try
             {
-                var ok = await _capaManager.ClosedCapaAsync(capaNo, dto);
+                await _capaManager.ClosedCapaAsync(capaNo, dto);
                 TempData["Success"] = "DÖF başarı ile kapatıldı";
-                return RedirectToAction(nameof(Detail), new { capaNo });
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                TempData["Error"] = ex.Message; 
+                TempData["Error"] = ex.Message;
                 return RedirectToAction(nameof(Edit), new { capaNo });
             }
         }

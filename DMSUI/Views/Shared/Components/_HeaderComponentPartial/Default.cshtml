@@ -8,6 +8,7 @@
     string userId = "";
     string positionName = "";
     string userName = "";
+    string fullName = "";
 
     if (!string.IsNullOrEmpty(token))
     {
@@ -22,6 +23,7 @@
             userId = jwt.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Sub)?.Value ?? "";
             positionName = jwt.Claims.FirstOrDefault(x => x.Type == "positionName")?.Value ?? "";
             userName = jwt.Claims.FirstOrDefault(x => x.Type == "userName")?.Value ?? "";
+            fullName = jwt.Claims.FirstOrDefault(x => x.Type == "fullName")?.Value ?? "";
         }
         catch
         {
@@ -102,7 +104,7 @@
 
                     <li class="nav-item me-3 d-flex align-items-center text-dark">
                         <small class="text-end">
-                            <div class="fw-semibold">@userName</div>
+                            <div class="fw-semibold">@fullName</div>
                             <div class="text-muted">@positionName</div>
                         </small>
                     </li>

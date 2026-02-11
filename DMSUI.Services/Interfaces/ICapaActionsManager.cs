@@ -11,6 +11,6 @@ namespace DMSUI.Services.Interfaces
     {
         Task<CapaActionDTO> CreateCapaActionAsync(string capaNo, CreateCapaActionDTO dto);
         Task<bool> ComplateActionAsync(int actionId, string status);
-
+        Task<List<CapaActionDTO>> GetCapaActionAsync(string capaNo);
     }
 }

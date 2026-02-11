@@ -23,6 +23,11 @@ namespace DMSUI.Services
             return await _apiClient.ComplateActionAsync(actionId, status);
         }
 
+        public async Task<List<CapaActionDTO>> GetCapaActionAsync(string capaNo)
+        {
+            return await _apiClient.GetCapaActionAsync(capaNo);
+        }
+
         public async Task<CapaActionDTO> CreateCapaActionAsync(string capaNo, CreateCapaActionDTO dto)
         {
             return await _apiClient.CreateCapaActionAsync(capaNo, dto);
