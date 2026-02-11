@@ -1,19 +1,19 @@
 ﻿@using DMSUI.Entities.DTOs.CAPA
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model CAPADetailDTO
 
 @{
     ViewData["Title"] = "CAPA Düzenle";
 
-    string Tarih(DateTime d) => d.ToString("dd.MM.yyyy");
-    string TarihSaat(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
-    string TarihSaatYoksaCizgi(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+    string Dts(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
+    string DtsOrDash(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
 
-    string DurumRozeti(string? durum)
+    string Badge(string? durum)
     {
         if (string.IsNullOrWhiteSpace(durum)) return "secondary";
-        durum = durum.Trim().ToUpperInvariant();
+        var s = durum.Trim().ToUpperInvariant();
 
-        return durum switch
+        return s switch
         {
             "BEKLIYOR" => "warning",
             "AÇIK" or "ACIK" => "info",
@@ -24,52 +24,49 @@
     }
 
     bool kilitli = string.Equals(Model.Status, "KAPALI", StringComparison.OrdinalIgnoreCase);
-    var aksiyonSayisi = Model.Actions?.Count ?? 0;
+    int aksiyonSayisi = Model.Actions?.Count ?? 0;
     int currentUserId = int.Parse(User.FindFirst("UserId")!.Value);
+
+    // TagHelper-safe attribute helpers
+    string? disabledAttr = kilitli ? "disabled" : null;
 }
 
 <div class="container my-4">
 
-    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-        <div>
-            <div class="text-muted small">CAPA Numarası</div>
-            <h3 class="mb-1">@Model.CapaNo</h3>
-
-            <div class="text-muted">
-                Şikayet:
-                <span class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.ComplaintNo) ? Model.ComplaintNo : "-")</span>
-            </div>
-        </div>
-
-        <div class="text-end">
-            <div class="mb-2">
-                <span class="badge bg-@DurumRozeti(Model.Status) fs-6">@Model.Status</span>
+    <!-- HEADER -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="text-muted small">CAPA Numarası</div>
+                <h3 class="mb-1">@Model.CapaNo</h3>
+                <div class="text-muted">
+                    Şikayet:
+                    <span class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.ComplaintNo) ? Model.ComplaintNo : "-")</span>
+                </div>
             </div>
 
-            <div class="d-flex gap-2 justify-content-end">
-                <a class="btn btn-outline-secondary" asp-action="Detail" asp-route-capaNo="@Model.CapaNo">
-                    Detay
-                </a>
+            <div class="text-end">
+                <div class="mb-2">
+                    <span class="badge bg-@Badge(Model.Status) fs-6">@Model.Status</span>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <a class="btn btn-outline-secondary" asp-action="Detail" asp-route-capaNo="@Model.CapaNo">
+                        Detay
+                    </a>
+                </div>
 
                 @if (kilitli)
                 {
-                    <button type="button" class="btn btn-primary" disabled>Kaydet</button>
-                }
-                else
-                {
-                    <button type="submit" form="capaForm" class="btn btn-primary">Kaydet</button>
+                    <div class="text-muted small mt-2">Durum “KAPALI” olduğu için düzenleme kilitli.</div>
                 }
             </div>
-
-            @if (kilitli)
-            {
-                <div class="text-muted small mt-2">Durum “KAPALI” olduğu için düzenleme kilitli.</div>
-            }
         </div>
     </div>
 
     <div class="row g-3">
 
+        <!-- LEFT: FORM -->
         <div class="col-lg-8">
             <form id="capaForm" asp-action="Edit" method="post">
                 @Html.AntiForgeryToken()
@@ -79,9 +76,9 @@
                 <input type="hidden" asp-for="Status" />
                 <input type="hidden" asp-for="RootCauseMethodId" />
 
+                <!-- GENEL -->
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">Genel</div>
-
                     <div class="card-body">
                         <div class="row g-3">
 
@@ -92,15 +89,7 @@
 
                             <div class="col-md-6">
                                 <label class="form-label">Termin</label>
-
-                                @if (kilitli)
-                                {
-                                    <input asp-for="DueDate" type="date" class="form-control" disabled />
-                                }
-                                else
-                                {
-                                    <input asp-for="DueDate" type="date" class="form-control" />
-                                }
+                                <input asp-for="DueDate" type="date" class="form-control" disabled="@disabledAttr" />
                             </div>
 
                             <div class="col-md-4">
@@ -118,7 +107,7 @@
                                 <input asp-for="CompanyName" class="form-control" readonly />
                             </div>
 
-                            <div class="col-md-12">
+                            <div class="col-12">
                                 <label class="form-label">Kök Neden Metodu</label>
                                 <input type="text" value="@Model.RootCauseMethodName" class="form-control" readonly />
                             </div>
@@ -127,83 +116,45 @@
                     </div>
                 </div>
 
+                <!-- İÇERİK -->
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">İçerik</div>
-
                     <div class="card-body">
+
                         <div class="mb-3">
                             <label class="form-label">Uygunsuzluk</label>
-
-                            @if (kilitli)
-                            {
-                                <textarea asp-for="NonConformity" class="form-control" rows="3" disabled></textarea>
-                            }
-                            else
-                            {
-                                <textarea asp-for="NonConformity" class="form-control" rows="3"></textarea>
-                            }
+                            <textarea asp-for="NonConformity" class="form-control" rows="3" disabled="@disabledAttr"></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Kök Neden</label>
-
-                            @if (kilitli)
-                            {
-                                <textarea asp-for="RootCause" class="form-control" rows="3" disabled></textarea>
-                            }
-                            else
-                            {
-                                <textarea asp-for="RootCause" class="form-control" rows="3"></textarea>
-                            }
+                            <textarea asp-for="RootCause" class="form-control" rows="3" disabled="@disabledAttr"></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Düzeltici Faaliyet</label>
-
-                            @if (kilitli)
-                            {
-                                <textarea asp-for="CorrectiveAction" class="form-control" rows="3" disabled></textarea>
-                            }
-                            else
-                            {
-                                <textarea asp-for="CorrectiveAction" class="form-control" rows="3"></textarea>
-                            }
+                            <textarea asp-for="CorrectiveAction" class="form-control" rows="3" disabled="@disabledAttr"></textarea>
                         </div>
 
                         <div class="mb-0">
                             <label class="form-label">Etkinlik Kontrolü</label>
-
-                            @if (kilitli)
-                            {
-                                <textarea asp-for="EffectivenessCheck" class="form-control" rows="2" disabled></textarea>
-                            }
-                            else
-                            {
-                                <textarea asp-for="EffectivenessCheck" class="form-control" rows="2"></textarea>
-                            }
+                            <textarea asp-for="EffectivenessCheck" class="form-control" rows="2" disabled="@disabledAttr"></textarea>
                         </div>
+
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end gap-2">
                     <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
-
-                    @if (kilitli)
-                    {
-                        <button type="button" class="btn btn-primary" disabled>Kaydet</button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn btn-primary">Kaydet</button>
-                    }
+                    <button type="submit" class="btn btn-primary" disabled="@disabledAttr">Kaydet</button>
                 </div>
             </form>
         </div>
 
+        <!-- RIGHT: SIDEBAR -->
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Şikayet Bilgileri</div>
-
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-5 text-muted">Firma</dt>
@@ -230,39 +181,39 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Özet</div>
-
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-6 text-muted">Açılış</dt>
-                        <dd class="col-6">@TarihSaat(Model.OpenedAt)</dd>
+                        <dd class="col-6">@Dts(Model.OpenedAt)</dd>
 
                         <dt class="col-6 text-muted">Kapanış</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.CloseAt)</dd>
+                        <dd class="col-6">@DtsOrDash(Model.CloseAt)</dd>
 
                         <dt class="col-6 text-muted">Oluşturma</dt>
-                        <dd class="col-6">@TarihSaat(Model.CreatedAt)</dd>
+                        <dd class="col-6">@Dts(Model.CreatedAt)</dd>
 
                         <dt class="col-6 text-muted">Güncelleme</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.UpdatedAt)</dd>
+                        <dd class="col-6">@DtsOrDash(Model.UpdatedAt)</dd>
 
                         <dt class="col-6 text-muted">Etkinlik Kontrol Tarihi</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.EffectivenessCheckedAt)</dd>
+                        <dd class="col-6">@DtsOrDash(Model.EffectivenessCheckedAt)</dd>
 
                         <dt class="col-6 text-muted">Kontrol Eden</dt>
                         <dd class="col-6">@(!string.IsNullOrWhiteSpace(Model.EffectivenessCheckedByName) ? Model.EffectivenessCheckedByName : "-")</dd>
                     </dl>
                 </div>
             </div>
+
             @if (!kilitli)
             {
-                <button type="button" class="btn btn-danger"
-                        data-bs-toggle="modal"
-                        data-bs-target="#closeCapaModal">
+                <button type="button" class="btn btn-danger w-100"
+                        data-bs-toggle="modal" data-bs-target="#closeCapaModal">
                     CAPA’yı Kapat
                 </button>
             }
+
             <div class="alert alert-light border mt-3 mb-0">
                 <div class="fw-semibold mb-1">Hızlı Bilgi</div>
                 <div class="small text-muted">
@@ -273,6 +224,7 @@
             </div>
         </div>
 
+        <!-- ACTIONS -->
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
@@ -283,10 +235,8 @@
 
                     @if (!kilitli)
                     {
-                        <button type="button"
-                                class="btn btn-sm btn-success"
-                                data-bs-toggle="modal"
-                                data-bs-target="#addActionModal">
+                        <button type="button" class="btn btn-sm btn-success"
+                                data-bs-toggle="modal" data-bs-target="#addActionModal">
                             ➕ Yeni Aksiyon
                         </button>
                     }
@@ -324,7 +274,7 @@
                                             <td>@a.ActionType</td>
                                             <td>@a.Description</td>
                                             <td>@(a.OwnerName ?? "-")</td>
-                                            <td>@TarihSaat(a.DueDate)</td>
+                                            <td>@Dts(a.DueDate)</td>
                                             <td>
                                                 @if (!kilitli && a.OwnerId == currentUserId && !string.Equals(a.Status, "TAMAMLANDI", StringComparison.OrdinalIgnoreCase))
                                                 {
@@ -347,11 +297,11 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span>
+                                                    <span class="badge bg-@Badge(a.Status)">@a.Status</span>
                                                 }
                                             </td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
-                                            <td>@TarihSaat(a.CreatedAt)</td>
+                                            <td>@Dts(a.CreatedAt)</td>
                                         </tr>
                                     }
                                 }
@@ -359,13 +309,16 @@
                         </table>
                     </div>
                 </div>
+
             </div>
         </div>
 
     </div>
 </div>
+
 @if (!kilitli)
 {
+    <!-- CLOSE CAPA MODAL -->
     <div class="modal fade" id="closeCapaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -415,8 +368,8 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-6">
-                                <div class="text-muted small mt-4">
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="text-muted small">
                                     Bu işlem CAPA durumunu <b>KAPALI</b> yapar.
                                 </div>
                             </div>
@@ -433,23 +386,18 @@
             </div>
         </div>
     </div>
-}
-@if (!kilitli)
-{
-    <div class="modal fade" id="addActionModal" tabindex="-1" aria-labelledby="addActionModalLabel" aria-hidden="true">
+
+    <!-- ADD ACTION MODAL -->
+    <div class="modal fade" id="addActionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addActionModalLabel">Yeni Aksiyon Ekle</h5>
+                    <h5 class="modal-title">Yeni Aksiyon Ekle</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
 
-                <form id="addActionForm"
-                      asp-action="AddAction"
-                      asp-controller="CAPA"
-                      method="post">
-
+                <form id="addActionForm" asp-action="AddAction" asp-controller="CAPA" method="post">
                     <div class="modal-body">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="capaNo" value="@Model.CapaNo" />
@@ -515,6 +463,7 @@
     </div>
 }
 
+<!-- KAPALI - FILE UPLOAD MODAL -->
 <div class="modal fade" id="kapaliModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -539,213 +488,213 @@
     </div>
 </div>
 
+@section Scripts {
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-      if (!window.bootstrap) {
-        console.error("Bootstrap JS yok. Modal çalışmaz (bootstrap.bundle.min.js gerekli).");
+  if (!window.bootstrap) {
+    console.error("Bootstrap JS yok. Modal çalışmaz (bootstrap.bundle.min.js gerekli).");
+    return;
+  }
+
+  // -----------------------------
+  // KAPALI seçilince upload akışı
+  // -----------------------------
+  const modalEl = document.getElementById("kapaliModal");
+  const modal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
+
+  let pending = null;
+
+  document.addEventListener("change", (e) => {
+    const sel = e.target.closest(".action-status");
+    if (!sel) return;
+
+    if ((sel.value || "").toUpperCase() !== "KAPALI") return;
+
+    pending = {
+      sel,
+      prev: sel.dataset.prev || "",
+      actionId: sel.dataset.actionId
+    };
+
+    const fileInput = document.getElementById("kapaliFile");
+    if (fileInput) fileInput.value = "";
+
+    modal?.show();
+  });
+
+  modalEl?.addEventListener("hidden.bs.modal", () => {
+    if (!pending) return;
+    try { pending.sel.value = pending.prev; } catch {}
+    pending = null;
+  });
+
+  const btn = document.getElementById("kapaliDevam");
+  btn?.addEventListener("click", async () => {
+    if (!pending) return;
+
+    const actionId = pending.actionId;
+    const file = document.getElementById("kapaliFile")?.files?.[0];
+
+    if (!file) { alert("Dosya seçmelisin."); return; }
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    btn.disabled = true;
+
+    try {
+      const up = await fetch(`/CAPA/UploadFiles?actionId=${encodeURIComponent(actionId)}`, {
+        method: "POST",
+        body: fd
+      });
+
+      if (!up.ok) {
+        const msg = await up.text().catch(() => null);
+        alert(msg || "Dosya yüklenemedi.");
         return;
       }
 
-      const modalEl = document.getElementById("kapaliModal");
-      if (!modalEl) return;
-
-      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-
-      let pending = null; 
-
-      document.addEventListener("change", (e) => {
-        const sel = e.target.closest(".action-status");
-        if (!sel) return;
-
-        if ((sel.value || "").toUpperCase() !== "KAPALI") return;
-
-        pending = {
-          sel,
-          prev: sel.dataset.prev || "",
-          actionId: sel.dataset.actionId
-        };
-
-        const fileInput = document.getElementById("kapaliFile");
-        if (fileInput) fileInput.value = "";
-
-        modal.show();
+      const comp = await fetch(`/CAPA/ComplateAction?actionId=${encodeURIComponent(actionId)}&status=KAPALI`, {
+        method: "POST"
       });
 
-      modalEl.addEventListener("hidden.bs.modal", () => {
-        if (!pending) return;
+      if (!comp.ok) {
+        const msg = await comp.text().catch(() => null);
+        alert(msg || "Tamamlama başarısız.");
+        return;
+      }
 
-        try { pending.sel.value = pending.prev; } catch { }
-        pending = null;
+      pending.sel.dataset.prev = "KAPALI";
+      pending.sel.value = "KAPALI";
+
+      const container = pending.sel.closest("div.d-flex") || pending.sel.parentElement;
+      if (container) {
+        container.innerHTML = `<span class="badge bg-success">KAPALI</span>`;
+      } else {
+        pending.sel.disabled = true;
+      }
+
+      pending = null;
+      modal?.hide();
+
+    } catch (err) {
+      console.error(err);
+      alert("İşlem sırasında hata oluştu.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // -----------------------------
+  // Add Action AJAX
+  // -----------------------------
+  const form = document.getElementById('addActionForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const formData = new FormData(form);
+
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
       });
 
-      const btn = document.getElementById("kapaliDevam");
-      if (!btn) return;
+      const payload = await res.json().catch(() => null);
 
-      btn.addEventListener("click", async () => {
-        if (!pending) return;
+      if (!res.ok || !payload || payload.ok !== true) {
+        alert(payload?.message || 'Aksiyon eklenemedi.');
+        return;
+      }
 
-        const actionId = pending.actionId;
-        const file = document.getElementById("kapaliFile")?.files?.[0];
+      const a = payload.data;
+      const tbody = document.getElementById('actionsTbody');
+      if (!tbody || !a) return;
 
-        if (!file) { alert("Dosya seçmelisin."); return; }
+      const emptyRow = tbody.querySelector('[data-empty-row="true"]');
+      if (emptyRow) emptyRow.remove();
 
-        const fd = new FormData();
-        fd.append("file", file); 
+      const ownerSelect = form.querySelector('select[name="OwnerId"]');
+      const ownerNameFromSelect = ownerSelect?.selectedOptions?.[0]?.textContent?.trim() || '-';
 
-        btn.disabled = true;
+      const normStatus = normalizeStatus(a.status);
+      const badgeClass = badgeClassByStatus(normStatus);
 
-        try {
-          const up = await fetch(`/CAPA/UploadFiles?actionId=${encodeURIComponent(actionId)}`, {
-            method: "POST",
-            body: fd
-          });
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${a.id ?? ''}</td>
+        <td>${escapeHtml(a.actionType ?? '')}</td>
+        <td>${escapeHtml(a.description ?? '')}</td>
+        <td>${escapeHtml(a.ownerName ?? ownerNameFromSelect)}</td>
+        <td>${formatDateTime(a.dueDate)}</td>
+        <td><span class="badge bg-${badgeClass}">${escapeHtml(normStatus)}</span></td>
+        <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
+        <td>${formatDateTime(a.createdAt)}</td>
+      `;
 
-          if (!up.ok) {
-            const msg = await up.text().catch(() => null);
-            alert(msg || "Dosya yüklenemedi.");
-            return;
-          }
+      tbody.prepend(tr);
 
-          const comp = await fetch(`/CAPA/ComplateAction?actionId=${encodeURIComponent(actionId)}&status=KAPALI`, {
-            method: "POST"
-          });
+      const modalEl2 = document.getElementById('addActionModal');
+      const modal2 = bootstrap.Modal.getInstance(modalEl2) || new bootstrap.Modal(modalEl2);
+      modal2.hide();
 
-          if (!comp.ok) {
-            const msg = await comp.text().catch(() => null);
-            alert(msg || "Tamamlama başarısız.");
-            return;
-          }
+      form.reset();
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
 
-          pending.sel.dataset.prev = "KAPALI";
+  function normalizeStatus(s) {
+    return (s || '')
+      .toString()
+      .trim()
+      .toUpperCase()
+      .replaceAll('İ', 'I')
+      .replaceAll('ı', 'I')
+      .replaceAll('Ğ', 'G').replaceAll('ğ', 'G')
+      .replaceAll('Ş', 'S').replaceAll('ş', 'S')
+      .replaceAll('Ü', 'U').replaceAll('ü', 'U')
+      .replaceAll('Ö', 'O').replaceAll('ö', 'O')
+      .replaceAll('Ç', 'C').replaceAll('ç', 'C');
+  }
 
-          pending.sel.value = "KAPALI";
-          const container = pending.sel.closest("div.d-flex") || pending.sel.parentElement;
-          if (container) {
-            container.innerHTML = `<span class="badge bg-success">KAPALI</span>`;
-          } else {
-            pending.sel.disabled = true;
-          }
+  function badgeClassByStatus(norm) {
+    switch (norm) {
+      case 'BEKLIYOR': return 'warning';
+      case 'ACIK': return 'info';
+      case 'KAPALI':
+      case 'TAMAMLANDI': return 'success';
+      case 'RED':
+      case 'IPTAL': return 'danger';
+      default: return 'secondary';
+    }
+  }
 
-          pending = null;
-          modal.hide();
+  function pad2(n) { return String(n).padStart(2, '0'); }
 
-        } catch (err) {
-          console.error(err);
-          alert("İşlem sırasında hata oluştu.");
-        } finally {
-          btn.disabled = false;
-        }
-      });
+  function formatDateTime(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
 
-    });
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+});
 </script>
-<script>
-    (function () {
-      const form = document.getElementById('addActionForm');
-      if (!form) return;
-
-      form.addEventListener('submit', async function (e) {
-        e.preventDefault();
-
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) submitBtn.disabled = true;
-
-        try {
-          const formData = new FormData(form);
-
-          const res = await fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-          });
-
-          const payload = await res.json().catch(() => null);
-
-          if (!res.ok || !payload || payload.ok !== true) {
-            alert(payload?.message || 'Aksiyon eklenemedi.');
-            return;
-          }
-
-          const a = payload.data;
-          const tbody = document.getElementById('actionsTbody');
-          if (!tbody || !a) return;
-
-          const emptyRow = tbody.querySelector('[data-empty-row="true"]');
-          if (emptyRow) emptyRow.remove();
-
-          const ownerSelect = form.querySelector('select[name="OwnerId"]');
-          const ownerNameFromSelect = ownerSelect?.selectedOptions?.[0]?.textContent?.trim() || '-';
-
-          const normStatus = normalizeStatus(a.status);
-          const badgeClass = badgeClassByStatus(normStatus);
-
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${a.id ?? ''}</td>
-            <td>${escapeHtml(a.actionType ?? '')}</td>
-            <td>${escapeHtml(a.description ?? '')}</td>
-            <td>${escapeHtml(a.ownerName ?? ownerNameFromSelect)}</td>
-            <td>${formatDateTime(a.dueDate)}</td>
-            <td><span class="badge bg-${badgeClass}">${escapeHtml(normStatus)}</span></td>
-            <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
-            <td>${formatDateTime(a.createdAt)}</td>
-          `;
-
-          tbody.prepend(tr);
-
-          const modalEl = document.getElementById('addActionModal');
-          const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-          modal.hide();
-
-          form.reset();
-        } finally {
-          if (submitBtn) submitBtn.disabled = false;
-        }
-      });
-
-      function normalizeStatus(s) {
-        return (s || '')
-          .toString()
-          .trim()
-          .toUpperCase()
-          .replaceAll('İ', 'I')
-          .replaceAll('ı', 'I')
-          .replaceAll('Ğ', 'G').replaceAll('ğ', 'G')
-          .replaceAll('Ş', 'S').replaceAll('ş', 'S')
-          .replaceAll('Ü', 'U').replaceAll('ü', 'U')
-          .replaceAll('Ö', 'O').replaceAll('ö', 'O')
-          .replaceAll('Ç', 'C').replaceAll('ç', 'C');
-      }
-
-      function badgeClassByStatus(norm) {
-        switch (norm) {
-          case 'BEKLIYOR': return 'warning';
-          case 'ACIK': return 'info';
-          case 'KAPALI':
-          case 'TAMAMLANDI': return 'success';
-          case 'RED':
-          case 'IPTAL': return 'danger';
-          default: return 'secondary';
-        }
-      }
-
-      function pad2(n) { return String(n).padStart(2, '0'); }
-
-      function formatDateTime(iso) {
-        if (!iso) return '-';
-        const d = new Date(iso);
-        if (isNaN(d)) return iso;
-        return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-      }
-
-      function escapeHtml(str) {
-        return String(str)
-          .replaceAll('&', '&amp;')
-          .replaceAll('<', '&lt;')
-          .replaceAll('>', '&gt;')
-          .replaceAll('"', '&quot;')
-          .replaceAll("'", '&#039;');
-      }
-    })();
-</script>
+}
