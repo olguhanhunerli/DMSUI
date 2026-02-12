@@ -46,7 +46,6 @@
 
                 <div class="d-flex gap-2 justify-content-end">
                     <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
-                    <a class="btn btn-primary" asp-action="Edit" asp-route-capaNo="@Model.CapaNo">Düzenle</a>
                 </div>
             </div>
         </div>
@@ -54,10 +53,8 @@
 
     <div class="row g-3">
 
-        <!-- LEFT: READONLY CONTENT -->
         <div class="col-lg-8">
 
-            <!-- GENEL -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Genel</div>
                 <div class="card-body">
@@ -127,10 +124,8 @@
 
         </div>
 
-        <!-- RIGHT: SIDEBAR -->
         <div class="col-lg-4">
 
-            <!-- Şikayet Bilgileri -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Şikayet Bilgileri</div>
                 <div class="card-body">
@@ -234,9 +229,6 @@
                         <span>Aksiyonlar</span>
                         <span class="text-muted small">Toplam: @aksiyonSayisi</span>
                     </div>
-
-                    @* Detail readonly: istersen buton yerine Edit linki *@
-                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-capaNo="@Model.CapaNo">Düzenle</a>
                 </div>
 
                 <div class="card-body p-0">

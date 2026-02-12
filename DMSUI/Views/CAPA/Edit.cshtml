@@ -25,9 +25,8 @@
 
     bool kilitli = string.Equals(Model.Status, "KAPALI", StringComparison.OrdinalIgnoreCase);
     int aksiyonSayisi = Model.Actions?.Count ?? 0;
-    int currentUserId = int.Parse(User.FindFirst("UserId")!.Value);
+    int currentUserId = int.Parse(User.FindFirst("userId")!.Value);
 
-    // TagHelper-safe attribute helpers
     string? disabledAttr = kilitli ? "disabled" : null;
 }
 
@@ -65,7 +64,6 @@
 
     <div class="row g-3">
 
-        <!-- LEFT: FORM -->
         <div class="col-lg-8">
             <form id="capaForm" asp-action="Edit" method="post">
                 @Html.AntiForgeryToken()
@@ -115,7 +113,6 @@
                     </div>
                 </div>
 
-                <!-- İÇERİK -->
                 <div class="card shadow-sm mb-3">
                     <div class="card-header fw-semibold">İçerik</div>
                     <div class="card-body">
@@ -150,7 +147,6 @@
             </form>
         </div>
 
-        <!-- RIGHT: SIDEBAR -->
         <div class="col-lg-4">
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Şikayet Bilgileri</div>
@@ -266,7 +262,6 @@
             </div>
         </div>
 
-        <!-- ACTIONS -->
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
@@ -379,13 +374,12 @@
 
 @if (!kilitli)
 {
-    <!-- CLOSE CAPA MODAL -->
     <div class="modal fade" id="closeCapaModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title">CAPA Kapat</h5>
+                    <h5 class="modal-title">DÖF Kapat</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
                 </div>
 
@@ -431,7 +425,7 @@
 
                             <div class="col-md-6 d-flex align-items-end">
                                 <div class="text-muted small">
-                                    Bu işlem CAPA durumunu <b>KAPALI</b> yapar.
+                                    Bu işlem DÖF durumunu <b>KAPALI</b> yapar.
                                 </div>
                             </div>
 
@@ -448,7 +442,6 @@
         </div>
     </div>
 
-    <!-- ADD ACTION MODAL -->
     <div class="modal fade" id="addActionModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -524,7 +517,6 @@
     </div>
 }
 
-<!-- KAPALI - FILE UPLOAD MODAL -->
 <div class="modal fade" id="kapaliModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -560,7 +552,7 @@
             <div class="modal-body">
                 <input class="form-control" type="file" id="dofFile" />
                 <div class="small text-muted mt-2">
-                    Seçtiğin dosya CAPA’ya eklenecek.
+                    Seçtiğin dosya DÖF'e eklenecek.
                 </div>
                 <div class="small text-danger mt-2 d-none" id="dofErr"></div>
                 <div class="small text-success mt-2 d-none" id="dofOk">Dosya yüklendi ✅</div>
@@ -578,17 +570,11 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-  // -----------------------------
-  // Bootstrap kontrol
-  // -----------------------------
   if (!window.bootstrap) {
     console.error("Bootstrap JS yok. Modal çalışmaz (bootstrap.bundle.min.js gerekli).");
     return;
   }
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
   function pad2(n) { return String(n).padStart(2, '0'); }
 
   function formatDateTime(iso) {
@@ -642,9 +628,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return { json: null, raw };
   }
 
-  // -----------------------------
-  // 1) KAPALI seçilince upload akışı (Aksiyon dosyası)
-  // -----------------------------
   const kapaliModalEl = document.getElementById("kapaliModal");
   const kapaliModal = kapaliModalEl ? bootstrap.Modal.getOrCreateInstance(kapaliModalEl) : null;
 
@@ -684,7 +667,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!file) { alert("Dosya seçmelisin."); return; }
 
     const fd = new FormData();
-    // UploadFiles(int actionId, IFormFile file) => "file"
     fd.append("file", file);
 
     kapaliDevamBtn.disabled = true;
@@ -729,9 +711,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -----------------------------
-  // 2) Add Action AJAX
-  // -----------------------------
   const addActionForm = document.getElementById("addActionForm");
   if (addActionForm) {
     addActionForm.addEventListener("submit", async (e) => {
@@ -796,9 +775,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // -----------------------------
-  // 3) DÖF Dosya Upload (CAPA files)
-  // -----------------------------
   const dofUploadBtn = document.getElementById("dofUploadBtn");
   const dofFileInput = document.getElementById("dofFile");
   const dofErr = document.getElementById("dofErr");
@@ -823,8 +799,6 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const fd = new FormData();
 
-      // !!!!! EN ÖNEMLİ DÜZELTME !!!!!
-      // Controller: UploadDofFile(string capaNo, IFormFile File) => "File"
       fd.append("File", file);
 
       const capaNo = "@Model.CapaNo";
