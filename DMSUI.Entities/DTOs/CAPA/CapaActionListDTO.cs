@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DMSUI.Entities.DTOs.CAPAActionFile;
 
 namespace DMSUI.Entities.DTOs.CAPA
 {
@@ -20,5 +21,6 @@ namespace DMSUI.Entities.DTOs.CAPA
         public string Status { get; set; }
         public bool EvidenceRequired { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<CapaActionFilesListDTO> Files { get; set; }
     }
 }

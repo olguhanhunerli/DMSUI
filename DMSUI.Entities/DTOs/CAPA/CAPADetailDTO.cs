@@ -59,6 +59,7 @@ namespace DMSUI.Entities.DTOs.CAPA
         public string? CustomerPO { get; set; }           
         public string? ComplaintTitle { get; set; }
         public List<CapaActionListDTO> Actions { get; set; }
+        public List<CapaEvidenceFilesListDTO> Files { get; set; }
         public int? RootCauseMethodId { get; set; }
         public string EffectivenessResult { get; set; }
     }

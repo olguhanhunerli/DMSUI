@@ -4,91 +4,104 @@
 @{
     ViewData["Title"] = "CAPA Detayı";
 
-    string Tarih(DateTime d) => d.ToString("dd.MM.yyyy");
-    string TarihSaat(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
-    string TarihSaatYoksaCizgi(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
+    string Dts(DateTime d) => d.ToString("dd.MM.yyyy HH:mm");
+    string DtsOrDash(DateTime? d) => d.HasValue ? d.Value.ToString("dd.MM.yyyy HH:mm") : "-";
 
-    string DurumRozeti(string? durum)
+    string Badge(string? durum)
     {
         if (string.IsNullOrWhiteSpace(durum)) return "secondary";
-        durum = durum.Trim().ToUpperInvariant();
+        var s = durum.Trim().ToUpperInvariant();
 
-        return durum switch
+        return s switch
         {
             "BEKLIYOR" => "warning",
             "AÇIK" or "ACIK" => "info",
             "KAPALI" => "success",
+            "RED" or "IPTAL" => "danger",
             _ => "secondary"
         };
     }
 
-    var aksiyonSayisi = Model.Actions?.Count ?? 0;
+    int aksiyonSayisi = Model.Actions?.Count ?? 0;
 }
 
 <div class="container my-4">
-    <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
-            <div class="text-muted small">CAPA Numarası</div>
-            <h3 class="mb-1">@Model.CapaNo</h3>
 
-            <div class="text-muted">
-                Şikayet Numarası:
-                <span class="fw-semibold">@Model.ComplaintNo</span>
+    <!-- HEADER -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="text-muted small">CAPA Numarası</div>
+                <h3 class="mb-1">@Model.CapaNo</h3>
+                <div class="text-muted">
+                    Şikayet:
+                    <span class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.ComplaintNo) ? Model.ComplaintNo : "-")</span>
+                </div>
             </div>
-        </div>
 
-        <div class="text-end">
-            <span class="badge bg-@DurumRozeti(Model.Status) fs-6">@Model.Status</span>
-            <div class="mt-2">
-                <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
+            <div class="text-end">
+                <div class="mb-2">
+                    <span class="badge bg-@Badge(Model.Status) fs-6">@Model.Status</span>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end">
+                    <a class="btn btn-outline-secondary" asp-action="Index">Listeye Dön</a>
+                    <a class="btn btn-primary" asp-action="Edit" asp-route-capaNo="@Model.CapaNo">Düzenle</a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="row g-3">
-        <div class="col-lg-8">
-            <div class="card shadow-sm mb-3">
-                <div class="card-header fw-semibold">Genel Bilgiler</div>
 
+        <!-- LEFT: READONLY CONTENT -->
+        <div class="col-lg-8">
+
+            <!-- GENEL -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">Genel</div>
                 <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
                             <label class="form-label">Durum</label>
-                            <input class="form-control" value="@Model.Status" readonly />
+                            <input type="text" value="@Model.Status" class="form-control" readonly />
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Termin</label>
-                            <input class="form-control" value="@Tarih(Model.DueDate)" readonly />
+                            <input type="text" value="@Model.DueDate.ToString("dd.MM.yyyy")" class="form-control" readonly />
                         </div>
 
                         <div class="col-md-4">
                             <label class="form-label">Kalan Gün</label>
-                            <input class="form-control" value="@Model.RemainingDays" readonly />
+                            <input type="text" value="@Model.RemainingDays" class="form-control" readonly />
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Sorumlu</label>
-                            <input class="form-control" value="@Model.OwnerByName" readonly />
+                            <input type="text" value="@Model.OwnerByName" class="form-control" readonly />
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">Firma (Sistem)</label>
-                            <input class="form-control" value="@Model.CompanyName" readonly />
+                        <div class="col-md-4">
+                            <label class="form-label">Firma</label>
+                            <input type="text" value="@Model.CompanyName" class="form-control" readonly />
                         </div>
 
-                        <div class="col-md-12">
+                        <div class="col-12">
                             <label class="form-label">Kök Neden Metodu</label>
-                            <input class="form-control" value="@Model.RootCauseMethodName" readonly />
+                            <input type="text" value="@Model.RootCauseMethodName" class="form-control" readonly />
                         </div>
+
                     </div>
                 </div>
             </div>
 
+            <!-- İÇERİK -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">İçerik</div>
-
                 <div class="card-body">
+
                     <div class="mb-3">
                         <label class="form-label">Uygunsuzluk</label>
                         <textarea class="form-control" rows="3" readonly>@Model.NonConformity</textarea>
@@ -104,31 +117,38 @@
                         <textarea class="form-control" rows="3" readonly>@Model.CorrectiveAction</textarea>
                     </div>
 
-                    <div>
+                    <div class="mb-0">
                         <label class="form-label">Etkinlik Kontrolü</label>
                         <textarea class="form-control" rows="2" readonly>@Model.EffectivenessCheck</textarea>
                     </div>
+
                 </div>
             </div>
+
         </div>
 
+        <!-- RIGHT: SIDEBAR -->
         <div class="col-lg-4">
+
+            <!-- Şikayet Bilgileri -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Şikayet Bilgileri</div>
-
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-5 text-muted">Firma</dt>
-                        <dd class="col-7 fw-semibold">@Model.ComplaintCompanyName</dd>
+                        <dd class="col-7 fw-semibold">@(Model.ComplaintCompanyName ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri</dt>
-                        <dd class="col-7">@Model.CustomerName</dd>
+                        <dd class="col-7">@(Model.CustomerName ?? "-")</dd>
+
+                        <dt class="col-5 text-muted">Şikayet No</dt>
+                        <dd class="col-7">@(Model.ComplaintNo ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri Şikayet No</dt>
-                        <dd class="col-7">@Model.CustomerComplaintNo</dd>
+                        <dd class="col-7">@(Model.CustomerComplaintNo ?? "-")</dd>
 
                         <dt class="col-5 text-muted">Müşteri PO</dt>
-                        <dd class="col-7">@Model.CustomerPO</dd>
+                        <dd class="col-7">@(Model.CustomerPO ?? "-")</dd>
 
                         @if (!string.IsNullOrWhiteSpace(Model.ComplaintTitle))
                         {
@@ -139,81 +159,153 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm">
+            <!-- Özet -->
+            <div class="card shadow-sm mb-3">
                 <div class="card-header fw-semibold">Özet</div>
-
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-6 text-muted">Açılış</dt>
-                        <dd class="col-6">@TarihSaat(Model.OpenedAt)</dd>
+                        <dd class="col-6">@Dts(Model.OpenedAt)</dd>
 
                         <dt class="col-6 text-muted">Kapanış</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.CloseAt)</dd>
+                        <dd class="col-6">@DtsOrDash(Model.CloseAt)</dd>
 
                         <dt class="col-6 text-muted">Oluşturma</dt>
-                        <dd class="col-6">@TarihSaat(Model.CreatedAt)</dd>
+                        <dd class="col-6">@Dts(Model.CreatedAt)</dd>
 
                         <dt class="col-6 text-muted">Güncelleme</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.UpdatedAt)</dd>
+                        <dd class="col-6">@DtsOrDash(Model.UpdatedAt)</dd>
 
-                        <dt class="col-6 text-muted">Kontrol Tarihi</dt>
-                        <dd class="col-6">@TarihSaatYoksaCizgi(Model.EffectivenessCheckedAt)</dd>
+                        <dt class="col-6 text-muted">Etkinlik Kontrol Tarihi</dt>
+                        <dd class="col-6">@DtsOrDash(Model.EffectivenessCheckedAt)</dd>
 
                         <dt class="col-6 text-muted">Kontrol Eden</dt>
-                        <dd class="col-6">@Model.EffectivenessCheckedByName</dd>
+                        <dd class="col-6">@(!string.IsNullOrWhiteSpace(Model.EffectivenessCheckedByName) ? Model.EffectivenessCheckedByName : "-")</dd>
                     </dl>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header fw-semibold">
-                    Aksiyonlar <span class="text-muted small">(Toplam: @aksiyonSayisi)</span>
+            <!-- DÖF Dosyaları -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                    <span>DÖF Dosyaları</span>
+                    @* Detail sayfası readonly: istersen butonu kaldır *@
+                    @* <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-capaNo="@Model.CapaNo">Dosya Ekle</a> *@
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>#</th>
-                                <th>Tip</th>
-                                <th>Açıklama</th>
-                                <th>Sahip</th>
-                                <th>Termin</th>
-                                <th>Durum</th>
-                                <th>Kanıt</th>
-                                <th>Oluşturma</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @if (Model.Actions?.Any() != true)
+                <div class="card-body">
+                    <div id="dofFileList">
+                        @if (Model.Files?.Any() == true)
+                        {
+                            foreach (var f in Model.Files)
                             {
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">Aksiyon yok</td>
-                                </tr>
+                                <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                    <div>
+                                        📄 <span class="fw-semibold">@f.FileName</span>
+                                        <div class="small text-muted">@f.UploadedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                    </div>
+                                </div>
                             }
-                            else
-                            {
-                                foreach (var a in Model.Actions)
-                                {
-                                    <tr>
-                                        <td>@a.Id</td>
-                                        <td>@a.ActionType</td>
-                                        <td>@a.Description</td>
-                                        <td>@a.OwnerName</td>
-                                        <td>@TarihSaat(a.DueDate)</td>
-                                        <td><span class="badge bg-@DurumRozeti(a.Status)">@a.Status</span></td>
-                                        <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
-                                        <td>@TarihSaat(a.CreatedAt)</td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                        }
+                        else
+                        {
+                            <div class="text-muted small">Henüz dosya eklenmemiş.</div>
+                        }
+                    </div>
                 </div>
             </div>
+
+            <div class="alert alert-light border mt-3 mb-0">
+                <div class="fw-semibold mb-1">Hızlı Bilgi</div>
+                <div class="small text-muted">
+                    Aksiyon Sayısı: <span class="fw-semibold">@aksiyonSayisi</span><br />
+                    Firma: <span class="fw-semibold">@Model.CompanyName</span><br />
+                    Atanan Kişi: <span class="fw-semibold">@Model.OwnerByName</span>
+                </div>
+            </div>
+
         </div>
+
+        <!-- ACTIONS -->
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Aksiyonlar</span>
+                        <span class="text-muted small">Toplam: @aksiyonSayisi</span>
+                    </div>
+
+                    @* Detail readonly: istersen buton yerine Edit linki *@
+                    <a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-capaNo="@Model.CapaNo">Düzenle</a>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:70px;">#</th>
+                                    <th>Tip</th>
+                                    <th>Açıklama</th>
+                                    <th>Sahip</th>
+                                    <th>Termin</th>
+                                    <th>Durum</th>
+                                    <th>Kanıt</th>
+                                    <th>Oluşturma</th>
+                                    <th>Dosyalar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @if (Model.Actions?.Any() != true)
+                                {
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">Aksiyon yok.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var a in Model.Actions)
+                                    {
+                                        <tr>
+                                            <td>@a.Id</td>
+                                            <td>@a.ActionType</td>
+                                            <td>@a.Description</td>
+                                            <td>@(a.OwnerName ?? "-")</td>
+                                            <td>@Dts(a.DueDate)</td>
+                                            <td><span class="badge bg-@Badge(a.Status)">@a.Status</span></td>
+                                            <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
+                                            <td>@Dts(a.CreatedAt)</td>
+
+                                            <td>
+                                                @if (a.Files?.Any() == true)
+                                                {
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var f in a.Files)
+                                                        {
+                                                            <li class="small mb-2">
+                                                                📎 <span class="fw-semibold">@f.FileName</span>
+                                                                <div class="text-muted">@f.UploadedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </div>
 </div>

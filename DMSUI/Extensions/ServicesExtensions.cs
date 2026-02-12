@@ -40,6 +40,8 @@ namespace DMSUI.Extensions
             services.AddScoped<ICapaActionsManager, CapaActionsManager>();
 
             services.AddScoped<ICapaActionFilesManager, CapaActionFilesManager>();
+            
+            services.AddScoped<ICapaEvidenceFilesManager, CapaEvidenceFilesManager>();
 
             services.AddHttpClient<IAuthApiClient, AuthApiClient>(client =>
             {
@@ -143,6 +145,11 @@ namespace DMSUI.Extensions
             {
                 var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
                 client.BaseAddress = new Uri(apiSettings.BaseUrl);
+            });
+            services.AddHttpClient<ICapaEvidenceFilesApiClient, CapaEvidenceFilesApiClient>(client =>
+            {
+	            var apiSettings = configuration.GetSection("APISettings").Get<APISettings>();
+	            client.BaseAddress = new Uri(apiSettings.BaseUrl);
             });
             services.AddTransient<ApiAuthMessageHandler>();
             return services;

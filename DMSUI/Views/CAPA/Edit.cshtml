@@ -55,7 +55,6 @@
                         Detay
                     </a>
                 </div>
-
                 @if (kilitli)
                 {
                     <div class="text-muted small mt-2">Durum “KAPALI” olduğu için düzenleme kilitli.</div>
@@ -204,6 +203,49 @@
                         <dd class="col-6">@(!string.IsNullOrWhiteSpace(Model.EffectivenessCheckedByName) ? Model.EffectivenessCheckedByName : "-")</dd>
                     </dl>
                 </div>
+              
+            </div>
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+                    <span>DÖF Dosyaları</span>
+
+                    <button type="button"
+                            class="btn btn-sm btn-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#dofFileModal">
+                        📎 Dosya Ekle
+                    </button>
+                </div>
+
+                <div class="card-body">
+
+                    <div id="dofFileList">
+
+                        @if (Model.Files?.Any() == true)
+                        {
+                            foreach (var f in Model.Files)
+                            {
+                                <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+                                    <div>
+                                        📄 <span class="fw-semibold">@f.FileName</span>
+                                        <div class="small text-muted">@f.UploadedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                    </div>
+                                    @* <a href="@f.DownloadUrl" target="_blank" class="btn btn-sm btn-outline-secondary"> *@
+                                    @*     İndir *@
+                                    @* </a> *@
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-muted small" id="noDofFileText">
+                                Henüz dosya eklenmemiş.
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
             </div>
 
             @if (!kilitli)
@@ -255,6 +297,7 @@
                                     <th>Durum</th>
                                     <th>Kanıt</th>
                                     <th>Oluşturma</th>
+                                    <th>Dosyalar</th>
                                 </tr>
                             </thead>
 
@@ -302,6 +345,24 @@
                                             </td>
                                             <td>@(a.EvidenceRequired ? "Evet" : "Hayır")</td>
                                             <td>@Dts(a.CreatedAt)</td>
+                                            <td>
+                                                @if (a.Files?.Any() == true)
+                                                {
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var f in a.Files)
+                                                        {
+                                                            <li class="small">
+                                                                📎 <span class="fw-semibold">@f.FileName</span>
+                                                                <div class="text-muted">@f.UploadedAt.ToString("dd.MM.yyyy HH:mm")</div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small">-</span>
+                                                }
+                                            </td>
                                         </tr>
                                     }
                                 }
@@ -487,169 +548,64 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="dofFileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h5 class="modal-title">DÖF Dosya Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+
+            <div class="modal-body">
+                <input class="form-control" type="file" id="dofFile" />
+                <div class="small text-muted mt-2">
+                    Seçtiğin dosya CAPA’ya eklenecek.
+                </div>
+                <div class="small text-danger mt-2 d-none" id="dofErr"></div>
+                <div class="small text-success mt-2 d-none" id="dofOk">Dosya yüklendi ✅</div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Vazgeç</button>
+                <button class="btn btn-primary" type="button" id="dofUploadBtn">Yükle</button>
+            </div>
+
+        </div>
+    </div>
+</div>
 @section Scripts {
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
+  // -----------------------------
+  // Bootstrap kontrol
+  // -----------------------------
   if (!window.bootstrap) {
     console.error("Bootstrap JS yok. Modal çalışmaz (bootstrap.bundle.min.js gerekli).");
     return;
   }
 
   // -----------------------------
-  // KAPALI seçilince upload akışı
+  // Helpers
   // -----------------------------
-  const modalEl = document.getElementById("kapaliModal");
-  const modal = modalEl ? bootstrap.Modal.getOrCreateInstance(modalEl) : null;
+  function pad2(n) { return String(n).padStart(2, '0'); }
 
-  let pending = null;
+  function formatDateTime(iso) {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso;
+    return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
 
-  document.addEventListener("change", (e) => {
-    const sel = e.target.closest(".action-status");
-    if (!sel) return;
-
-    if ((sel.value || "").toUpperCase() !== "KAPALI") return;
-
-    pending = {
-      sel,
-      prev: sel.dataset.prev || "",
-      actionId: sel.dataset.actionId
-    };
-
-    const fileInput = document.getElementById("kapaliFile");
-    if (fileInput) fileInput.value = "";
-
-    modal?.show();
-  });
-
-  modalEl?.addEventListener("hidden.bs.modal", () => {
-    if (!pending) return;
-    try { pending.sel.value = pending.prev; } catch {}
-    pending = null;
-  });
-
-  const btn = document.getElementById("kapaliDevam");
-  btn?.addEventListener("click", async () => {
-    if (!pending) return;
-
-    const actionId = pending.actionId;
-    const file = document.getElementById("kapaliFile")?.files?.[0];
-
-    if (!file) { alert("Dosya seçmelisin."); return; }
-
-    const fd = new FormData();
-    fd.append("file", file);
-
-    btn.disabled = true;
-
-    try {
-      const up = await fetch(`/CAPA/UploadFiles?actionId=${encodeURIComponent(actionId)}`, {
-        method: "POST",
-        body: fd
-      });
-
-      if (!up.ok) {
-        const msg = await up.text().catch(() => null);
-        alert(msg || "Dosya yüklenemedi.");
-        return;
-      }
-
-      const comp = await fetch(`/CAPA/ComplateAction?actionId=${encodeURIComponent(actionId)}&status=KAPALI`, {
-        method: "POST"
-      });
-
-      if (!comp.ok) {
-        const msg = await comp.text().catch(() => null);
-        alert(msg || "Tamamlama başarısız.");
-        return;
-      }
-
-      pending.sel.dataset.prev = "KAPALI";
-      pending.sel.value = "KAPALI";
-
-      const container = pending.sel.closest("div.d-flex") || pending.sel.parentElement;
-      if (container) {
-        container.innerHTML = `<span class="badge bg-success">KAPALI</span>`;
-      } else {
-        pending.sel.disabled = true;
-      }
-
-      pending = null;
-      modal?.hide();
-
-    } catch (err) {
-      console.error(err);
-      alert("İşlem sırasında hata oluştu.");
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  // -----------------------------
-  // Add Action AJAX
-  // -----------------------------
-  const form = document.getElementById('addActionForm');
-  if (!form) return;
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) submitBtn.disabled = true;
-
-    try {
-      const formData = new FormData(form);
-
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      });
-
-      const payload = await res.json().catch(() => null);
-
-      if (!res.ok || !payload || payload.ok !== true) {
-        alert(payload?.message || 'Aksiyon eklenemedi.');
-        return;
-      }
-
-      const a = payload.data;
-      const tbody = document.getElementById('actionsTbody');
-      if (!tbody || !a) return;
-
-      const emptyRow = tbody.querySelector('[data-empty-row="true"]');
-      if (emptyRow) emptyRow.remove();
-
-      const ownerSelect = form.querySelector('select[name="OwnerId"]');
-      const ownerNameFromSelect = ownerSelect?.selectedOptions?.[0]?.textContent?.trim() || '-';
-
-      const normStatus = normalizeStatus(a.status);
-      const badgeClass = badgeClassByStatus(normStatus);
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${a.id ?? ''}</td>
-        <td>${escapeHtml(a.actionType ?? '')}</td>
-        <td>${escapeHtml(a.description ?? '')}</td>
-        <td>${escapeHtml(a.ownerName ?? ownerNameFromSelect)}</td>
-        <td>${formatDateTime(a.dueDate)}</td>
-        <td><span class="badge bg-${badgeClass}">${escapeHtml(normStatus)}</span></td>
-        <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
-        <td>${formatDateTime(a.createdAt)}</td>
-      `;
-
-      tbody.prepend(tr);
-
-      const modalEl2 = document.getElementById('addActionModal');
-      const modal2 = bootstrap.Modal.getInstance(modalEl2) || new bootstrap.Modal(modalEl2);
-      modal2.hide();
-
-      form.reset();
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-    }
-  });
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
 
   function normalizeStatus(s) {
     return (s || '')
@@ -677,24 +633,251 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function pad2(n) { return String(n).padStart(2, '0'); }
-
-  function formatDateTime(iso) {
-    if (!iso) return '-';
-    const d = new Date(iso);
-    if (isNaN(d)) return iso;
-    return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  async function safeJsonOrText(res) {
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    const raw = await res.text();
+    if (ct.includes("application/json")) {
+      try { return { json: JSON.parse(raw), raw }; } catch { return { json: null, raw }; }
+    }
+    return { json: null, raw };
   }
 
-  function escapeHtml(str) {
-    return String(str)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
+  // -----------------------------
+  // 1) KAPALI seçilince upload akışı (Aksiyon dosyası)
+  // -----------------------------
+  const kapaliModalEl = document.getElementById("kapaliModal");
+  const kapaliModal = kapaliModalEl ? bootstrap.Modal.getOrCreateInstance(kapaliModalEl) : null;
+
+  let pending = null;
+
+  document.addEventListener("change", (e) => {
+    const sel = e.target.closest(".action-status");
+    if (!sel) return;
+
+    if ((sel.value || "").toUpperCase() !== "KAPALI") return;
+
+    pending = {
+      sel,
+      prev: sel.dataset.prev || "",
+      actionId: sel.dataset.actionId
+    };
+
+    const fileInput = document.getElementById("kapaliFile");
+    if (fileInput) fileInput.value = "";
+
+    kapaliModal?.show();
+  });
+
+  kapaliModalEl?.addEventListener("hidden.bs.modal", () => {
+    if (!pending) return;
+    try { pending.sel.value = pending.prev; } catch {}
+    pending = null;
+  });
+
+  const kapaliDevamBtn = document.getElementById("kapaliDevam");
+  kapaliDevamBtn?.addEventListener("click", async () => {
+    if (!pending) return;
+
+    const actionId = pending.actionId;
+    const file = document.getElementById("kapaliFile")?.files?.[0];
+
+    if (!file) { alert("Dosya seçmelisin."); return; }
+
+    const fd = new FormData();
+    // UploadFiles(int actionId, IFormFile file) => "file"
+    fd.append("file", file);
+
+    kapaliDevamBtn.disabled = true;
+
+    try {
+      const up = await fetch(`/CAPA/UploadFiles?actionId=${encodeURIComponent(actionId)}`, {
+        method: "POST",
+        body: fd
+      });
+
+      if (!up.ok) {
+        const t = await up.text().catch(() => null);
+        alert(t || "Dosya yüklenemedi.");
+        return;
+      }
+
+      const comp = await fetch(`/CAPA/ComplateAction?actionId=${encodeURIComponent(actionId)}&status=KAPALI`, {
+        method: "POST"
+      });
+
+      if (!comp.ok) {
+        const t = await comp.text().catch(() => null);
+        alert(t || "Tamamlama başarısız.");
+        return;
+      }
+
+      pending.sel.dataset.prev = "KAPALI";
+      pending.sel.value = "KAPALI";
+
+      const container = pending.sel.closest("div.d-flex") || pending.sel.parentElement;
+      if (container) container.innerHTML = `<span class="badge bg-success">KAPALI</span>`;
+      else pending.sel.disabled = true;
+
+      pending = null;
+      kapaliModal?.hide();
+
+    } catch (err) {
+      console.error(err);
+      alert("İşlem sırasında hata oluştu.");
+    } finally {
+      kapaliDevamBtn.disabled = false;
+    }
+  });
+
+  // -----------------------------
+  // 2) Add Action AJAX
+  // -----------------------------
+  const addActionForm = document.getElementById("addActionForm");
+  if (addActionForm) {
+    addActionForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const submitBtn = addActionForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const formData = new FormData(addActionForm);
+
+        const res = await fetch(addActionForm.action, {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        const { json: payload, raw } = await safeJsonOrText(res);
+
+        if (!res.ok || !payload || payload.ok !== true) {
+          console.error("AddAction status:", res.status);
+          console.error("AddAction raw:", raw);
+          alert(payload?.message || raw || "Aksiyon eklenemedi.");
+          return;
+        }
+
+        const a = payload.data;
+        const tbody = document.getElementById("actionsTbody");
+        if (!tbody || !a) return;
+
+        const emptyRow = tbody.querySelector('[data-empty-row="true"]');
+        if (emptyRow) emptyRow.remove();
+
+        const ownerSelect = addActionForm.querySelector('select[name="OwnerId"]');
+        const ownerNameFromSelect = ownerSelect?.selectedOptions?.[0]?.textContent?.trim() || '-';
+
+        const normStatus = normalizeStatus(a.status);
+        const badgeClass = badgeClassByStatus(normStatus);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${a.id ?? ''}</td>
+          <td>${escapeHtml(a.actionType ?? '')}</td>
+          <td>${escapeHtml(a.description ?? '')}</td>
+          <td>${escapeHtml(a.ownerName ?? ownerNameFromSelect)}</td>
+          <td>${formatDateTime(a.dueDate)}</td>
+          <td><span class="badge bg-${badgeClass}">${escapeHtml(normStatus)}</span></td>
+          <td>${a.evidenceRequired ? 'Evet' : 'Hayır'}</td>
+          <td>${formatDateTime(a.createdAt)}</td>
+        `;
+
+        tbody.prepend(tr);
+
+        const addActionModalEl = document.getElementById("addActionModal");
+        const modal2 = bootstrap.Modal.getInstance(addActionModalEl) || new bootstrap.Modal(addActionModalEl);
+        modal2.hide();
+
+        addActionForm.reset();
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
   }
+
+  // -----------------------------
+  // 3) DÖF Dosya Upload (CAPA files)
+  // -----------------------------
+  const dofUploadBtn = document.getElementById("dofUploadBtn");
+  const dofFileInput = document.getElementById("dofFile");
+  const dofErr = document.getElementById("dofErr");
+  const dofOk = document.getElementById("dofOk");
+
+  function showDofErr(msg) {
+    if (dofErr) { dofErr.textContent = msg; dofErr.classList.remove("d-none"); }
+    if (dofOk) dofOk.classList.add("d-none");
+  }
+
+  function showDofOk() {
+    if (dofOk) dofOk.classList.remove("d-none");
+    if (dofErr) dofErr.classList.add("d-none");
+  }
+
+  dofUploadBtn?.addEventListener("click", async () => {
+    const file = dofFileInput?.files?.[0];
+    if (!file) { showDofErr("Dosya seçmelisin."); return; }
+
+    dofUploadBtn.disabled = true;
+
+    try {
+      const fd = new FormData();
+
+      // !!!!! EN ÖNEMLİ DÜZELTME !!!!!
+      // Controller: UploadDofFile(string capaNo, IFormFile File) => "File"
+      fd.append("File", file);
+
+      const capaNo = "@Model.CapaNo";
+
+      const res = await fetch(`/CAPA/UploadDofFile?capaNo=${encodeURIComponent(capaNo)}`, {
+        method: "POST",
+        body: fd
+      });
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => null);
+        showDofErr(t || "Dosya yüklenemedi.");
+        return;
+      }
+
+      const list = document.getElementById("dofFileList");
+      const emptyText = document.getElementById("noDofFileText");
+      if (emptyText) emptyText.remove();
+
+      if (list) {
+        const now = new Date();
+        const formatted =
+          now.toLocaleDateString("tr-TR") + " " +
+          now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+
+        const div = document.createElement("div");
+        div.className = "d-flex justify-content-between align-items-center border rounded p-2 mb-2";
+        div.innerHTML = `
+          <div>
+            📄 <span class="fw-semibold">${escapeHtml(file.name)}</span>
+            <div class="small text-muted">${formatted}</div>
+          </div>
+          <span class="badge bg-success">Yüklendi</span>
+        `;
+        list.prepend(div);
+      }
+
+      showDofOk();
+      if (dofFileInput) dofFileInput.value = "";
+
+      const dofModalEl = document.getElementById("dofFileModal");
+      const dofModal = bootstrap.Modal.getInstance(dofModalEl);
+      dofModal?.hide();
+
+    } catch (e) {
+      console.error(e);
+      showDofErr("İşlem sırasında hata oluştu.");
+    } finally {
+      dofUploadBtn.disabled = false;
+    }
+  });
 
 });
 </script>
 }
+

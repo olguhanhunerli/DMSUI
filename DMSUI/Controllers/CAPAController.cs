@@ -19,13 +19,15 @@ namespace DMSUI.Controllers
         private readonly ICapaActionsManager _capaActionsManager;
         private readonly ICapaActionFilesManager _capaActionFilesManager;
         private readonly IUserManager _userManager;
-        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager, ICapaActionFilesManager capaActionFilesManager, IUserManager userManager)
+        private readonly ICapaEvidenceFilesManager _evidenceFilesManager;
+        public CAPAController(IComplaintManager complaintManager, ICAPAManager capaManager, ICapaActionsManager capaActionsManager, ICapaActionFilesManager capaActionFilesManager, IUserManager userManager, ICapaEvidenceFilesManager evidenceFilesManager)
         {
             _complaintManager = complaintManager;
             _capaManager = capaManager;
             _capaActionsManager = capaActionsManager;
             _capaActionFilesManager = capaActionFilesManager;
             _userManager = userManager;
+            _evidenceFilesManager = evidenceFilesManager;
         }
         
         public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
@@ -118,7 +120,8 @@ namespace DMSUI.Controllers
                 CloseAt = entity.CloseAt,
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt,
-                Actions = entity.Actions ?? new List<CapaActionListDTO>()
+                Actions = entity.Actions ?? new List<CapaActionListDTO>(),
+                Files = entity.Files ?? new List<CapaEvidenceFilesListDTO>()
             };
 
             if (!string.IsNullOrWhiteSpace(model.ComplaintNo))
@@ -150,7 +153,7 @@ namespace DMSUI.Controllers
             var entity = await _capaManager.GetCAPASByCapaNo(capaNo);
             if (entity == null)
                 return NotFound();
-
+    
             var model = new CAPADetailDTO
             {
                 Id = entity.Id,
@@ -175,7 +178,9 @@ namespace DMSUI.Controllers
                 CloseAt = entity.CloseAt,
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt,
-                Actions = entity.Actions ?? new List<CapaActionListDTO>()
+                Actions = entity.Actions ?? new List<CapaActionListDTO>(),
+                Files = entity.Files ?? new List<CapaEvidenceFilesListDTO>(),
+                
             };
 
             if (!string.IsNullOrWhiteSpace(model.ComplaintNo))
@@ -328,5 +333,18 @@ namespace DMSUI.Controllers
                 return RedirectToAction(nameof(Edit), new { capaNo });
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> UploadDofFile(string capaNo, IFormFile File) 
+        {
+            if (string.IsNullOrWhiteSpace(capaNo))
+                return BadRequest("capaNo boş olamaz.");
+
+            if (File == null || File.Length == 0)
+                return BadRequest("Dosya seçmelisin.");
+
+            await _evidenceFilesManager.CreateEvidenceFiles(capaNo, File);
+            return Ok();
+        }
+        
     }
 }
