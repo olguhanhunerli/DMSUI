@@ -275,7 +275,7 @@
 
                 <div class="tab-pane fade" id="tab-pdf">
                     <div class="ratio ratio-16x9 border rounded">
-                        <iframe src="@Url.Action("Pdf", "Document", new { id = Model.Id}) "></iframe>
+                        <iframe src="@Url.Action("Pdf", "Document", new { documentCode = Model.DocumentCode })"></iframe>
                     </div>
                 </div>
 

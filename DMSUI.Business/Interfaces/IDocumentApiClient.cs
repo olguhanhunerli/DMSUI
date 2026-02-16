@@ -18,7 +18,7 @@ namespace DMSUI.Business.Interfaces
         Task<PagedResultDTO<DocumentListDTO>> GetPagedRejectAsync(int page, int pageSize);
        
         Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId);
-        Task<DocumentDetailDTO> GetByIdAsync(int documentId);
+        Task<DocumentDetailDTO> GetByCodeAsync(string documentCode);
 		Task<PdfFileResultDTO?> GetPdfAsync(int documentId);
         Task<DownloadFileResult> DownloadOriginalAsync(int documentId);
         Task<DownloadFileResult> DownloadPdfAsync(int documentId);

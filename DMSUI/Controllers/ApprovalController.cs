@@ -30,10 +30,9 @@ namespace DMSUI.Controllers
             return View(list);
         }
 		[HttpGet]
-		public async Task<IActionResult> Detail(int id)
+		public async Task<IActionResult> Detail(string documentCode)
 		{
-			Console.WriteLine("DETAIL ID = " + id);
-			var document = await _documentManager.GetByIdAsync(id);
+			var document = await _documentManager.GetByCodeAsync(documentCode);
 			if (document == null)
 			{
 				return NotFound();

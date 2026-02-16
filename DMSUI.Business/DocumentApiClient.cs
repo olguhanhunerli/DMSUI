@@ -83,6 +83,7 @@ namespace DMSUI.Business
             form.Add(new StringContent(dto.IsPublic.ToString()), "IsPublic");
             form.Add(new StringContent(dto.VersionNote.ToString()), "VersionNote");
             form.Add(new StringContent(dto.DocumentCode.ToString()), "DocumentCode");
+			form.Add(new StringContent(dto.ExpireDate.ToString()), "ExpireDate");
             if (dto.AllowedDepartmentIds != null && dto.AllowedDepartmentIds.Any())
             {
                 foreach (var depId in dto.AllowedDepartmentIds)
@@ -135,10 +136,10 @@ namespace DMSUI.Business
             );
         }
 
-		public async Task<DocumentDetailDTO> GetByIdAsync(int documentId)
+		public async Task<DocumentDetailDTO> GetByCodeAsync(string documentCode)
 		{
             AttachToken();
-			var response = await _httpClient.GetAsync($"api/Document/{documentId}");
+			var response = await _httpClient.GetAsync($"api/Document/by-code/{documentCode}");
 			if (!response.IsSuccessStatusCode)
 			{
 				return new DocumentDetailDTO();

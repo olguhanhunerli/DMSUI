@@ -215,7 +215,8 @@ namespace DMSUI.Controllers
 				Attachments = AttachmentFiles,
 				AllowedDepartmentIds = vm.AllowedDepartmentIds,
 				AllowedRoleIds = vm.AllowedRoleIds,
-				AllowedUserIds = vm.AllowedUserIds
+				AllowedUserIds = vm.AllowedUserIds,
+				ExpireDate = vm.ExpireDate
 			};
 
 			await _documentManager.CreateAsync(createDto);
@@ -236,9 +237,9 @@ namespace DMSUI.Controllers
 				pdfResult.FileBytes,
 				"application/pdf");
 		}
-		public async Task<IActionResult> Detail(int id)
+		public async Task<IActionResult> Detail(string documentCode)
 		{
-			var document = await _documentManager.GetByIdAsync(id);
+			var document = await _documentManager.GetByCodeAsync(documentCode);
 			if (document == null)
 			{
 				return NotFound();
@@ -290,9 +291,9 @@ namespace DMSUI.Controllers
 			var result = await _documentManager.GetPagedRejectAsync(page, pageSize);
 			return View(result);
 		}
-		public async Task<IActionResult> RejectDetail(int id)
+		public async Task<IActionResult> RejectDetail(string documentCode)
 		{
-			var document = await _documentManager.GetByIdAsync(id);
+			var document = await _documentManager.GetByCodeAsync(documentCode);
 			if (document == null)
 			{
 				return NotFound();

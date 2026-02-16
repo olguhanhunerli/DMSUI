@@ -12,7 +12,7 @@ namespace DMSUI.Controllers
         public int DepartmentId { get; set; }
 
         public string? VersionNote { get; set; }
-
+        public int ExpireDate { get; set; }
         public int RevisionNumber { get; set; }
         public bool IsPublic { get; set; }
 

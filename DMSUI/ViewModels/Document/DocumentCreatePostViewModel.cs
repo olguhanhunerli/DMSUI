@@ -12,7 +12,7 @@
 
 		public string? VersionNote { get; set; }
 		public int RevisionNumber { get; set; }
-
+		public int ExpireDate { get; set; }
 		public List<ApprovalRowViewModel> ApprovalList { get; set; } = new();
         public List<int> AllowedDepartmentIds { get; set; } = new();
         public List<int> AllowedRoleIds { get; set; } = new();

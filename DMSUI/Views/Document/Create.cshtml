@@ -96,7 +96,10 @@
                                     Örn: İlk yayın, revizyon açıklaması, güncellenen alanlar vb.
                                 </small>
                             </div>
-
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold">Geçerlilik Süresi (Gün)</label>
+                                <input asp-for="ExpireDate" class="form-control" />
+                            </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Hazırlayan</label>
                                 <input class="form-control" value="@Model.PreparedByUserName" readonly />

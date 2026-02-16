@@ -21,7 +21,7 @@ namespace DMSUI.ViewModels.Document
 		public string? TitleEn { get; set; }
 		public int RevisionNumber { get; set; } = 0;
 		public int? DepartmentId { get; set; }
-
+		public int ExpireDate { get; set; }
 		public IFormFile? DocumentFile { get; set; }
 
 		public List<SelectListItem> DepartmentList { get; set; } = new();

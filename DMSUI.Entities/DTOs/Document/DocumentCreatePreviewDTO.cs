@@ -13,6 +13,7 @@ namespace DMSUI.Entities.DTOs.Document
 		public string CategoryName { get; set; }
 		public string CategoryBreadcrumb { get; set; }
 		public int VersionNumber { get; set; }
+		public int ExpireDate { get; set; }
 		public string Status { get; set; }
 		public string OwnerName { get; set; }
 		public DateTime CreatedAt { get; set; }

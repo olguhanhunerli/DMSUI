@@ -42,9 +42,9 @@ namespace DMSUI.Services
 			return await _client.DownloadPdfAsync(documentId);
 		}
 
-		public async Task<DocumentDetailDTO> GetByIdAsync(int documentId)
+		public async Task<DocumentDetailDTO> GetByCodeAsync(string documentCode)
 		{
-			return await _client.GetByIdAsync(documentId);
+			return await _client.GetByCodeAsync(documentCode);
 		}
 
 		public async Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId)
