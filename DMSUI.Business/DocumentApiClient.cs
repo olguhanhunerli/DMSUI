@@ -149,10 +149,10 @@ namespace DMSUI.Business
 				new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 		}
 
-		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
+		public async Task<PdfFileResultDTO?> GetPdfAsync(string documentCode)
 		{
             AttachToken();
-            var response = await _httpClient.GetAsync($"api/Document/{documentId}/pdf");
+            var response = await _httpClient.GetAsync($"api/Document/{documentCode}/pdf");
             if(!response.IsSuccessStatusCode)
 			{
 				return null;

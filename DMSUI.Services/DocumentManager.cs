@@ -67,9 +67,9 @@ namespace DMSUI.Services
 			return await _client.GetPagedRejectAsync(page, pageSize);
 		}
 
-		public async Task<PdfFileResultDTO?> GetPdfAsync(int documentId)
+		public async Task<PdfFileResultDTO?> GetPdfAsync(string documentCode)
 		{
-			return await _client.GetPdfAsync(documentId);
+			return await _client.GetPdfAsync(documentCode);
 		}
 
 		public async Task<DocumentRevisionReviewDTO> GetRevisionReviewAsync(int documentId)

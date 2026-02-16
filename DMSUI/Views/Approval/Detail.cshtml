@@ -188,9 +188,23 @@
                 </div>
 
                 <div class="tab-pane fade" id="tab-pdf">
-                    <div class="ratio ratio-16x9 border rounded">
-                        <iframe src="@Url.Action("Pdf", "Document", new { id = Model.Id })"></iframe>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-bold">
+                            Doküman Kodu: @Model.DocumentCode
+                        </div>
+
+                        <a asp-controller="Document"
+                            asp-action="DownloadPdf"
+                            asp-route-id="@Model.Id"
+                            class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-download"></i> İndir
+                        </a>
                     </div>
+
+                    <div id="pdf-wrapper" class="pdf-wrapper">
+                        <div id="pdf-container" class="pdf-container"></div>
+                    </div>
+
                 </div>
 
                 <div class="tab-pane fade" id="tab-attachments">
@@ -320,3 +334,60 @@
         </div>
     </div>
 </div>
+<script type="module">
+
+    import * as pdfjsLib from '/pdfjs/build/pdf.mjs';
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/build/pdf.worker.mjs';
+
+    const documentCode = "@Model.DocumentCode";
+   const url = `/Document/Pdf?documentCode=${documentCode}`;
+
+    let rendered = false;
+
+    function loadPdf() {
+
+        if (rendered) return;
+        rendered = true;
+
+        const container = document.getElementById("pdf-container");
+        container.innerHTML = "Yükleniyor...";
+
+       const loadingTask = pdfjsLib.getDocument(url);
+
+        loadingTask.promise.then(function (pdf) {
+
+            container.innerHTML = "";
+
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+
+                pdf.getPage(pageNumber).then(function (page) {
+
+                    const viewport = page.getViewport({ scale: 1.3 });
+
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
+
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.classList.add("mb-3", "shadow-sm");
+
+                    container.appendChild(canvas);
+
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
+                });
+            }
+        });
+    }
+
+    document.querySelector('[data-bs-target="#tab-pdf"]')
+        .addEventListener('shown.bs.tab', loadPdf);
+
+    window.downloadPdf = function () {
+        window.open(url, "_blank");
+    }
+
+</script>

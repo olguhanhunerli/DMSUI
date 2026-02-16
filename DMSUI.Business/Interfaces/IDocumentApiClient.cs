@@ -19,7 +19,7 @@ namespace DMSUI.Business.Interfaces
        
         Task<DocumentCreatePreviewDTO> GetDocumentCreatePreview(int categoryId);
         Task<DocumentDetailDTO> GetByCodeAsync(string documentCode);
-		Task<PdfFileResultDTO?> GetPdfAsync(int documentId);
+		Task<PdfFileResultDTO?> GetPdfAsync(string documentCode);
         Task<DownloadFileResult> DownloadOriginalAsync(int documentId);
         Task<DownloadFileResult> DownloadPdfAsync(int documentId);
         Task<PagedResultDTO<DocumentListDTO>> GetDocumentsByCategoryAsync(int page, int pageSize, int categoryId);

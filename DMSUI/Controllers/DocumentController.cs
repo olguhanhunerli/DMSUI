@@ -225,9 +225,9 @@ namespace DMSUI.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 		[HttpGet]
-		public async Task<IActionResult> Pdf(int id)
+		public async Task<IActionResult> Pdf(string documentCode)
 		{
-			var pdfResult = await _documentManager.GetPdfAsync(id);
+			var pdfResult = await _documentManager.GetPdfAsync(documentCode);
 			if (pdfResult == null)
 			{
 				return NotFound();
