@@ -36,7 +36,7 @@
                         foreach (var item in Model.Items)
                         {
                             <tr style="cursor:pointer"
-                                onclick="location.href='@Url.Action("RejectDetail","Document",new { id = item.Id })'">
+                                onclick="location.href='@Url.Action("RejectDetail","Document",new { documentCode = item.DocumentCode })'">
 
                                 <td class="fw-semibold text-primary">
                                     @item.DocumentCode
@@ -77,7 +77,7 @@
 
                                 <td class="text-end">
                                     <a class="btn btn-sm btn-outline-primary"
-                                       href="@Url.Action("Detail","Document",new { id = item.Id })">
+                                       href="@Url.Action("Detail","Document",new { documentCode = item.DocumentCode })">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </td>
